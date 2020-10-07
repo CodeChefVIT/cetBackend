@@ -4,36 +4,44 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
 const Club = require("../models/club");
+const Student = require("../models/student");
 
+const checkAuth = require("../middleware/checkAuth");
 const checkAuthClub = require("../middleware/checkAuthClub");
+const checkAuthStudent = require("../middleware/checkAuthStudent");
 
 const router = express.Router();
 
-//Club signup
+//Student signup
 router.post("/signup", async (req, res) => {
-  const { name, email, password, type } = req.body;
+  const { name, email, password, mobileNumber } = req.body;
 
-  if (!name || !email || !password || !type) {
+  if (!name || !email || !password || !mobileNumber) {
     return res.status(400).json({
       message: "1 or more parameter(s) missing from req.body",
     });
   }
 
-  await Club.find({ email })
+  await Student.find({ email })
     .then(async (clubs) => {
-      if (clubs.length < 1) {
-        return res.status(403).json({
-          message: "Email not in database",
+      if (clubs.length >= 1) {
+        return res.status(409).json({
+          message: "Email already registered",
         });
       }
 
       await bcrypt
         .hash(password, 10)
         .then(async (hash) => {
-          await Club.updateOne(
-            { _id: clubs[0]._id },
-            { $set: { name, password: hash, type } }
-          )
+          const student = new Student({
+            _id: new mongoose.Types.ObjectId(),
+            name,
+            email,
+            password: hash,
+            mobileNumber,
+          });
+
+          await Student.save()
             .then(async () => {
               res.status(201).json({
                 message: "Signup successful",
@@ -61,7 +69,7 @@ router.post("/signup", async (req, res) => {
     });
 });
 
-//Club login
+//Student login
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
@@ -71,22 +79,23 @@ router.post("/login", async (req, res) => {
     });
   }
 
-  await Club.find({ email })
-    .then(async (club) => {
-      if (club.length < 1) {
+  await Student.find({ email })
+    .then(async (student) => {
+      if (student.length < 1) {
         return res.status(401).json({
           message: "Auth failed: Email not found",
         });
       }
       await bcrypt
-        .compare(password, club[0].password)
+        .compare(password, student[0].password)
         .then((result) => {
           if (result) {
             const token = jwt.sign(
               {
-                userId: club[0]._id,
-                email: club[0].email,
-                name: club[0].name,
+                userId: student[0]._id,
+                userType: student[0].userType,
+                email: student[0].email,
+                name: student[0].name,
               },
               process.env.JWT_SECRET,
               {
@@ -94,11 +103,10 @@ router.post("/login", async (req, res) => {
               }
             );
             return res.status(200).json({
-              clubDetails: {
-                _id: club[0]._id,
-                userType: club[0].userType,
-                name: club[0].name,
-                email: club[0].email,
+              studentDetails: {
+                _id: student[0]._id,
+                name: student[0].name,
+                email: student[0].email,
               },
               token,
             });
@@ -122,12 +130,15 @@ router.post("/login", async (req, res) => {
     });
 });
 
-//Update club profile
-router.patch("/profile", checkAuthClub, async (req, res, next) => {
-  const { name, type } = req.body;
-  const clubId = req.user.userId;
+//Update student's profile
+router.patch("/profile", checkAuthStudent, async (req, res, next) => {
+  const { name, registrationNumber, bio, branch } = req.body;
+  const studentId = req.user.userId;
 
-  await Club.updateOne({ _id: clubId }, { $set: { name, type } })
+  await Student.updateOne(
+    { _id: studentId },
+    { $set: { name, registrationNumber, bio, branch } }
+  )
     .then(async () => {
       res.status(200).json({
         message: "Updated",
@@ -141,31 +152,15 @@ router.patch("/profile", checkAuthClub, async (req, res, next) => {
     });
 });
 
-//Feature or unfeature a club for recruitments
-router.patch("/feature", checkAuthClub, async (req, res, next) => {
-  const { featured } = req.body;
-  const clubId = req.user.userId;
+//Get a student's profile
+router.get("/profile", checkAuthStudent, async (req, res, next) => {
+  const studentId = req.user.userId;
 
-  await Club.updateOne({ _id: clubId }, { $set: { featured } })
-    .then(async () => {
+  await Student.findById(studentId)
+    .select("-password")
+    .then(async (student) => {
       res.status(200).json({
-        message: "Updated",
-      });
-    })
-    .catch((err) => {
-      res.status(500).json({
-        message: "Something went wrong",
-        error: err.toString(),
-      });
-    });
-});
-
-//Get all featured clubs
-router.get("/allFeatured", async (req, res) => {
-  await Club.find({ featured })
-    .then(async (clubs) => {
-      res.status(200).json({
-        clubs,
+        student,
       });
     })
     .catch((err) => {
