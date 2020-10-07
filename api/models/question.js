@@ -5,6 +5,7 @@ const questionSchema = mongoose.Schema({
   testId: { type: mongoose.Schema.Types.ObjectId, ref: "Test" },
   clubId: { type: mongoose.Schema.Types.ObjectId, ref: "Club" },
 
+  domain: { type: String },
   type: { type: String },
   questionMarks: { type: Number },
 

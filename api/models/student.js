@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const clubSchema = mongoose.Schema({
+const studentSchema = mongoose.Schema({
   _id: mongoose.Schema.Types.ObjectId,
   userType: { type: String, default: "Student" },
 
@@ -20,6 +20,20 @@ const clubSchema = mongoose.Schema({
   mobileVerificationCode: { type: Number },
   mobileVerificationCodeExpires: { type: Number },
   isMobileVerified: { type: Boolean, default: false },
+
+  tests: [
+    {
+      testId: { type: mongoose.Schema.Types.ObjectId, ref: "Test" },
+      clubId: { type: mongoose.Schema.Types.ObjectId, ref: "Club" },
+      responses: [],
+      timeTaken: { type: Number },
+      corrected: { type: Boolean },
+      marks: { type: Number },
+      appliedOn: { type: Number },
+      starteddOn: { type: Number },
+      submittedOn: { type: Number },
+    },
+  ],
 });
 
-module.exports = mongoose.model("Club", clubSchema);
+module.exports = mongoose.model("Student", studentSchema);
