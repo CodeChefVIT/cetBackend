@@ -1,0 +1,43 @@
+{
+  "name": "common-entry-test",
+  "version": "1.0.0",
+  "description": "One stop solution to make club and chapter recruitment in VIT simpler and hassle free.",
+  "main": "app.js",
+  "scripts": {
+    "dev": "nodemon app.js",
+    "start": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RajatSablok/common-entry-test.git"
+  },
+  "keywords": [
+    "common-entry-test",
+    "vit",
+    "codechefvit",
+    "recruitment",
+    "clubs",
+    "chapters",
+    "vellore-institute-of-technology"
+  ],
+  "author": "Rajat Sablok",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/RajatSablok/common-entry-test/issues"
+  },
+  "homepage": "https://github.com/RajatSablok/common-entry-test#readme",
+  "dependencies": {
+    "bcrypt": "^5.0.0",
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "helmet": "^4.1.1",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.10.8",
+    "multer": "^1.4.2"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.4"
+  }
+}
