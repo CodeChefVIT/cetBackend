@@ -30,7 +30,7 @@ const studentSchema = mongoose.Schema({
       corrected: { type: Boolean },
       marks: { type: Number },
       appliedOn: { type: Number },
-      starteddOn: { type: Number },
+      startedOn: { type: Number },
       submittedOn: { type: Number },
     },
   ],
