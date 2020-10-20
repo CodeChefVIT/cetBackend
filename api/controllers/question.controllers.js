@@ -2,20 +2,18 @@ const express = require("express");
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const multer = require("multer");
+
+require("dotenv").config();
 
 const Club = require("../models/club");
 const Student = require("../models/student");
 const Test = require("../models/test");
 const Question = require("../models/question");
 
-const checkAuth = require("../middleware/checkAuth");
-const checkAuthClub = require("../middleware/checkAuthClub");
-const checkAuthStudent = require("../middleware/checkAuthStudent");
-
-const router = express.Router();
-
-//Add a question to a test
-router.post("/add", checkAuthClub, async (req, res, next) => {
+// @desc Add a question to a test
+// @route GET /api/question/add
+const addQuestion = async (req, res, next) => {
   const {
     testId,
     clubId,
@@ -50,10 +48,30 @@ router.post("/add", checkAuthClub, async (req, res, next) => {
         error: err.toString(),
       });
     });
-});
+};
 
-//Get all questions of a test -- to be viewed only by club
-router.get("/all", checkAuthClub, async (req, res, next) => {
+// @desc Add multiple questions to a test
+// @route GET /api/question/addMultiple
+const addMultipleQuestions = async (req, res, next) => {
+  const { questions } = req.body;
+  await Question.insertMany(questions)
+    .then(async (result) => {
+      res.status(200).json({
+        message: "Questions added",
+        result,
+      });
+    })
+    .catch((err) => {
+      res.status(400).json({
+        message: "Some error occurred",
+        error: err.toString(),
+      });
+    });
+};
+
+// @desc Get all questions of a test -- accessible only to club
+// @route GET /api/question/all
+const getAllQuestions = async (req, res, next) => {
   const { testId } = req.body;
 
   await Question.find({ testId })
@@ -68,6 +86,10 @@ router.get("/all", checkAuthClub, async (req, res, next) => {
         error: err.toString(),
       });
     });
-});
+};
 
-module.exports = router;
+module.exports = {
+  addQuestion,
+  addMultipleQuestions,
+  getAllQuestions,
+};

@@ -2,20 +2,18 @@ const express = require("express");
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const multer = require("multer");
+
+require("dotenv").config();
 
 const Club = require("../models/club");
 const Student = require("../models/student");
 const Test = require("../models/test");
 const Question = require("../models/question");
 
-const checkAuth = require("../middleware/checkAuth");
-const checkAuthClub = require("../middleware/checkAuthClub");
-const checkAuthStudent = require("../middleware/checkAuthStudent");
-
-const router = express.Router();
-
-//Create a test
-router.post("/add", checkAuthClub, async (req, res, next) => {
+// @desc Create a test
+// @route GET /api/test/create
+const create = async (req, res, next) => {
   const {
     clubId,
     instructions,
@@ -48,10 +46,11 @@ router.post("/add", checkAuthClub, async (req, res, next) => {
         error: err.toString(),
       });
     });
-});
+};
 
-//Apply for a test
-router.post("/apply", checkAuthStudent, async (req, res, next) => {
+// @desc Apply for a test
+// @route GET /api/test/apply
+const apply = async (req, res, next) => {
   const { testId, clubId } = req.body;
   const studentId = req.user.userId;
   const appliedOn = Date.now();
@@ -80,10 +79,11 @@ router.post("/apply", checkAuthStudent, async (req, res, next) => {
         error: err.toString(),
       });
     });
-});
+};
 
-//Attemt a test
-router.post("/attempt", checkAuthStudent, async (req, res, next) => {
+// @desc Attempt a test
+// @route GET /api/test/Attempt
+const attempt = async (req, res, next) => {
   const { testId } = req.body;
   const studetntId = req.user.userId;
   const now = Date.now();
@@ -188,10 +188,11 @@ router.post("/attempt", checkAuthStudent, async (req, res, next) => {
         error: err.toString(),
       });
     });
-});
+};
 
-//Get all applied tests
-router.get("/allApplied", checkAuthStudent, async (req, res, next) => {
+// @desc Get all applied tests
+// @route GET /api/test/allApplied
+const allApplied = async (req, res, next) => {
   const studentId = req.user.userId;
 
   await Student.findById(studentId)
@@ -212,10 +213,11 @@ router.get("/allApplied", checkAuthStudent, async (req, res, next) => {
         error: err.toString(),
       });
     });
-});
+};
 
-//Get all submitted tests
-router.get("/allSubmitted", checkAuthStudent, async (req, res, next) => {
+// @desc Get all submitted tests
+// @route GET /api/test/allSubmitted
+const allSubmitted = async (req, res, next) => {
   const studentId = req.user.userId;
 
   await Student.findById(studentId)
@@ -236,8 +238,12 @@ router.get("/allSubmitted", checkAuthStudent, async (req, res, next) => {
         error: err.toString(),
       });
     });
-});
+};
 
-router.use("/question", require("./question"));
-
-module.exports = router;
+module.exports = {
+  create,
+  apply,
+  attempt,
+  allApplied,
+  allSubmitted,
+};
