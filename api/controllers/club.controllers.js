@@ -3,8 +3,11 @@ const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const multer = require("multer");
+const sgMail = require("@sendgrid/mail");
 
 require("dotenv").config();
+
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 const Club = require("../models/club");
 
@@ -22,22 +25,68 @@ const signup = async (req, res) => {
   await Club.find({ email })
     .then(async (clubs) => {
       if (clubs.length < 1) {
-        return res.status(403).json({
+        return res.status(401).json({
           message: "Email not in database",
+        });
+      }
+
+      if (clubs[0].accountCreated) {
+        return res.status(409).json({
+          message: "An account with this email has already been created",
         });
       }
 
       await bcrypt
         .hash(password, 10)
         .then(async (hash) => {
-          await Club.updateOne(
+          await Club.findOneAndUpdate(
             { _id: clubs[0]._id },
-            { $set: { name, password: hash, type } }
+            { $set: { name, password: hash, type, accountCreated: true } }
           )
-            .then(async () => {
-              res.status(201).json({
-                message: "Signup successful",
-              });
+            .then(async (club) => {
+              club.emailVerificationCode = Math.floor(
+                100000 + Math.random() * 900000
+              );
+              club.emailVerificationCodeExpires =
+                new Date().getTime() + 20 * 60 * 1000;
+
+              const msg = {
+                to: email,
+                from: {
+                  email: process.env.SENDGRID_EMAIL,
+                  name: "CodeChef-VIT",
+                },
+                subject: `Common Entry Test - Email Verification`,
+                text: `Use the following code to verify your email: ${club.emailVerificationCode}`,
+                // html: EmailTemplates.tracker(
+                //   users[i].name,
+                //   companyArr[k].companyName,
+                //   status
+                // ),
+              };
+              await sgMail
+                .send(msg)
+                .then(async () => {
+                  await club
+                    .save()
+                    .then(async (result) => {
+                      res.status(201).json({
+                        message: "Signup successful",
+                      });
+                    })
+                    .catch((err) => {
+                      res.status(500).json({
+                        message: "Something went wrong",
+                        error: err.toString(),
+                      });
+                    });
+                })
+                .catch((err) => {
+                  res.status(500).json({
+                    message: "Something went wrong",
+                    error: err.toString(),
+                  });
+                });
             })
             .catch((err) => {
               res.status(500).json({
@@ -52,6 +101,53 @@ const signup = async (req, res) => {
             error: err.toString(),
           });
         });
+    })
+    .catch((err) => {
+      res.status(500).json({
+        message: "Something went wrong",
+        error: err.toString(),
+      });
+    });
+};
+
+// @desc Email verfication for clubs
+// @route POST /api/club/email/verify
+const verifyEmail = async (req, res) => {
+  const { email, emailVerificationCode } = req.body;
+  const now = Date.now();
+
+  if (!email || !emailVerificationCode) {
+    return res.status(400).json({
+      message: "1 or more parameter(s) missing from req.body",
+    });
+  }
+
+  await Club.findOne({ email })
+    .then(async (club) => {
+      if (club.emailVerificationCode == emailVerificationCode) {
+        if (club.emailVerificationCodeExpires > now) {
+          await Club.updateOne({ _id: club._id }, { isEmailVerified: true })
+            .then(async () => {
+              res.status(200).json({
+                message: "Email successfully verified",
+              });
+            })
+            .catch((err) => {
+              res.status(500).json({
+                message: "Something went wrong",
+                error: err.toString(),
+              });
+            });
+        } else {
+          return res.status(401).json({
+            message: "Verification code expired",
+          });
+        }
+      } else {
+        return res.status(403).json({
+          message: "Invalid verification code",
+        });
+      }
     })
     .catch((err) => {
       res.status(500).json({
@@ -79,6 +175,13 @@ const login = async (req, res) => {
           message: "Auth failed: Email not found",
         });
       }
+
+      if (!club[0].isEmailVerified) {
+        return res.status(403).json({
+          message: "Email not verified",
+        });
+      }
+
       await bcrypt
         .compare(password, club[0].password)
         .then((result) => {
@@ -182,6 +285,7 @@ const getAllFeaturedClubs = async (req, res) => {
 
 module.exports = {
   signup,
+  verifyEmail,
   login,
   updateProfile,
   feature,

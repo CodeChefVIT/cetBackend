@@ -4,6 +4,7 @@ const clubSchema = mongoose.Schema({
   _id: mongoose.Schema.Types.ObjectId,
   userType: { type: String, default: "Club" },
 
+  accountCreated: { type: Boolean },
   name: { type: String },
   type: { type: String },
   email: { type: String },

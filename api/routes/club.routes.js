@@ -12,6 +12,9 @@ const router = express.Router();
 //Club signup
 router.post("/signup", clubControllers.signup);
 
+//Club email verification
+router.post("/email/verify", clubControllers.verifyEmail);
+
 //Club login
 router.post("/login", clubControllers.login);
 
