@@ -71,6 +71,12 @@ const create = async (req, res, next) => {
 const getTestDetails = async (req, res, next) => {
   const { testId } = req.query;
 
+  if (!testId) {
+    return res.status(400).json({
+      message: "1 or more parameter(s) missing from req.query",
+    });
+  }
+
   await Test.findById(testId)
     .then(async (test) => {
       res.status(200).json({

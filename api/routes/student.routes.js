@@ -14,6 +14,9 @@ const router = express.Router();
 //Student signup
 router.post("/signup", studentControllers.signup);
 
+//Student email verification
+router.post("/email/verify", studentControllers.verifyEmail);
+
 //Student login
 router.post("/login", studentControllers.login);
 

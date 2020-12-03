@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const multer = require("multer");
+const sgMail = require("@sendgrid/mail");
 
 require("dotenv").config();
 
@@ -23,8 +24,8 @@ const signup = async (req, res) => {
   }
 
   await Student.find({ email })
-    .then(async (clubs) => {
-      if (clubs.length >= 1) {
+    .then(async (students) => {
+      if (students.length >= 1) {
         return res.status(409).json({
           message: "Email already registered",
         });
@@ -33,19 +34,54 @@ const signup = async (req, res) => {
       await bcrypt
         .hash(password, 10)
         .then(async (hash) => {
+          const emailVerificationCode = Math.floor(
+            100000 + Math.random() * 900000
+          );
+
+          const emailVerificationCodeExpires =
+            new Date().getTime() + 20 * 60 * 1000;
+
           const student = new Student({
             _id: new mongoose.Types.ObjectId(),
             name,
             email,
             password: hash,
             mobileNumber,
+            emailVerificationCode,
+            emailVerificationCodeExpires,
           });
 
-          await Student.save()
-            .then(async () => {
-              res.status(201).json({
-                message: "Signup successful",
-              });
+          await student
+            .save()
+            .then(async (result) => {
+              const msg = {
+                to: email,
+                from: {
+                  email: process.env.SENDGRID_EMAIL,
+                  name: "CodeChef-VIT",
+                },
+                subject: `Common Entry Test - Email Verification`,
+                text: `Use the following code to verify your email: ${emailVerificationCode}`,
+                // html: EmailTemplates.tracker(
+                //   users[i].name,
+                //   companyArr[k].companyName,
+                //   status
+                // ),
+              };
+
+              await sgMail
+                .send(msg)
+                .then(async () => {
+                  res.status(201).json({
+                    message: "Signup successful",
+                  });
+                })
+                .catch((err) => {
+                  res.status(500).json({
+                    message: "Something went wrong",
+                    error: err.toString(),
+                  });
+                });
             })
             .catch((err) => {
               res.status(500).json({
@@ -60,6 +96,62 @@ const signup = async (req, res) => {
             error: err.toString(),
           });
         });
+    })
+    .catch((err) => {
+      res.status(500).json({
+        message: "Something went wrong",
+        error: err.toString(),
+      });
+    });
+};
+
+// @desc Email verfication for students
+// @route POST /api/student/email/verify
+const verifyEmail = async (req, res) => {
+  const { email, emailVerificationCode } = req.body;
+  const now = Date.now();
+
+  if (!email || !emailVerificationCode) {
+    return res.status(400).json({
+      message: "1 or more parameter(s) missing from req.body",
+    });
+  }
+
+  await Student.findOne({ email })
+    .then(async (student) => {
+      if (student) {
+        if (student.emailVerificationCode == emailVerificationCode) {
+          if (student.emailVerificationCodeExpires > now) {
+            await Student.updateOne(
+              { _id: student._id },
+              { isEmailVerified: true }
+            )
+              .then(async () => {
+                res.status(200).json({
+                  message: "Email successfully verified",
+                });
+              })
+              .catch((err) => {
+                res.status(500).json({
+                  message: "Something went wrong",
+                  error: err.toString(),
+                });
+              });
+          } else {
+            return res.status(401).json({
+              message: "Verification code expired",
+            });
+          }
+        } else {
+          return res.status(403).json({
+            message: "Invalid verification code",
+          });
+        }
+      } else {
+        return res.status(404).json({
+          message: "Invalid email",
+        });
+      }
     })
     .catch((err) => {
       res.status(500).json({
@@ -85,6 +177,12 @@ const login = async (req, res) => {
       if (student.length < 1) {
         return res.status(401).json({
           message: "Auth failed: Email not found",
+        });
+      }
+
+      if (!student[0].isEmailVerified) {
+        return res.status(403).json({
+          message: "Email not verified",
         });
       }
       await bcrypt
@@ -176,6 +274,7 @@ const getProfile = async (req, res, next) => {
 
 module.exports = {
   signup,
+  verifyEmail,
   login,
   updateProfile,
   getProfile,

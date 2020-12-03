@@ -124,28 +124,34 @@ const verifyEmail = async (req, res) => {
 
   await Club.findOne({ email })
     .then(async (club) => {
-      if (club.emailVerificationCode == emailVerificationCode) {
-        if (club.emailVerificationCodeExpires > now) {
-          await Club.updateOne({ _id: club._id }, { isEmailVerified: true })
-            .then(async () => {
-              res.status(200).json({
-                message: "Email successfully verified",
+      if (student) {
+        if (club.emailVerificationCode == emailVerificationCode) {
+          if (club.emailVerificationCodeExpires > now) {
+            await Club.updateOne({ _id: club._id }, { isEmailVerified: true })
+              .then(async () => {
+                res.status(200).json({
+                  message: "Email successfully verified",
+                });
+              })
+              .catch((err) => {
+                res.status(500).json({
+                  message: "Something went wrong",
+                  error: err.toString(),
+                });
               });
-            })
-            .catch((err) => {
-              res.status(500).json({
-                message: "Something went wrong",
-                error: err.toString(),
-              });
+          } else {
+            return res.status(401).json({
+              message: "Verification code expired",
             });
+          }
         } else {
-          return res.status(401).json({
-            message: "Verification code expired",
+          return res.status(403).json({
+            message: "Invalid verification code",
           });
         }
       } else {
-        return res.status(403).json({
-          message: "Invalid verification code",
+        return res.status(404).json({
+          message: "Invalid email",
         });
       }
     })
