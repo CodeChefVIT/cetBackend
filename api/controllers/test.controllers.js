@@ -10,16 +10,16 @@ const Club = require("../models/club");
 const Student = require("../models/student");
 const Test = require("../models/test");
 const Question = require("../models/question");
+const Domain = require("../models/testDomain");
 
 // @desc Create a test
-// @route GET /api/test/create
+// @route POST /api/test/create
 const create = async (req, res, next) => {
   const {
     roundNumber,
     roundType,
     instructions,
     duration,
-    maxMarks,
     scheduledForDate,
     scheduledEndDate,
   } = req.body;
@@ -29,8 +29,7 @@ const create = async (req, res, next) => {
     !roundType ||
     !instructions ||
     !duration ||
-    !maxMarks ||
-    !scheduledForDate ||
+    !!scheduledForDate ||
     !scheduledEndDate
   ) {
     return res.status(400).json({
@@ -47,7 +46,6 @@ const create = async (req, res, next) => {
     roundType,
     instructions,
     duration,
-    maxMarks,
     scheduledForDate,
     scheduledEndDate,
   });
@@ -58,6 +56,25 @@ const create = async (req, res, next) => {
       res.status(201).json({
         message: "Test created",
         testDetails: result,
+      });
+    })
+    .catch((err) => {
+      res.status(500).json({
+        message: "Something went wrong",
+        error: err.toString(),
+      });
+    });
+};
+
+// @desc Get a test by ID
+// @route GET /api/test/details?testId=
+const getTestDetails = async (req, res, next) => {
+  const { testId } = req.query;
+
+  await Test.findById(testId)
+    .then(async (test) => {
+      res.status(200).json({
+        test,
       });
     })
     .catch((err) => {
@@ -79,11 +96,11 @@ const apply = async (req, res, next) => {
     .then(async () => {
       await Student.updateOne(
         { _id: studentId },
-        { $push: { test: { testId, clubId, appliedOn } } }
+        { $push: { test: { testId, clubId, appliedOn, status: "Applied" } } }
       )
         .then(async () => {
           res.status(200).json({
-            message: "Applied",
+            message: "Applied successfully",
           });
         })
         .catch((err) => {
@@ -104,6 +121,95 @@ const apply = async (req, res, next) => {
 // @desc Attempt a test
 // @route GET /api/test/Attempt
 const attempt = async (req, res, next) => {
+  const { testId } = req.body;
+  const studetntId = req.user.userId;
+  const now = Date.now();
+  let flag = 0;
+
+  await Test.findById(testId)
+    .then(async (test) => {
+      //Check if user has already given the test
+      for (i in test.usersStarted) {
+        if (test.usersStarted[i].studentId == studetntId) {
+          flag = 1;
+        }
+      }
+      for (i in test.usersFinished) {
+        if (test.usersFinished[i].studentId == studetntId) {
+          flag = 1;
+        }
+      }
+      if (flag === 1) {
+        return res.status(409).json({
+          message: "You have already given the test",
+        });
+      }
+
+      //Check if test is over
+      if (test.scheduledEndDate >= now) {
+        return res.status(420).json({
+          message: "Test is over",
+        });
+      }
+
+      //Check if test hasn't started
+      if (test.scheduledForDate < now) {
+        return res.status(418).json({
+          message: "Test hasn't started",
+        });
+      }
+
+      await Test.updateOne(
+        { _id: testId },
+        {
+          $pull: { users: { studentId } },
+          $push: { usersStarted: { studentId } },
+        }
+      )
+        .then(async () => {
+          await Student.updateOne(
+            { _id: studentId, "tests.testId": testId },
+            // { $set: { startedOn: now, status: "Started" } }
+            { $set: { "tests.$.status": "Started", startedOn: now } }
+          )
+            .then(async () => {
+              await Domain.find({ testId })
+                .select("-__v")
+                .then(async (domains) => {
+                  res.status(200).json({
+                    domains,
+                  });
+                })
+                .catch((err) => {
+                  res.status(500).json({
+                    message: "Something went wrong",
+                    error: err.toString(),
+                  });
+                });
+            })
+            .catch((err) => {
+              res.status(500).json({
+                message: "Something went wrong",
+                error: err.toString(),
+              });
+            });
+        })
+        .catch((err) => {
+          res.status(500).json({
+            message: "Something went wrong",
+            error: err.toString(),
+          });
+        });
+    })
+    .catch((err) => {
+      res.status(500).json({
+        message: "Something went wrong",
+        error: err.toString(),
+      });
+    });
+};
+
+const attemptFuncOld = async (req, res, next) => {
   const { testId } = req.body;
   const studetntId = req.user.userId;
   const now = Date.now();
@@ -262,6 +368,7 @@ const allSubmitted = async (req, res, next) => {
 
 module.exports = {
   create,
+  getTestDetails,
   apply,
   attempt,
   allApplied,

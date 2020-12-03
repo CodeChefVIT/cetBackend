@@ -14,6 +14,9 @@ const router = express.Router();
 //Create a test
 router.post("/create", checkAuthClub, testControllers.create);
 
+//Get details of a test by testId
+router.get("/details", checkAuth, testControllers.getTestDetails);
+
 //Apply for a test
 router.post("/apply", checkAuthStudent, testControllers.apply);
 
@@ -27,7 +30,5 @@ router.get("/allApplied", checkAuthStudent, testControllers.allApplied);
 router.get("/allSubmitted", checkAuthStudent, testControllers.allSubmitted);
 
 router.use("/domain", require("./testDomain.routes"));
-
-router.use("/question", require("./question.routes"));
 
 module.exports = router;

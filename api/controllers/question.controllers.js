@@ -10,25 +10,27 @@ const Club = require("../models/club");
 const Student = require("../models/student");
 const Test = require("../models/test");
 const Question = require("../models/question");
+const Domain = require("../models/testDomain");
 
 // @desc Add a question to a test
 // @route GET /api/question/add
 const addQuestion = async (req, res, next) => {
   const {
     testId,
-    clubId,
-    domain,
+    domainId,
     type,
     questionMarks,
     description,
     options,
   } = req.body;
 
+  const clubId = req.user.userId;
+
   const question = new Question({
     _id: new mongoose.Types.ObjectId(),
     testId,
     clubId,
-    domain,
+    domainId,
     type,
     questionMarks,
     description,
@@ -53,13 +55,35 @@ const addQuestion = async (req, res, next) => {
 // @desc Add multiple questions to a test
 // @route GET /api/question/addMultiple
 const addMultipleQuestions = async (req, res, next) => {
-  const { questions } = req.body;
+  const { testId, domainId, questions } = req.body;
   await Question.insertMany(questions)
     .then(async (result) => {
-      res.status(200).json({
-        message: "Questions added",
-        result,
-      });
+      await Question.find({ testId, domainId })
+        .then(async (ques) => {
+          let marks = 0;
+          for (question of ques) {
+            marks += question.questionMarks;
+          }
+          await Domain.updateOne({ _id: domainId }, { domainMarks: marks })
+            .then(async () => {
+              res.status(200).json({
+                message: "Questions added",
+                result,
+              });
+            })
+            .catch((err) => {
+              res.status(400).json({
+                message: "Some error occurred",
+                error: err.toString(),
+              });
+            });
+        })
+        .catch((err) => {
+          res.status(400).json({
+            message: "Some error occurred",
+            error: err.toString(),
+          });
+        });
     })
     .catch((err) => {
       res.status(400).json({

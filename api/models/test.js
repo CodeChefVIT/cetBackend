@@ -8,9 +8,10 @@ const testSchhema = mongoose.Schema({
   roundType: { type: String },
   instructions: { type: String },
   duration: { type: Number },
-  maxMarks: { type: Number },
   scheduledForDate: { type: Number },
   scheduledEndDate: { type: Number },
+
+  graded: { type: Boolean },
 
   users: [
     {

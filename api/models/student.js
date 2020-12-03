@@ -25,13 +25,12 @@ const studentSchema = mongoose.Schema({
     {
       testId: { type: mongoose.Schema.Types.ObjectId, ref: "Test" },
       clubId: { type: mongoose.Schema.Types.ObjectId, ref: "Club" },
-      responses: [],
-      timeTaken: { type: Number },
-      corrected: { type: Boolean },
-      marks: { type: Number },
+      status: { type: String },
       appliedOn: { type: Number },
       startedOn: { type: Number },
       submittedOn: { type: Number },
+      timeTaken: { type: Number },
+      corrected: { type: Boolean },
     },
   ],
 });

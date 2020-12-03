@@ -4,8 +4,8 @@ const questionSchema = mongoose.Schema({
   _id: mongoose.Schema.Types.ObjectId,
   testId: { type: mongoose.Schema.Types.ObjectId, ref: "Test" },
   clubId: { type: mongoose.Schema.Types.ObjectId, ref: "Club" },
+  domainId: { type: mongoose.Schema.Types.ObjectId, ref: "Domain" },
 
-  domain: { type: String },
   type: { type: String },
   questionMarks: { type: Number },
 
