@@ -15,7 +15,8 @@ const Question = require("../models/question");
 // @route GET /api/test/create
 const create = async (req, res, next) => {
   const {
-    clubId,
+    roundNumber,
+    roundType,
     instructions,
     duration,
     maxMarks,
@@ -23,9 +24,27 @@ const create = async (req, res, next) => {
     scheduledEndDate,
   } = req.body;
 
+  if (
+    !roundNumber ||
+    !roundType ||
+    !instructions ||
+    !duration ||
+    !maxMarks ||
+    !scheduledForDate ||
+    !scheduledEndDate
+  ) {
+    return res.status(400).json({
+      message: "1 or more parameter(s) missing from req.body",
+    });
+  }
+
+  const clubId = req.user.userId;
+
   const test = new Test({
     _id: new mongoose.Types.ObjectId(),
     clubId,
+    roundNumber,
+    roundType,
     instructions,
     duration,
     maxMarks,
@@ -38,6 +57,7 @@ const create = async (req, res, next) => {
     .then(async (result) => {
       res.status(201).json({
         message: "Test created",
+        testDetails: result,
       });
     })
     .catch((err) => {

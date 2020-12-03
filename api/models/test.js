@@ -4,6 +4,8 @@ const testSchhema = mongoose.Schema({
   _id: mongoose.Schema.Types.ObjectId,
   clubId: { type: mongoose.Schema.Types.ObjectId, ref: "Club" },
 
+  roundNumber: { type: Number },
+  roundType: { type: String },
   instructions: { type: String },
   duration: { type: Number },
   maxMarks: { type: Number },

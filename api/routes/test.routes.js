@@ -26,6 +26,8 @@ router.get("/allApplied", checkAuthStudent, testControllers.allApplied);
 //Get all submitted tests
 router.get("/allSubmitted", checkAuthStudent, testControllers.allSubmitted);
 
+router.use("/domain", require("./testDomain.routes"));
+
 router.use("/question", require("./question.routes"));
 
 module.exports = router;

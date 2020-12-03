@@ -188,6 +188,7 @@ const login = async (req, res) => {
           if (result) {
             const token = jwt.sign(
               {
+                userType: "Club",
                 userId: club[0]._id,
                 email: club[0].email,
                 name: club[0].name,
