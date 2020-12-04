@@ -21,6 +21,9 @@ const studentSchema = mongoose.Schema({
   mobileVerificationCodeExpires: { type: Number },
   isMobileVerified: { type: Boolean, default: false },
 
+  forgotPasswordCode: { type: Number },
+  forgotPasswordCodeExpires: { type: Number },
+
   tests: [
     {
       testId: { type: mongoose.Schema.Types.ObjectId, ref: "Test" },

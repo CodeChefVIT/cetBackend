@@ -23,6 +23,15 @@ router.post("/email/verify", studentControllers.verifyEmail);
 //Student login
 router.post("/login", studentControllers.login);
 
+//Forgot password - Send OTP
+router.post(
+  "/forgotPassword/sendEmail",
+  studentControllers.sendForgotPasswordEmail
+);
+
+//Forgot password - Verify OTP
+router.post("/forgotPassword/verifyOTP", studentControllers.resetPassword);
+
 //Update student's profile
 router.patch("/profile", checkAuthStudent, studentControllers.updateProfile);
 

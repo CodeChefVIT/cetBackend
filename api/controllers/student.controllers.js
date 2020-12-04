@@ -300,6 +300,141 @@ const login = async (req, res) => {
     });
 };
 
+// @desc Forgot password - Send OTP
+// @route POST /api/student/forgotPassword/sendEmail
+const sendForgotPasswordEmail = async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({
+      message: "1 or more parameter(s) missing from req.body",
+    });
+  }
+
+  await Student.findOne({ email })
+    .then(async (student) => {
+      if (!student) {
+        return res.status(404).json({
+          message: "Invalid Email",
+        });
+      }
+
+      student.forgotPasswordCode = Math.floor(100000 + Math.random() * 900000);
+      student.forgotPasswordCodeExpires = new Date().getTime() + 20 * 60 * 1000;
+
+      await student
+        .save()
+        .then(async () => {
+          const msg = {
+            to: email,
+            from: {
+              email: process.env.SENDGRID_EMAIL,
+              name: "CodeChef-VIT",
+            },
+            subject: `Common Entry Test - Forgot Password`,
+            text: `Use the following code to reset your password: ${student.forgotPasswordCode}`,
+            // html: EmailTemplates.tracker(
+            //   users[i].name,
+            //   companyArr[k].companyName,
+            //   status
+            // ),
+          };
+          await sgMail
+            .send(msg)
+            .then(async () => {
+              res.status(200).json({
+                message: "Forgot password code sent",
+              });
+            })
+            .catch((err) => {
+              res.status(500).json({
+                message: "Something went wrong",
+                error: err.toString(),
+              });
+            });
+        })
+        .catch((err) => {
+          res.status(500).json({
+            message: "Something went wrong",
+            error: err.toString(),
+          });
+        });
+    })
+    .catch((err) => {
+      res.status(500).json({
+        message: "Something went wrong",
+        error: err.toString(),
+      });
+    });
+};
+
+// @desc Forgot password - Verify OTP
+// @route POST /api/student/forgotPassword/verifyOTP
+const resetPassword = async (req, res) => {
+  const { email, forgotPasswordCode, newPassword } = req.body;
+
+  if (!email || !forgotPasswordCode || !newPassword) {
+    return res.status(400).json({
+      message: "1 or more parameter(s) missing from req.body",
+    });
+  }
+
+  const now = Date.now();
+
+  await Student.findOne({ email })
+    .then(async (student) => {
+      if (student) {
+        if (student.forgotPasswordCode == forgotPasswordCode) {
+          if (student.forgotPasswordCodeExpires > now) {
+            await bcrypt
+              .hash(newPassword, 10)
+              .then(async (hash) => {
+                await Student.updateOne(
+                  { _id: student._id },
+                  { password: hash }
+                )
+                  .then(async () => {
+                    res.status(200).json({
+                      message: "Password reset successfully",
+                    });
+                  })
+                  .catch((err) => {
+                    res.status(500).json({
+                      message: "Something went wrong",
+                      error: err.toString(),
+                    });
+                  });
+              })
+              .catch((err) => {
+                res.status(500).json({
+                  message: "Something went wrong",
+                  error: err.toString(),
+                });
+              });
+          } else {
+            return res.status(401).json({
+              message: "Verification code expired",
+            });
+          }
+        } else {
+          return res.status(403).json({
+            message: "Invalid verification code",
+          });
+        }
+      } else {
+        return res.status(404).json({
+          message: "Invalid email",
+        });
+      }
+    })
+    .catch((err) => {
+      res.status(500).json({
+        message: "Something went wrong",
+        error: err.toString(),
+      });
+    });
+};
+
 // @desc Update student's profile
 // @route PATCH /api/student/profile
 const updateProfile = async (req, res, next) => {
@@ -348,6 +483,8 @@ module.exports = {
   resendOTP,
   verifyEmail,
   login,
+  sendForgotPasswordEmail,
+  resetPassword,
   updateProfile,
   getProfile,
 };
