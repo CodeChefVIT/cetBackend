@@ -23,6 +23,20 @@ router.post("/attempt", checkAuthStudent, testDomainControllers.attemptDomain);
 //Submit a domain
 router.post("/submit", checkAuthStudent, testDomainControllers.submitDomain);
 
+//Get all submissions of a domain
+router.get(
+  "/allSubmissions",
+  checkAuthClub,
+  testDomainControllers.getAllSubmissionsOfADomain
+);
+
+//Get a student's submission of a domain
+router.get(
+  "/studentSubmission",
+  checkAuthClub,
+  testDomainControllers.getStudentDomainSubmission
+);
+
 router.use("/question", require("./question.routes"));
 
 module.exports = router;

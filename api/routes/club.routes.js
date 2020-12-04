@@ -15,6 +15,9 @@ router.post("/signup", clubControllers.signup);
 //Club email verification
 router.post("/email/verify", clubControllers.verifyEmail);
 
+//Resend email verication OTP
+router.post("/email/resendOTP", clubControllers.resendOTP);
+
 //Club login
 router.post("/login", clubControllers.login);
 

@@ -10,8 +10,9 @@ const Domain = require("../models/testDomain");
 const Test = require("../models/test");
 const Question = require("../models/question");
 const Student = require("../models/student");
-const student = require("../models/student");
 
+// @desc Add a domain to a test
+// @route POST /api/test/domain/add
 const addDomain = async (req, res, next) => {
   const {
     testId,
@@ -55,6 +56,8 @@ const addDomain = async (req, res, next) => {
     });
 };
 
+// @desc Get all domains of a test
+// @route GET /api/test/domain/all
 const getAllDomainsOfATest = async (req, res, next) => {
   const { testId } = req.query;
 
@@ -79,6 +82,8 @@ const getAllDomainsOfATest = async (req, res, next) => {
     });
 };
 
+// @desc Attempt a domain
+// @route POST /api/test/domain/attempt
 const attemptDomain = async (req, res, next) => {
   const { testId, domainId } = req.body;
   const studentId = req.user.userId;
@@ -211,6 +216,8 @@ const attemptDomain = async (req, res, next) => {
     });
 };
 
+// @desc Submit answers for a domain
+// @route POST /api/test/domain/submit
 const submitDomain = async (req, res, next) => {
   const { submissions, domainId, testId, clubId, timeTaken } = req.body;
   const studentId = req.user.userId;
@@ -365,9 +372,109 @@ const submitDomain = async (req, res, next) => {
     });
 };
 
+// @desc Get all submissions of a domain
+// @route GET /api/test/domain/allSubmissions
+const getAllSubmissionsOfADomain = async (req, res, next) => {
+  const { domainId } = req.query;
+
+  if (!domainId) {
+    return res.status(400).json({
+      message: "1 or more parameter(s) missing from req.body",
+    });
+  }
+
+  await Domain.findById(domainId)
+    // .populate(
+    //   "clubId testId",
+    //   "name email type roundNumber roundType instructions scheduledForDate scheduledEndDate graded"
+    // )
+    .populate({
+      path: "clubId testId usersFinished",
+      select:
+        "name email type roundNumber roundType instructions scheduledForDate scheduledEndDate graded",
+      populate: {
+        path: "studentId",
+        select: "name email mobileNumber timeTaken submittedOn",
+      },
+    })
+    .then(async (domain) => {
+      res.status(200).json({
+        clubDetails: domain.clubId,
+        testDetails: domain.testId,
+        domainDetails: {
+          _id: domain._id,
+          domainName: domain.domainName,
+          domainDescription: domain.domainDescription,
+          domainInstructions: domain.domainInstructions,
+          domainDuration: domain.domainDuration,
+          domainMarks: domain.domainMarks,
+        },
+        usersFinished: domain.usersFinished,
+      });
+    })
+    .catch((err) => {
+      res.status(500).json({
+        message: "Something went wrong",
+        error: err.toString(),
+      });
+    });
+};
+
+// @desc Get a student's submission of a domain
+// @route GET /api/test/domain/studentSubmission
+const getStudentDomainSubmission = async (req, res, next) => {
+  const { domainId, studentId } = req.query;
+
+  if (!domainId || !studentId) {
+    return res.status(400).json({
+      message: "1 or more parameter(s) missing from req.body",
+    });
+  }
+
+  let submission = [];
+  await Domain.findOne({ _id: domainId })
+    .populate({
+      path: "clubId testId usersFinished",
+      select:
+        "name email type roundNumber roundType instructions scheduledForDate scheduledEndDate graded",
+      populate: {
+        path: "studentId",
+        select: "name email mobileNumber timeTaken submittedOn",
+      },
+    })
+    .then(async (domain) => {
+      for (i in domain.usersFinished) {
+        if (domain.usersFinished[i].studentId._id.equals(studentId)) {
+          submission = domain.usersFinished[i].responses;
+        }
+      }
+      res.status(200).json({
+        clubDetails: domain.clubId,
+        testDetails: domain.testId,
+        domainDetails: {
+          _id: domain._id,
+          domainName: domain.domainName,
+          domainDescription: domain.domainDescription,
+          domainInstructions: domain.domainInstructions,
+          domainDuration: domain.domainDuration,
+          domainMarks: domain.domainMarks,
+        },
+        submission,
+      });
+    })
+    .catch((err) => {
+      res.status(500).json({
+        message: "Something went wrong",
+        error: err.toString(),
+      });
+    });
+};
+
 module.exports = {
   addDomain,
   getAllDomainsOfATest,
   attemptDomain,
   submitDomain,
+  getAllSubmissionsOfADomain,
+  getStudentDomainSubmission,
 };

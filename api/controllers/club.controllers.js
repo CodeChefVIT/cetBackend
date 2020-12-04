@@ -110,6 +110,74 @@ const signup = async (req, res) => {
     });
 };
 
+// @desc Resend email verification OTP for club
+// @route POST /api/club/email/resendOTP
+const resendOTP = async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({
+      message: "1 or more parameter(s) missing from req.body",
+    });
+  }
+
+  await Club.findOne({ email })
+    .then(async (club) => {
+      if (!club) {
+        return res.status(404).json({
+          message: "Invalid Email",
+        });
+      }
+
+      club.emailVerificationCode = Math.floor(100000 + Math.random() * 900000);
+      club.emailVerificationCodeExpires = new Date().getTime() + 20 * 60 * 1000;
+
+      await club
+        .save()
+        .then(async () => {
+          const msg = {
+            to: email,
+            from: {
+              email: process.env.SENDGRID_EMAIL,
+              name: "CodeChef-VIT",
+            },
+            subject: `Common Entry Test - Email Verification`,
+            text: `Use the following code to verify your email: ${club.emailVerificationCode}`,
+            // html: EmailTemplates.tracker(
+            //   users[i].name,
+            //   companyArr[k].companyName,
+            //   status
+            // ),
+          };
+          await sgMail
+            .send(msg)
+            .then(async () => {
+              res.status(200).json({
+                message: "Email verification OTP Sent",
+              });
+            })
+            .catch((err) => {
+              res.status(500).json({
+                message: "Something went wrong",
+                error: err.toString(),
+              });
+            });
+        })
+        .catch((err) => {
+          res.status(500).json({
+            message: "Something went wrong",
+            error: err.toString(),
+          });
+        });
+    })
+    .catch((err) => {
+      res.status(500).json({
+        message: "Something went wrong",
+        error: err.toString(),
+      });
+    });
+};
+
 // @desc Email verfication for clubs
 // @route POST /api/club/email/verify
 const verifyEmail = async (req, res) => {
@@ -124,7 +192,7 @@ const verifyEmail = async (req, res) => {
 
   await Club.findOne({ email })
     .then(async (club) => {
-      if (student) {
+      if (club) {
         if (club.emailVerificationCode == emailVerificationCode) {
           if (club.emailVerificationCodeExpires > now) {
             await Club.updateOne({ _id: club._id }, { isEmailVerified: true })
@@ -292,6 +360,7 @@ const getAllFeaturedClubs = async (req, res) => {
 
 module.exports = {
   signup,
+  resendOTP,
   verifyEmail,
   login,
   updateProfile,

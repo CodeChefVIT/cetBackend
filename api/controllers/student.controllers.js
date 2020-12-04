@@ -105,6 +105,77 @@ const signup = async (req, res) => {
     });
 };
 
+// @desc Resend email verification OTP for students
+// @route POST /api/student/email/resendOTP
+const resendOTP = async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({
+      message: "1 or more parameter(s) missing from req.body",
+    });
+  }
+
+  await Student.findOne({ email })
+    .then(async (student) => {
+      if (!student) {
+        return res.status(404).json({
+          message: "Invalid Email",
+        });
+      }
+
+      student.emailVerificationCode = Math.floor(
+        100000 + Math.random() * 900000
+      );
+      student.emailVerificationCodeExpires =
+        new Date().getTime() + 20 * 60 * 1000;
+
+      await student
+        .save()
+        .then(async () => {
+          const msg = {
+            to: email,
+            from: {
+              email: process.env.SENDGRID_EMAIL,
+              name: "CodeChef-VIT",
+            },
+            subject: `Common Entry Test - Email Verification`,
+            text: `Use the following code to verify your email: ${student.emailVerificationCode}`,
+            // html: EmailTemplates.tracker(
+            //   users[i].name,
+            //   companyArr[k].companyName,
+            //   status
+            // ),
+          };
+          await sgMail
+            .send(msg)
+            .then(async () => {
+              res.status(200).json({
+                message: "Email verification OTP Sent",
+              });
+            })
+            .catch((err) => {
+              res.status(500).json({
+                message: "Something went wrong",
+                error: err.toString(),
+              });
+            });
+        })
+        .catch((err) => {
+          res.status(500).json({
+            message: "Something went wrong",
+            error: err.toString(),
+          });
+        });
+    })
+    .catch((err) => {
+      res.status(500).json({
+        message: "Something went wrong",
+        error: err.toString(),
+      });
+    });
+};
+
 // @desc Email verfication for students
 // @route POST /api/student/email/verify
 const verifyEmail = async (req, res) => {
@@ -274,6 +345,7 @@ const getProfile = async (req, res, next) => {
 
 module.exports = {
   signup,
+  resendOTP,
   verifyEmail,
   login,
   updateProfile,
