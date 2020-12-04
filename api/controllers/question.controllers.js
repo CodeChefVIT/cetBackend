@@ -56,6 +56,13 @@ const addQuestion = async (req, res, next) => {
 // @route GET /api/question/addMultiple
 const addMultipleQuestions = async (req, res, next) => {
   const { testId, domainId, questions } = req.body;
+
+  if (!testId || !domainId) {
+    return res.status(400).json({
+      message: "1 or more parameter(s) missing from req.query",
+    });
+  }
+
   await Question.insertMany(questions)
     .then(async (result) => {
       await Question.find({ testId, domainId })
@@ -72,28 +79,28 @@ const addMultipleQuestions = async (req, res, next) => {
               });
             })
             .catch((err) => {
-              res.status(400).json({
+              res.status(500).json({
                 message: "Some error occurred",
                 error: err.toString(),
               });
             });
         })
         .catch((err) => {
-          res.status(400).json({
+          res.status(500).json({
             message: "Some error occurred",
             error: err.toString(),
           });
         });
     })
     .catch((err) => {
-      res.status(400).json({
+      res.status(500).json({
         message: "Some error occurred",
         error: err.toString(),
       });
     });
 };
 
-// @desc Get all questions of a test -- accessible only to club
+// @desc Get all questions of a domain of a test -- accessible only to club
 // @route GET /api/question/all
 const getAllQuestions = async (req, res, next) => {
   const { testId, domainId } = req.query;
@@ -132,7 +139,12 @@ const getAllQuestions = async (req, res, next) => {
           });
         });
     })
-    .catch();
+    .catch((err) => {
+      res.status(500).json({
+        message: "Something went wrong",
+        error: err.toString(),
+      });
+    });
 };
 
 module.exports = {

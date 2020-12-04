@@ -95,6 +95,13 @@ const apply = async (req, res, next) => {
   const studentId = req.user.userId;
   const appliedOn = Date.now();
   let flag = 0;
+
+  if (!testId || !clubId) {
+    return res.status(400).json({
+      message: "1 or more parameter(s) missing from req.body",
+    });
+  }
+
   await Test.findById(testId)
     .then(async (test) => {
       //Check if a user has already applied for the test
@@ -127,7 +134,12 @@ const apply = async (req, res, next) => {
         });
       }
     })
-    .catch();
+    .catch((err) => {
+      res.status(500).json({
+        message: "Something went wrong",
+        error: err.toString(),
+      });
+    });
 
   await Test.updateOne({ _id: testId }, { $push: { users: { studentId } } })
     .then(async () => {

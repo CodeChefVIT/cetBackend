@@ -215,6 +215,12 @@ const submitDomain = async (req, res, next) => {
   const { submissions, domainId, testId, clubId, timeTaken } = req.body;
   const studentId = req.user.userId;
 
+  if (!submissions || !domainId || !timeTaken) {
+    return res.status(400).json({
+      message: "1 or more parameter(s) missing from req.body",
+    });
+  }
+
   let studentAnswers = [];
   let answerObj = {};
   var score = 0;
