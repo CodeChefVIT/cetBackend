@@ -156,13 +156,19 @@ const apply = async (req, res, next) => {
 };
 
 // @desc Attempt a test
-// @route GET /api/test/Attempt
+// @route GET /api/test/attempt
 const attempt = async (req, res, next) => {
   const { testId } = req.body;
   const studentId = req.user.userId;
   const now = Date.now();
   let flag = 0;
   let appliedFlag = 0;
+
+  if (!testId) {
+    return res.status(400).json({
+      message: "1 or more parameter(s) missing from req.body",
+    });
+  }
 
   await Test.findById(testId)
     .populate("clubId", "name email type")
@@ -275,97 +281,37 @@ const attempt = async (req, res, next) => {
     });
 };
 
-const attemptFuncOld = async (req, res, next) => {
+// @desc Submit a test
+// @route POST /api/test/submit
+const submit = async (req, res, next) => {
   const { testId } = req.body;
-  const studetntId = req.user.userId;
+  const studentId = req.user.userId;
   const now = Date.now();
-  let flag = 0;
-  let questionsArr = [];
 
-  await Test.findById(testId)
-    .then(async (test) => {
-      //Check if user has already given the test
-      for (i in test.usersStarted) {
-        if (test.usersStarted[i].studentId == studetntId) {
-          flag = 1;
-        }
-      }
-      for (i in test.usersFinished) {
-        if (test.usersFinished[i].studentId == studetntId) {
-          flag = 1;
-        }
-      }
-      if (flag === 1) {
-        return res.status(409).json({
-          message: "You have already given the quiz",
-        });
-      }
+  if (!testId) {
+    return res.status(400).json({
+      message: "1 or more parameter(s) missing from req.body",
+    });
+  }
 
-      //Check if quiz is over
-      if (test.scheduledEndDate >= now) {
-        return res.status(420).json({
-          message: "Quiz is over",
-        });
-      }
-
-      //Check if quiz hasn't started
-      if (test.scheduledForDate < now) {
-        return res.status(418).json({
-          message: "Quiz hasn't started",
-        });
-      }
-
-      await Test.updateOne(
-        { _id: testId },
+  await Test.updateOne(
+    { _id: testId },
+    {
+      $pull: { usersStarted: { studentId } },
+      $push: { usersFinished: { studentId, submittedOn: now } },
+    }
+  )
+    .then(async () => {
+      await Student.updateOne(
+        { _id: studentId, "tests.testId": testId },
         {
-          $pull: { users: { studentId } },
-          $push: { usersStarted: { studentId } },
+          $set: { "tests.$.status": "Submitted", "tests.$.submittedOn": now },
         }
       )
         .then(async () => {
-          await Student.updateOne(
-            { _id: studentId },
-            { $set: { startedOn: now } }
-          )
-            .then(async () => {
-              await Question.find({ testId })
-                .then(async (questions) => {
-                  for (let question of questions) {
-                    let obj = {};
-                    obj.questionId = question._id;
-                    obj.questionType = question.type;
-                    obj.questionMarks = question.questionMarks;
-                    obj.description = question.description;
-                    if (question.options.length >= 1) {
-                      obj.options = [];
-
-                      for (let option of question.options) {
-                        let optionObj = {};
-                        optionObj.optionId = option._id;
-                        optionObj.text = option.option.text;
-                        obj.options.push(optionObj);
-                      }
-                    }
-
-                    questionsArr.push(obj);
-                  }
-                  res.status(200).json({
-                    questionsArr,
-                  });
-                })
-                .catch((err) => {
-                  res.status(500).json({
-                    message: "Something went wrong",
-                    error: err.toString(),
-                  });
-                });
-            })
-            .catch((err) => {
-              res.status(500).json({
-                message: "Something went wrong",
-                error: err.toString(),
-              });
-            });
+          res.status(200).json({
+            message: "Submitted test successfully",
+          });
         })
         .catch((err) => {
           res.status(500).json({
@@ -437,6 +383,7 @@ module.exports = {
   getTestDetails,
   apply,
   attempt,
+  submit,
   allApplied,
   allSubmitted,
 };

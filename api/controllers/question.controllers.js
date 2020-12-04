@@ -96,20 +96,43 @@ const addMultipleQuestions = async (req, res, next) => {
 // @desc Get all questions of a test -- accessible only to club
 // @route GET /api/question/all
 const getAllQuestions = async (req, res, next) => {
-  const { testId } = req.body;
+  const { testId, domainId } = req.query;
 
-  await Question.find({ testId })
-    .then(async (questions) => {
-      res.status(200).json({
-        questions,
-      });
-    })
-    .catch((err) => {
-      res.status(500).json({
-        message: "Something went wrong",
-        error: err.toString(),
-      });
+  if (!testId) {
+    return res.status(400).json({
+      message: "1 or more parameter(s) missing from req.query",
     });
+  }
+  await Domain.findById(domainId)
+    .populate(
+      "clubId testId",
+      "name email type roundNumber roundType instructions scheduledForDate scheduledEndDate graded"
+    )
+    .then(async (domain) => {
+      await Question.find({ testId, domainId })
+        .then(async (questions) => {
+          res.status(200).json({
+            clubDetails: domain.clubId,
+            testDetails: domain.testId,
+            domainDetails: {
+              _id: domain._id,
+              domainName: domain.domainName,
+              domainDescription: domain.domainDescription,
+              domainInstructions: domain.domainInstructions,
+              domainDuration: domain.domainDuration,
+              domainMarks: domain.domainMarks,
+            },
+            questions,
+          });
+        })
+        .catch((err) => {
+          res.status(500).json({
+            message: "Something went wrong",
+            error: err.toString(),
+          });
+        });
+    })
+    .catch();
 };
 
 module.exports = {

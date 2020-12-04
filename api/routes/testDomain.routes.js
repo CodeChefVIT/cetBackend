@@ -17,6 +17,12 @@ router.post("/add", checkAuthClub, testDomainControllers.addDomain);
 //Get all domains of a test
 router.get("/all", checkAuth, testDomainControllers.getAllDomainsOfATest);
 
+//Attempt a domain
+router.post("/attempt", checkAuthStudent, testDomainControllers.attemptDomain);
+
+//Submit a domain
+router.post("/submit", checkAuthStudent, testDomainControllers.submitDomain);
+
 router.use("/question", require("./question.routes"));
 
 module.exports = router;

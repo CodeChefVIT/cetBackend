@@ -8,6 +8,7 @@ const checkAuthClub = require("../middleware/checkAuthClub");
 const checkAuthStudent = require("../middleware/checkAuthStudent");
 
 const testControllers = require("../controllers/test.controllers");
+const { submit } = require("../controllers/test.controllers");
 
 const router = express.Router();
 
@@ -22,6 +23,9 @@ router.post("/apply", checkAuthStudent, testControllers.apply);
 
 //Attemt a test
 router.post("/attempt", checkAuthStudent, testControllers.attempt);
+
+//Submit test
+router.post("/submit", checkAuthStudent, testControllers.submit);
 
 //Get all applied tests
 router.get("/allApplied", checkAuthStudent, testControllers.allApplied);

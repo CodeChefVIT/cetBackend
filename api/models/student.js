@@ -25,6 +25,14 @@ const studentSchema = mongoose.Schema({
     {
       testId: { type: mongoose.Schema.Types.ObjectId, ref: "Test" },
       clubId: { type: mongoose.Schema.Types.ObjectId, ref: "Club" },
+      // domains: [
+      //   {
+      //     domainId: { type: mongoose.Schema.Types.ObjectId, ref: "Domain" },
+      //     domainStartedOn: { type: Number },
+      //     domainSubmittedOn: { type: Number },
+      //     domainTimeTaken: { type: Number },
+      //   },
+      // ],
       status: { type: String },
       appliedOn: { type: Number },
       startedOn: { type: Number },
