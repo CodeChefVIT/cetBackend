@@ -8,7 +8,7 @@ const testDomainSchema = mongoose.Schema({
   domainName: { type: String },
   domainDescription: { type: String },
   domainInstructions: { type: String },
-
+  domainDuration: { type: Number },
   domainMarks: { type: Number },
 
   usersStarted: [

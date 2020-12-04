@@ -18,9 +18,10 @@ const addDomain = async (req, res, next) => {
     domainName,
     domainDescription,
     domainInstructions,
+    domainDuration,
   } = req.body;
 
-  if (!testId || !domainName) {
+  if (!testId || !domainName || !domainDuration) {
     return res.status(400).json({
       message: "1 or more parameter(s) missing from req.body",
     });
@@ -35,6 +36,7 @@ const addDomain = async (req, res, next) => {
     domainName,
     domainDescription,
     domainInstructions,
+    domainDuration,
   });
 
   await domain

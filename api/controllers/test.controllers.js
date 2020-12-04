@@ -19,7 +19,6 @@ const create = async (req, res, next) => {
     roundNumber,
     roundType,
     instructions,
-    duration,
     scheduledForDate,
     scheduledEndDate,
   } = req.body;
@@ -28,7 +27,6 @@ const create = async (req, res, next) => {
     !roundNumber ||
     !roundType ||
     !instructions ||
-    !duration ||
     !!scheduledForDate ||
     !scheduledEndDate
   ) {
@@ -45,7 +43,6 @@ const create = async (req, res, next) => {
     roundNumber,
     roundType,
     instructions,
-    duration,
     scheduledForDate,
     scheduledEndDate,
   });
@@ -97,12 +94,46 @@ const apply = async (req, res, next) => {
   const { testId, clubId } = req.body;
   const studentId = req.user.userId;
   const appliedOn = Date.now();
+  let flag = 0;
+  await Test.findById(testId)
+    .then(async (test) => {
+      //Check if a user has already applied for the test
+      for (i in test.users) {
+        if (test.users[i].studentId == studentId) {
+          flag = 1;
+        }
+      }
+
+      if (flag === 1) {
+        return res.status(420).json({
+          message: "You have already applied for the test",
+        });
+      }
+
+      //Check if a user has already given a test
+      for (i in test.usersStarted) {
+        if (test.usersStarted[i].studentId == studentId) {
+          flag = 2;
+        }
+      }
+      for (i in test.usersFinished) {
+        if (test.usersFinished[i].studentId == studentId) {
+          flag = 2;
+        }
+      }
+      if (flag === 2) {
+        return res.status(409).json({
+          message: "You have already given the test",
+        });
+      }
+    })
+    .catch();
 
   await Test.updateOne({ _id: testId }, { $push: { users: { studentId } } })
     .then(async () => {
       await Student.updateOne(
         { _id: studentId },
-        { $push: { test: { testId, clubId, appliedOn, status: "Applied" } } }
+        { $push: { tests: { testId, clubId, appliedOn, status: "Applied" } } }
       )
         .then(async () => {
           res.status(200).json({
@@ -128,20 +159,22 @@ const apply = async (req, res, next) => {
 // @route GET /api/test/Attempt
 const attempt = async (req, res, next) => {
   const { testId } = req.body;
-  const studetntId = req.user.userId;
+  const studentId = req.user.userId;
   const now = Date.now();
   let flag = 0;
+  let appliedFlag = 0;
 
   await Test.findById(testId)
+    .populate("clubId", "name email type")
     .then(async (test) => {
       //Check if user has already given the test
       for (i in test.usersStarted) {
-        if (test.usersStarted[i].studentId == studetntId) {
+        if (test.usersStarted[i].studentId == studentId) {
           flag = 1;
         }
       }
       for (i in test.usersFinished) {
-        if (test.usersFinished[i].studentId == studetntId) {
+        if (test.usersFinished[i].studentId == studentId) {
           flag = 1;
         }
       }
@@ -151,17 +184,31 @@ const attempt = async (req, res, next) => {
         });
       }
 
-      //Check if test is over
-      if (test.scheduledEndDate >= now) {
-        return res.status(420).json({
-          message: "Test is over",
+      //Check if a user didn't apply for a test
+      for (i in test.users) {
+        if (test.users[i].studentId == studentId) {
+          appliedFlag = 1;
+          break;
+        }
+      }
+
+      if (appliedFlag === 0) {
+        return res.status(430).json({
+          message: "You have not applied for the test",
         });
       }
 
       //Check if test hasn't started
-      if (test.scheduledForDate < now) {
+      if (test.scheduledForDate > now) {
         return res.status(418).json({
-          message: "Test hasn't started",
+          message: "Test hasn't started yet",
+        });
+      }
+
+      //Check if test is over
+      if (test.scheduledEndDate <= now) {
+        return res.status(420).json({
+          message: "Test is over",
         });
       }
 
@@ -176,13 +223,26 @@ const attempt = async (req, res, next) => {
           await Student.updateOne(
             { _id: studentId, "tests.testId": testId },
             // { $set: { startedOn: now, status: "Started" } }
-            { $set: { "tests.$.status": "Started", startedOn: now } }
+            {
+              $set: { "tests.$.status": "Started", "tests.$.startedOn": now },
+              // $set: { startedOn: now },
+            }
           )
             .then(async () => {
               await Domain.find({ testId })
                 .select("-__v")
                 .then(async (domains) => {
                   res.status(200).json({
+                    clubDetails: test.clubId,
+                    testDetails: {
+                      _id: test._id,
+                      roundNumber: test.roundNumber,
+                      roundType: test.roundType,
+                      instructions: test.instructions,
+                      scheduledForDate: test.scheduledForDate,
+                      scheduledEndDate: test.scheduledEndDate,
+                      graded: test.graded,
+                    },
                     domains,
                   });
                 })
