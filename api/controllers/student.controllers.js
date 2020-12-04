@@ -464,7 +464,31 @@ const getProfile = async (req, res, next) => {
   const studentId = req.user.userId;
 
   await Student.findById(studentId)
-    .select("-password")
+    .select("name email mobileNumber registrationNumber bio branch")
+    .then(async (student) => {
+      res.status(200).json({
+        student,
+      });
+    })
+    .catch((err) => {
+      res.status(500).json({
+        message: "Something went wrong",
+        error: err.toString(),
+      });
+    });
+};
+
+const getStudentDetails = async (req, res, next) => {
+  const { studentId } = req.query;
+
+  if (!studentId) {
+    return res.status(400).json({
+      message: "1 or more parameter(s) missing from req.query",
+    });
+  }
+
+  await Student.findById(studentId)
+    .select("name email mobileNumber registrationNumber bio branch")
     .then(async (student) => {
       res.status(200).json({
         student,
@@ -487,4 +511,5 @@ module.exports = {
   resetPassword,
   updateProfile,
   getProfile,
+  getStudentDetails,
 };

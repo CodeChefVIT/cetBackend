@@ -24,6 +24,12 @@ router.post("/login", clubControllers.login);
 //Update club's profile
 router.patch("/profile", checkAuthClub, clubControllers.updateProfile);
 
+//Get club's profile -- Only for club admin
+router.get("/profile", checkAuthClub, clubControllers.getSelfProfile);
+
+//Get club's details
+router.get("/details", clubControllers.getClubDetails);
+
 //Feature or unfeature a club for recruitments
 router.patch("/feature", checkAuthClub, clubControllers.feature);
 

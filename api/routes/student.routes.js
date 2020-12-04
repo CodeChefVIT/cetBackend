@@ -38,4 +38,7 @@ router.patch("/profile", checkAuthStudent, studentControllers.updateProfile);
 //Get a student's profile
 router.get("/profile", checkAuthStudent, studentControllers.getProfile);
 
+//Get a student's details
+router.get("/details", studentControllers.getStudentDetails);
+
 module.exports = router;

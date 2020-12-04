@@ -304,13 +304,59 @@ const login = async (req, res) => {
 // @desc Update club's profile
 // @route PATCH /api/club/profile
 const updateProfile = async (req, res, next) => {
-  const { name, type } = req.body;
+  const { name, type, bio, website } = req.body;
   const clubId = req.user.userId;
 
-  await Club.updateOne({ _id: clubId }, { $set: { name, type } })
+  await Club.updateOne({ _id: clubId }, { $set: { name, type, bio, website } })
     .then(async () => {
       res.status(200).json({
         message: "Updated",
+      });
+    })
+    .catch((err) => {
+      res.status(500).json({
+        message: "Something went wrong",
+        error: err.toString(),
+      });
+    });
+};
+
+// @desc Get club's profile -- Only for club admin
+// @route GET /api/club/profile
+const getSelfProfile = async (req, res, next) => {
+  const clubId = req.user.userId;
+
+  await Club.findById(clubId)
+    .select("name email type bio website featured")
+    .then(async (club) => {
+      res.status(200).json({
+        club,
+      });
+    })
+    .catch((err) => {
+      res.status(500).json({
+        message: "Something went wrong",
+        error: err.toString(),
+      });
+    });
+};
+
+// @desc Get club's details
+// @route GET /api/club/details
+const getClubDetails = async (req, res, next) => {
+  const { clubId } = req.query;
+
+  if (!clubId) {
+    return res.status(400).json({
+      message: "1 or more parameter(s) missing from req.body",
+    });
+  }
+
+  await Club.findById(clubId)
+    .select("name email type bio website featured")
+    .then(async (club) => {
+      res.status(200).json({
+        club,
       });
     })
     .catch((err) => {
@@ -364,6 +410,8 @@ module.exports = {
   verifyEmail,
   login,
   updateProfile,
+  getSelfProfile,
+  getClubDetails,
   feature,
   getAllFeaturedClubs,
 };

@@ -10,6 +10,8 @@ const clubSchema = mongoose.Schema({
   email: { type: String },
   mobileNumber: { type: Number },
   password: { type: String },
+  bio: { type: String },
+  website: { type: String },
 
   emailVerificationCode: { type: Number },
   emailVerificationCodeExpires: { type: Number },
@@ -19,7 +21,7 @@ const clubSchema = mongoose.Schema({
   mobileVerificationCodeExpires: { type: Number },
   isMobileVerified: { type: Boolean, default: false },
 
-  featured: { type: Boolean },
+  featured: { type: Boolean, default: false },
 });
 
 module.exports = mongoose.model("Club", clubSchema);
