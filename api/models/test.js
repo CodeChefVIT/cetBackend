@@ -10,8 +10,10 @@ const testSchhema = mongoose.Schema({
   duration: { type: Number },
   scheduledForDate: { type: Number },
   scheduledEndDate: { type: Number },
-
   graded: { type: Boolean },
+
+  finalized: { type: Boolean, default: false },
+  published: { type: Boolean, default: false },
 
   users: [
     {
@@ -37,6 +39,12 @@ const testSchhema = mongoose.Schema({
       timeTaken: { type: Number },
       corrected: { type: Boolean },
       submittedOn: { type: Number },
+    },
+  ],
+
+  shortlised: [
+    {
+      studentId: { type: mongoose.Schema.Types.ObjectId, ref: "Student" },
     },
   ],
 });

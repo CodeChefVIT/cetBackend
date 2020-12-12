@@ -10,6 +10,7 @@ const Domain = require("../models/testDomain");
 const Test = require("../models/test");
 const Question = require("../models/question");
 const Student = require("../models/student");
+const { find } = require("../models/testDomain");
 
 // @desc Add a domain to a test
 // @route POST /api/test/domain/add
@@ -72,6 +73,31 @@ const getAllDomainsOfATest = async (req, res, next) => {
     .then(async (domains) => {
       res.status(200).json({
         domains,
+      });
+    })
+    .catch((err) => {
+      res.status(500).json({
+        message: "Something went wrong",
+        error: err.toString(),
+      });
+    });
+};
+
+// @desc Finalize a domain
+// @route PATCH /api/test/domain/finalize
+const finalizeDomain = async (req, res, next) => {
+  const { domainId } = req.body;
+
+  if (!domainId) {
+    return res.status(400).json({
+      message: "1 or more parameter(s) missing from req.query",
+    });
+  }
+
+  await Domain.updateOne({ _id: domainId }, { published: true })
+    .then(async () => {
+      res.status(200).json({
+        message: "Domain published successfully",
       });
     })
     .catch((err) => {
@@ -473,6 +499,7 @@ const getStudentDomainSubmission = async (req, res, next) => {
 module.exports = {
   addDomain,
   getAllDomainsOfATest,
+  finalizeDomain,
   attemptDomain,
   submitDomain,
   getAllSubmissionsOfADomain,

@@ -10,6 +10,10 @@ const questionSchema = mongoose.Schema({
   questionMarks: { type: Number },
 
   description: { type: String },
+  media: {
+    type: { type: String, enum: ["image", "video", "audio"] },
+    url: { type: String },
+  },
   options: [
     {
       option: {

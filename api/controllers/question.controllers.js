@@ -63,6 +63,8 @@ const addMultipleQuestions = async (req, res, next) => {
     });
   }
 
+  //find domain => make domainMarks+=marks
+
   await Question.insertMany(questions)
     .then(async (result) => {
       await Question.find({ testId, domainId })

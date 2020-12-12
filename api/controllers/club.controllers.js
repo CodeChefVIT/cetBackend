@@ -390,7 +390,8 @@ const feature = async (req, res, next) => {
 // @desc Get all featured clubs
 // @route GET /api/club/allFeatured
 const getAllFeaturedClubs = async (req, res) => {
-  await Club.find({ featured })
+  await Club.find({ featured: true })
+    .select("name email type featured website")
     .then(async (clubs) => {
       res.status(200).json({
         clubs,
@@ -403,6 +404,8 @@ const getAllFeaturedClubs = async (req, res) => {
       });
     });
 };
+
+const funcName = () => {};
 
 module.exports = {
   signup,
