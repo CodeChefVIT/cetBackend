@@ -53,6 +53,11 @@ app.use(cors());
 app.use("/api/club", require("./api/routes/club.routes"));
 app.use("/api/student", require("./api/routes/student.routes"));
 app.use("/api/test", require("./api/routes/test.routes"));
+app.get('/checkServer', (req, res)=>{
+  return res.status(200).json({
+    message: 'Server is up and running'
+  })
+})
 
 //This function will give a 404 response if an undefined API endpoint is fired
 app.use((req, res, next) => {
@@ -76,3 +81,5 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Listening on port ${PORT}`);
 });
+
+module.exports = app

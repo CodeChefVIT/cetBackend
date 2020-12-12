@@ -7,10 +7,10 @@ const sgMail = require("@sendgrid/mail");
 
 require("dotenv").config();
 
-const Club = require("../models/club");
-const Student = require("../models/student");
-const Test = require("../models/test");
-const Question = require("../models/question");
+const Club = require("../models/club.model");
+const Student = require("../models/student.model");
+const Test = require("../models/test.model");
+const Question = require("../models/question.model");
 
 // @desc Student signup
 // @route POST /api/student/signup

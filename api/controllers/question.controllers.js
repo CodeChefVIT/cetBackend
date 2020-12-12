@@ -6,11 +6,11 @@ const multer = require("multer");
 
 require("dotenv").config();
 
-const Club = require("../models/club");
-const Student = require("../models/student");
-const Test = require("../models/test");
-const Question = require("../models/question");
-const Domain = require("../models/testDomain");
+const Club = require("../models/club.model");
+const Student = require("../models/student.model");
+const Test = require("../models/test.model");
+const Question = require("../models/question.model");
+const Domain = require("../models/testDomain.model");
 
 // @desc Add a question to a test
 // @route GET /api/question/add

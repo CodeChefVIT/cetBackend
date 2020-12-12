@@ -9,6 +9,7 @@ const clubSchema = mongoose.Schema({
   type: { type: String },
   email: { type: String },
   mobileNumber: { type: Number },
+  clubClode: { type: String, default: Math.random().toString(36).substring(5) },
   password: { type: String },
   bio: { type: String },
   website: { type: String },
