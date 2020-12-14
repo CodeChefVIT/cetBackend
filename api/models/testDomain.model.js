@@ -30,6 +30,18 @@ const testDomainSchema = mongoose.Schema({
       submittedOn: { type: Number },
     },
   ],
+  shortlisedInDomain: [
+    {
+      studentId: { type: mongoose.Schema.Types.ObjectId, ref: "Student" },
+      remarks: { type: String },
+    },
+  ],
+  selectedInDomain: [
+    {
+      studentId: { type: mongoose.Schema.Types.ObjectId, ref: "Student" },
+      remarks: { type: String },
+    },
+  ],
 });
 
 module.exports = mongoose.model("Domain", testDomainSchema);

@@ -41,12 +41,6 @@ const testSchhema = mongoose.Schema({
       submittedOn: { type: Number },
     },
   ],
-
-  shortlised: [
-    {
-      studentId: { type: mongoose.Schema.Types.ObjectId, ref: "Student" },
-    },
-  ],
 });
 
 module.exports = mongoose.model("Test", testSchhema);
