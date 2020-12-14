@@ -9,7 +9,7 @@ const clubSchema = mongoose.Schema({
   type: { type: String },
   email: { type: String },
   mobileNumber: { type: Number },
-  clubCode: { type: String },
+  inviteCode: { type: String },
   password: { type: String },
   bio: { type: String },
   website: { type: String },

@@ -34,11 +34,11 @@ const create = async (req, res) => {
         })
       }
       else{
-        const clubCode = crypto.randomBytes(20).toString('hex').substring(0, 8);
+        const inviteCode = crypto.randomBytes(20).toString('hex').substring(0, 8);
         const club = new Club({
           _id: new mongoose.Types.ObjectId,
           email,
-          clubCode,
+          inviteCode,
         })
         await club.save()
           .then((result) => {
@@ -95,7 +95,7 @@ const signup = async (req, res) => {
         });
       }
 
-      if (clubs[0].clubCode !== req.body.clubCode) {
+      if (clubs[0].inviteCode !== req.body.inviteCode) {
         return res.status(459).json({
           message: "Please enter a valid email or Club Code",
         });
