@@ -36,5 +36,21 @@ router.get("/allSubmitted", checkAuthStudent, testControllers.allSubmitted);
 //Add users to a test
 router.post("/addStudents", checkAuthClub, testControllers.addStudents);
 
+//Publish a test
+router.patch("/publish", checkAuthClub, testControllers.publish);
+
+//Get all tests of a club -- admin only
+router.get(
+  "/allTestsOfAClub",
+  checkAuthClub,
+  testControllers.getAllTestOfAClub
+);
+
+//Get all published tests of a club
+router.get(
+  "/allPublishedTestsOfAClub",
+  testControllers.getAllPublishedTestsOfAClub
+);
+
 router.use("/domain", require("./testDomain.routes"));
 module.exports = router;

@@ -499,9 +499,14 @@ const getStudentDomainSubmission = async (req, res, next) => {
 // @desc Shortlist students in a domain
 // @route GET /api/test/domain/shortlist
 const shortlistStudents = async (req, res, next) => {
-  const { domainId, studentsArr } = req.body;
+  const { domainId, studentsArray } = req.body;
 
-  await Domain.findOneAndUpdate({ _id: domainId }, {});
+  await Domain.updateOne(
+    { _id: domainId },
+    { $addToSet: { shortlisedInDomain: { $each: studentsArray } } }
+  )
+    .then()
+    .catch();
 };
 
 module.exports = {

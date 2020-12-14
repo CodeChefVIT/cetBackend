@@ -32,12 +32,14 @@ const testDomainSchema = mongoose.Schema({
   ],
   shortlisedInDomain: [
     {
+      _id: false,
       studentId: { type: mongoose.Schema.Types.ObjectId, ref: "Student" },
       remarks: { type: String },
     },
   ],
   selectedInDomain: [
     {
+      _id: false,
       studentId: { type: mongoose.Schema.Types.ObjectId, ref: "Student" },
       remarks: { type: String },
     },

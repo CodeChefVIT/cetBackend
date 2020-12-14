@@ -27,7 +27,7 @@ const create = async (req, res, next) => {
     !roundNumber ||
     !roundType ||
     !instructions ||
-    !!scheduledForDate ||
+    !scheduledForDate ||
     !scheduledEndDate
   ) {
     return res.status(400).json({
@@ -66,9 +66,7 @@ const create = async (req, res, next) => {
 // @desc Get a test by ID
 // @route GET /api/test/details?testId=
 const getTestDetails = async (req, res, next) => {
-  const {
-    testId
-  } = req.query;
+  const { testId } = req.query;
 
   if (!testId) {
     return res.status(400).json({
@@ -93,10 +91,7 @@ const getTestDetails = async (req, res, next) => {
 // @desc Apply for a test
 // @route GET /api/test/apply
 const apply = async (req, res, next) => {
-  const {
-    testId,
-    clubId
-  } = req.body;
+  const { testId, clubId } = req.body;
   const studentId = req.user.userId;
   const appliedOn = Date.now();
   let flag = 0;
@@ -146,28 +141,34 @@ const apply = async (req, res, next) => {
       });
     });
 
-  await Test.updateOne({
-      _id: testId
-    }, {
+  await Test.updateOne(
+    {
+      _id: testId,
+    },
+    {
       $push: {
         users: {
-          studentId
-        }
-      }
-    })
+          studentId,
+        },
+      },
+    }
+  )
     .then(async () => {
-      await Student.updateOne({
-          _id: studentId
-        }, {
+      await Student.updateOne(
+        {
+          _id: studentId,
+        },
+        {
           $push: {
             tests: {
               testId,
               clubId,
               appliedOn,
-              status: "Applied"
-            }
-          }
-        })
+              status: "Applied",
+            },
+          },
+        }
+      )
         .then(async () => {
           res.status(200).json({
             message: "Applied successfully",
@@ -191,9 +192,7 @@ const apply = async (req, res, next) => {
 // @desc Attempt a test
 // @route GET /api/test/attempt
 const attempt = async (req, res, next) => {
-  const {
-    testId
-  } = req.body;
+  const { testId } = req.body;
   const studentId = req.user.userId;
   const now = Date.now();
   let flag = 0;
@@ -253,38 +252,42 @@ const attempt = async (req, res, next) => {
         });
       }
 
-      await Test.updateOne({
-          _id: testId
-        }, {
+      await Test.updateOne(
+        {
+          _id: testId,
+        },
+        {
           $pull: {
             users: {
-              studentId
-            }
+              studentId,
+            },
           },
           $push: {
             usersStarted: {
-              studentId
-            }
+              studentId,
+            },
           },
-        })
+        }
+      )
         .then(async () => {
-          await Student.updateOne({
-                _id: studentId,
-                "tests.testId": testId
+          await Student.updateOne(
+            {
+              _id: studentId,
+              "tests.testId": testId,
+            },
+            // { $set: { startedOn: now, status: "Started" } }
+            {
+              $set: {
+                "tests.$.status": "Started",
+                "tests.$.startedOn": now,
               },
-              // { $set: { startedOn: now, status: "Started" } }
-              {
-                $set: {
-                  "tests.$.status": "Started",
-                  "tests.$.startedOn": now
-                },
-                // $set: { startedOn: now },
-              }
-            )
+              // $set: { startedOn: now },
+            }
+          )
             .then(async () => {
               await Domain.find({
-                  testId
-                })
+                testId,
+              })
                 .select("-__v")
                 .then(async (domains) => {
                   res.status(200).json({
@@ -333,9 +336,7 @@ const attempt = async (req, res, next) => {
 // @desc Submit a test
 // @route POST /api/test/submit
 const submit = async (req, res, next) => {
-  const {
-    testId
-  } = req.body;
+  const { testId } = req.body;
   const studentId = req.user.userId;
   const now = Date.now();
 
@@ -345,31 +346,37 @@ const submit = async (req, res, next) => {
     });
   }
 
-  await Test.updateOne({
-      _id: testId
-    }, {
+  await Test.updateOne(
+    {
+      _id: testId,
+    },
+    {
       $pull: {
         usersStarted: {
-          studentId
-        }
+          studentId,
+        },
       },
       $push: {
         usersFinished: {
           studentId,
-          submittedOn: now
-        }
+          submittedOn: now,
+        },
       },
-    })
+    }
+  )
     .then(async () => {
-      await Student.updateOne({
+      await Student.updateOne(
+        {
           _id: studentId,
-          "tests.testId": testId
-        }, {
+          "tests.testId": testId,
+        },
+        {
           $set: {
             "tests.$.status": "Submitted",
-            "tests.$.submittedOn": now
+            "tests.$.submittedOn": now,
           },
-        })
+        }
+      )
         .then(async () => {
           res.status(200).json({
             message: "Submitted test successfully",
@@ -392,6 +399,7 @@ const submit = async (req, res, next) => {
 
 // @desc Get all applied tests
 // @route GET /api/test/allApplied
+// Not tested
 const allApplied = async (req, res, next) => {
   const studentId = req.user.userId;
 
@@ -417,6 +425,7 @@ const allApplied = async (req, res, next) => {
 
 // @desc Get all submitted tests
 // @route GET /api/test/allSubmitted
+// Not tested
 const allSubmitted = async (req, res, next) => {
   const studentId = req.user.userId;
 
@@ -443,45 +452,122 @@ const allSubmitted = async (req, res, next) => {
 // @desc Add students to a test and its subsequent domains
 // @route POST /api/test/addStudents
 const addStudents = async (req, res, next) => {
-  const {
-    studentsArray,
-    testId
-  } = req.body;
+  const { studentsArray, testId, clubId } = req.body;
+
+  if (!studentsArray || !testId || !clubId) {
+    return res.status(400).json({
+      message: "1 or more parameter(s) missing from req.body",
+    });
+  }
+
   let studentsIdArray = [];
+  const appliedOn = Date.now();
+
   for (let studentEmail of studentsArray) {
-    const student = await Student.findOne({
-      email: studentEmail
-    })
+    let student = await Student.findOneAndUpdate(
+      {
+        email: studentEmail,
+      },
+      {
+        $push: {
+          tests: {
+            testId,
+            clubId,
+            appliedOn,
+            status: "Applied",
+          },
+        },
+      }
+    );
     if (student) {
-      object = {
+      let object = {
         studentId: student.id,
         marks: 0,
         corrected: false,
         responses: [],
-      }
-      studentsIdArray = [...studentsIdArray, object]
+      };
+      studentsIdArray = [...studentsIdArray, object];
     }
   }
-  await Test.findOneAndUpdate({
-    _id: testId,
-  }, {
-    $addToSet: {
-      users: {
-        $each: studentsIdArray
-      }
-    }
-  }).then((result) => {
-    return res.status(201).json({
-      message: "Student array added",
-      allUsers: result.users
+  await Test.findOneAndUpdate(
+    { _id: testId },
+    { $addToSet: { users: studentsIdArray } }
+  )
+    .then((result) => {
+      return res.status(200).json({
+        message: "Student array added",
+      });
     })
-  }).catch((err) => {
-    return res.status(500).json({
-      message: "Something went wrong",
-      error: err.toString(),
+    .catch((err) => {
+      return res.status(500).json({
+        message: "Something went wrong",
+        error: err.toString(),
+      });
+    });
+};
+
+const publish = async (req, res, next) => {
+  const { testId } = req.body;
+
+  if (!testId) {
+    return res.status(400).json({
+      message: "1 or more parameter(s) missing from req.query",
+    });
+  }
+  await Test.updateOne({ _id: testId }, { published: true })
+    .then(async () => {
+      res.status(200).json({
+        message: "Published succesfully",
+      });
     })
-  })
-}
+    .catch((err) => {
+      return res.status(500).json({
+        message: "Something went wrong",
+        error: err.toString(),
+      });
+    });
+};
+
+const getAllTestOfAClub = async (req, res, next) => {
+  // const { clubId } = req.query;
+  const clubId = req.user.userId;
+
+  await Test.find({ clubId })
+    .then(async (tests) => {
+      res.status(200).json({
+        tests,
+      });
+    })
+    .catch((err) => {
+      return res.status(500).json({
+        message: "Something went wrong",
+        error: err.toString(),
+      });
+    });
+};
+
+const getAllPublishedTestsOfAClub = async (req, res, next) => {
+  const { clubId } = req.query;
+
+  if (!clubId) {
+    return res.status(400).json({
+      message: "1 or more parameter(s) missing from req.query",
+    });
+  }
+
+  await Test.find({ clubId, published: true })
+    .then(async (tests) => {
+      res.status(200).json({
+        tests,
+      });
+    })
+    .catch((err) => {
+      return res.status(500).json({
+        message: "Something went wrong",
+        error: err.toString(),
+      });
+    });
+};
 
 module.exports = {
   create,
@@ -492,4 +578,7 @@ module.exports = {
   allApplied,
   allSubmitted,
   addStudents,
+  publish,
+  getAllTestOfAClub,
+  getAllPublishedTestsOfAClub,
 };

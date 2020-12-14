@@ -15,73 +15,71 @@ const Club = require("../models/club.model");
 // @desc Create Clubs for DEVS
 // @route POST /api/club/create
 const create = async (req, res) => {
-  const {
-    email
-  } = req.body
+  const { email } = req.body;
   if (!email) {
     return res.status(400).json({
       message: "1 or more parameter(s) missing from req.body",
-    })
+    });
   }
   await Club.find({
-      email
-    })
+    email,
+  })
     .then(async (clubs) => {
       if (clubs.length >= 1) {
         return res.status(402).json({
           message: "Email already exists",
-          club: clubs[0]
-        })
-      }
-      else{
-        const inviteCode = crypto.randomBytes(20).toString('hex').substring(0, 8);
+          club: clubs[0],
+        });
+      } else {
+        const inviteCode = crypto
+          .randomBytes(20)
+          .toString("hex")
+          .substring(0, 8)
+          .toUpperCase();
         const club = new Club({
-          _id: new mongoose.Types.ObjectId,
+          _id: new mongoose.Types.ObjectId(),
           email,
           inviteCode,
-        })
-        await club.save()
+        });
+        await club
+          .save()
           .then((result) => {
-            console.log(result)
+            console.log(result);
             return res.status(201).json({
-              message: 'Club successfully created',
-              result
-            })
+              message: "Club successfully created",
+              result,
+            });
           })
           .catch((err) => {
             res.status(500).json({
               message: "Something went wrong",
               error: err.toString(),
             });
-          })
+          });
       }
-    }).catch((err) => {
+    })
+    .catch((err) => {
       res.status(500).json({
         message: "Something went wrong",
         error: err.toString(),
       });
-    })
-}
+    });
+};
 
 // @desc Signup for clubs
 // @route POST /api/club/signup
 const signup = async (req, res) => {
-  const {
-    name,
-    email,
-    password,
-    type
-  } = req.body;
+  const { name, email, password, type, inviteCode } = req.body;
 
-  if (!name || !email || !password || !type) {
+  if (!name || !email || !password || !type || !inviteCode) {
     return res.status(400).json({
       message: "1 or more parameter(s) missing from req.body",
     });
   }
 
   await Club.find({
-      email
-    })
+    email,
+  })
     .then(async (clubs) => {
       if (clubs.length < 1) {
         return res.status(401).json({
@@ -95,25 +93,28 @@ const signup = async (req, res) => {
         });
       }
 
-      if (clubs[0].inviteCode !== req.body.inviteCode) {
+      if (clubs[0].inviteCode !== inviteCode) {
         return res.status(459).json({
-          message: "Please enter a valid email or Club Code",
+          message: "Please enter a valid email or invite Code",
         });
       }
 
       await bcrypt
         .hash(password, 10)
         .then(async (hash) => {
-          await Club.findOneAndUpdate({
-              _id: clubs[0]._id
-            }, {
+          await Club.findOneAndUpdate(
+            {
+              _id: clubs[0]._id,
+            },
+            {
               $set: {
                 name,
                 password: hash,
                 type,
-                accountCreated: true
-              }
-            })
+                accountCreated: true,
+              },
+            }
+          )
             .then(async (club) => {
               club.emailVerificationCode = Math.floor(
                 100000 + Math.random() * 900000
@@ -184,9 +185,7 @@ const signup = async (req, res) => {
 // @desc Resend email verification OTP for club
 // @route POST /api/club/email/resendOTP
 const resendOTP = async (req, res) => {
-  const {
-    email
-  } = req.body;
+  const { email } = req.body;
 
   if (!email) {
     return res.status(400).json({
@@ -195,8 +194,8 @@ const resendOTP = async (req, res) => {
   }
 
   await Club.findOne({
-      email
-    })
+    email,
+  })
     .then(async (club) => {
       if (!club) {
         return res.status(404).json({
@@ -256,10 +255,7 @@ const resendOTP = async (req, res) => {
 // @desc Email verfication for clubs
 // @route POST /api/club/email/verify
 const verifyEmail = async (req, res) => {
-  const {
-    email,
-    emailVerificationCode
-  } = req.body;
+  const { email, emailVerificationCode } = req.body;
   const now = Date.now();
 
   if (!email || !emailVerificationCode) {
@@ -269,17 +265,20 @@ const verifyEmail = async (req, res) => {
   }
 
   await Club.findOne({
-      email
-    })
+    email,
+  })
     .then(async (club) => {
       if (club) {
         if (club.emailVerificationCode == emailVerificationCode) {
           if (club.emailVerificationCodeExpires > now) {
-            await Club.updateOne({
-                _id: club._id
-              }, {
-                isEmailVerified: true
-              })
+            await Club.updateOne(
+              {
+                _id: club._id,
+              },
+              {
+                isEmailVerified: true,
+              }
+            )
               .then(async () => {
                 res.status(200).json({
                   message: "Email successfully verified",
@@ -318,10 +317,7 @@ const verifyEmail = async (req, res) => {
 // @desc Login for clubs
 // @route POST /api/club/login
 const login = async (req, res) => {
-  const {
-    email,
-    password
-  } = req.body;
+  const { email, password } = req.body;
 
   if (!email || !password) {
     return res.status(400).json({
@@ -330,8 +326,8 @@ const login = async (req, res) => {
   }
 
   await Club.find({
-      email
-    })
+    email,
+  })
     .then(async (club) => {
       if (club.length < 1) {
         return res.status(401).json({
@@ -349,13 +345,15 @@ const login = async (req, res) => {
         .compare(password, club[0].password)
         .then((result) => {
           if (result) {
-            const token = jwt.sign({
+            const token = jwt.sign(
+              {
                 userType: "Club",
                 userId: club[0]._id,
                 email: club[0].email,
                 name: club[0].name,
               },
-              process.env.JWT_SECRET, {
+              process.env.JWT_SECRET,
+              {
                 expiresIn: "30d",
               }
             );
@@ -391,24 +389,22 @@ const login = async (req, res) => {
 // @desc Update club's profile
 // @route PATCH /api/club/profile
 const updateProfile = async (req, res, next) => {
-  const {
-    name,
-    type,
-    bio,
-    website
-  } = req.body;
+  const { name, type, bio, website } = req.body;
   const clubId = req.user.userId;
 
-  await Club.updateOne({
-      _id: clubId
-    }, {
+  await Club.updateOne(
+    {
+      _id: clubId,
+    },
+    {
       $set: {
         name,
         type,
         bio,
-        website
-      }
-    })
+        website,
+      },
+    }
+  )
     .then(async () => {
       res.status(200).json({
         message: "Updated",
@@ -445,9 +441,7 @@ const getSelfProfile = async (req, res, next) => {
 // @desc Get club's details
 // @route GET /api/club/details
 const getClubDetails = async (req, res, next) => {
-  const {
-    clubId
-  } = req.query;
+  const { clubId } = req.query;
 
   if (!clubId) {
     return res.status(400).json({
@@ -473,18 +467,19 @@ const getClubDetails = async (req, res, next) => {
 // @desc Feature or unfeature a club for recruitments
 // @route PATCH /api/club/feature
 const feature = async (req, res, next) => {
-  const {
-    featured
-  } = req.body;
+  const { featured } = req.body;
   const clubId = req.user.userId;
 
-  await Club.updateOne({
-      _id: clubId
-    }, {
+  await Club.updateOne(
+    {
+      _id: clubId,
+    },
+    {
       $set: {
-        featured
-      }
-    })
+        featured,
+      },
+    }
+  )
     .then(async () => {
       res.status(200).json({
         message: "Updated",
@@ -502,8 +497,8 @@ const feature = async (req, res, next) => {
 // @route GET /api/club/allFeatured
 const getAllFeaturedClubs = async (req, res) => {
   await Club.find({
-      featured: true
-    })
+    featured: true,
+  })
     .select("name email type featured website")
     .then(async (clubs) => {
       res.status(200).json({

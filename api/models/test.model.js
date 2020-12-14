@@ -17,6 +17,7 @@ const testSchhema = mongoose.Schema({
 
   users: [
     {
+      _id: false,
       studentId: { type: mongoose.Schema.Types.ObjectId, ref: "Student" },
       marks: { type: Number, default: 0 },
       corrected: { type: Boolean, default: false },
