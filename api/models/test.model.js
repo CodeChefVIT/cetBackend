@@ -19,7 +19,7 @@ const testSchhema = mongoose.Schema({
     {
       studentId: { type: mongoose.Schema.Types.ObjectId, ref: "Student" },
       marks: { type: Number, default: 0 },
-      corrected: { type: Boolean },
+      corrected: { type: Boolean, default: false },
       responses: [],
     },
   ],

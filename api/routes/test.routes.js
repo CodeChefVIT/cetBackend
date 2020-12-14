@@ -33,6 +33,8 @@ router.get("/allApplied", checkAuthStudent, testControllers.allApplied);
 //Get all submitted tests
 router.get("/allSubmitted", checkAuthStudent, testControllers.allSubmitted);
 
-router.use("/domain", require("./testDomain.routes"));
+//Add users to a test
+router.post("/addStudents", checkAuthClub, testControllers.addStudents);
 
+router.use("/domain", require("./testDomain.routes"));
 module.exports = router;

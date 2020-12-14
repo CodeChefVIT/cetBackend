@@ -66,7 +66,9 @@ const create = async (req, res, next) => {
 // @desc Get a test by ID
 // @route GET /api/test/details?testId=
 const getTestDetails = async (req, res, next) => {
-  const { testId } = req.query;
+  const {
+    testId
+  } = req.query;
 
   if (!testId) {
     return res.status(400).json({
@@ -91,7 +93,10 @@ const getTestDetails = async (req, res, next) => {
 // @desc Apply for a test
 // @route GET /api/test/apply
 const apply = async (req, res, next) => {
-  const { testId, clubId } = req.body;
+  const {
+    testId,
+    clubId
+  } = req.body;
   const studentId = req.user.userId;
   const appliedOn = Date.now();
   let flag = 0;
@@ -141,12 +146,28 @@ const apply = async (req, res, next) => {
       });
     });
 
-  await Test.updateOne({ _id: testId }, { $push: { users: { studentId } } })
+  await Test.updateOne({
+      _id: testId
+    }, {
+      $push: {
+        users: {
+          studentId
+        }
+      }
+    })
     .then(async () => {
-      await Student.updateOne(
-        { _id: studentId },
-        { $push: { tests: { testId, clubId, appliedOn, status: "Applied" } } }
-      )
+      await Student.updateOne({
+          _id: studentId
+        }, {
+          $push: {
+            tests: {
+              testId,
+              clubId,
+              appliedOn,
+              status: "Applied"
+            }
+          }
+        })
         .then(async () => {
           res.status(200).json({
             message: "Applied successfully",
@@ -170,7 +191,9 @@ const apply = async (req, res, next) => {
 // @desc Attempt a test
 // @route GET /api/test/attempt
 const attempt = async (req, res, next) => {
-  const { testId } = req.body;
+  const {
+    testId
+  } = req.body;
   const studentId = req.user.userId;
   const now = Date.now();
   let flag = 0;
@@ -230,24 +253,38 @@ const attempt = async (req, res, next) => {
         });
       }
 
-      await Test.updateOne(
-        { _id: testId },
-        {
-          $pull: { users: { studentId } },
-          $push: { usersStarted: { studentId } },
-        }
-      )
-        .then(async () => {
-          await Student.updateOne(
-            { _id: studentId, "tests.testId": testId },
-            // { $set: { startedOn: now, status: "Started" } }
-            {
-              $set: { "tests.$.status": "Started", "tests.$.startedOn": now },
-              // $set: { startedOn: now },
+      await Test.updateOne({
+          _id: testId
+        }, {
+          $pull: {
+            users: {
+              studentId
             }
-          )
+          },
+          $push: {
+            usersStarted: {
+              studentId
+            }
+          },
+        })
+        .then(async () => {
+          await Student.updateOne({
+                _id: studentId,
+                "tests.testId": testId
+              },
+              // { $set: { startedOn: now, status: "Started" } }
+              {
+                $set: {
+                  "tests.$.status": "Started",
+                  "tests.$.startedOn": now
+                },
+                // $set: { startedOn: now },
+              }
+            )
             .then(async () => {
-              await Domain.find({ testId })
+              await Domain.find({
+                  testId
+                })
                 .select("-__v")
                 .then(async (domains) => {
                   res.status(200).json({
@@ -296,7 +333,9 @@ const attempt = async (req, res, next) => {
 // @desc Submit a test
 // @route POST /api/test/submit
 const submit = async (req, res, next) => {
-  const { testId } = req.body;
+  const {
+    testId
+  } = req.body;
   const studentId = req.user.userId;
   const now = Date.now();
 
@@ -306,20 +345,31 @@ const submit = async (req, res, next) => {
     });
   }
 
-  await Test.updateOne(
-    { _id: testId },
-    {
-      $pull: { usersStarted: { studentId } },
-      $push: { usersFinished: { studentId, submittedOn: now } },
-    }
-  )
-    .then(async () => {
-      await Student.updateOne(
-        { _id: studentId, "tests.testId": testId },
-        {
-          $set: { "tests.$.status": "Submitted", "tests.$.submittedOn": now },
+  await Test.updateOne({
+      _id: testId
+    }, {
+      $pull: {
+        usersStarted: {
+          studentId
         }
-      )
+      },
+      $push: {
+        usersFinished: {
+          studentId,
+          submittedOn: now
+        }
+      },
+    })
+    .then(async () => {
+      await Student.updateOne({
+          _id: studentId,
+          "tests.testId": testId
+        }, {
+          $set: {
+            "tests.$.status": "Submitted",
+            "tests.$.submittedOn": now
+          },
+        })
         .then(async () => {
           res.status(200).json({
             message: "Submitted test successfully",
@@ -390,6 +440,49 @@ const allSubmitted = async (req, res, next) => {
     });
 };
 
+// @desc Add students to a test and its subsequent domains
+// @route POST /api/test/addStudents
+const addStudents = async (req, res, next) => {
+  const {
+    studentsArray,
+    testId
+  } = req.body;
+  let studentsIdArray = [];
+  for (let studentEmail of studentsArray) {
+    const student = await Student.findOne({
+      email: studentEmail
+    })
+    if (student) {
+      object = {
+        studentId: student.id,
+        marks: 0,
+        corrected: false,
+        responses: [],
+      }
+      studentsIdArray = [...studentsIdArray, object]
+    }
+  }
+  await Test.findOneAndUpdate({
+    _id: testId,
+  }, {
+    $addToSet: {
+      users: {
+        $each: studentsIdArray
+      }
+    }
+  }).then((result) => {
+    return res.status(201).json({
+      message: "Student array added",
+      allUsers: result.users
+    })
+  }).catch((err) => {
+    return res.status(500).json({
+      message: "Something went wrong",
+      error: err.toString(),
+    })
+  })
+}
+
 module.exports = {
   create,
   getTestDetails,
@@ -398,4 +491,5 @@ module.exports = {
   submit,
   allApplied,
   allSubmitted,
+  addStudents,
 };
