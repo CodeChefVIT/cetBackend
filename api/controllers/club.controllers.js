@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const multer = require("multer");
 const sgMail = require("@sendgrid/mail");
+const crypto = require("crypto");
 
 require("dotenv").config();
 
@@ -22,18 +23,39 @@ const create = async (req, res) => {
       message: "1 or more parameter(s) missing from req.body",
     })
   }
-
-  const club = new Club({
-    email
-  })
-  await club.save()
-    .then((result) => {
-      return res.status(201).json({
-        message: 'Club successfully created',
-        result
-      })
+  await Club.find({
+      email
     })
-    .catch((err) => {
+    .then(async (clubs) => {
+      if (clubs.length >= 1) {
+        return res.status(402).json({
+          message: "Email already exists",
+          club: clubs[0]
+        })
+      }
+      else{
+        const clubCode = crypto.randomBytes(20).toString('hex').substring(0, 8);
+        const club = new Club({
+          _id: new mongoose.Types.ObjectId,
+          email,
+          clubCode,
+        })
+        await club.save()
+          .then((result) => {
+            console.log(result)
+            return res.status(201).json({
+              message: 'Club successfully created',
+              result
+            })
+          })
+          .catch((err) => {
+            res.status(500).json({
+              message: "Something went wrong",
+              error: err.toString(),
+            });
+          })
+      }
+    }).catch((err) => {
       res.status(500).json({
         message: "Something went wrong",
         error: err.toString(),
