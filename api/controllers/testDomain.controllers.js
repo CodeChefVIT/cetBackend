@@ -83,6 +83,47 @@ const getAllDomainsOfATest = async (req, res, next) => {
     });
 };
 
+// @desc Get details of a domain
+// @route GET /api/test/domain/details
+const getDetailsOfDomain = async (req, res, next) => {
+  const { domainId } = req.query;
+
+  if (!domainId) {
+    return res.status(400).json({
+      message: "1 or more parameter(s) missing from req.query",
+    });
+  }
+
+  await Domain.findById(domainId)
+    .populate(
+      "clubId testId",
+      "-usersFinished -usersStarted -users -emailVerificationCode -emailVerificationCodeExpires -password "
+    )
+    .select(
+      "-usersStarted -usersFinished -shortlisedInDomain -selectedInDomain"
+    )
+    .then(async (domain) => {
+      res.status(200).json({
+        clubDetails: domain.clubId,
+        testDetails: domain.testId,
+        domainDetails: {
+          _id: domain._id,
+          domainName: domain.domainName,
+          domainDescription: domain.domainDescription,
+          domainInstructions: domain.domainInstructions,
+          domainDuration: domain.domainDuration,
+          domainMarks: domain.domainMarks,
+        },
+      });
+    })
+    .catch((err) => {
+      res.status(500).json({
+        message: "Something went wrong",
+        error: err.toString(),
+      });
+    });
+};
+
 // @desc Finalize a domain
 // @route PATCH /api/test/domain/finalize
 const finalizeDomain = async (req, res, next) => {
@@ -512,6 +553,7 @@ const shortlistStudents = async (req, res, next) => {
 module.exports = {
   addDomain,
   getAllDomainsOfATest,
+  getDetailsOfDomain,
   finalizeDomain,
   attemptDomain,
   submitDomain,

@@ -17,6 +17,9 @@ router.post("/add", checkAuthClub, testDomainControllers.addDomain);
 //Get all domains of a test
 router.get("/all", checkAuth, testDomainControllers.getAllDomainsOfATest);
 
+//Get details of a domain
+router.get("/details", testDomainControllers.getDetailsOfDomain);
+
 //Attempt a domain
 router.post("/attempt", checkAuthStudent, testDomainControllers.attemptDomain);
 
