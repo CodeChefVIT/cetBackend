@@ -29,7 +29,7 @@ const addStudent = async (req, res, next) => {
   await student
     .save()
     .then((result) => {
-      return res.status(200).json({
+      return res.status(201).json({
         message: "Student successfully created",
         result,
       });
