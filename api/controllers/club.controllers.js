@@ -31,15 +31,9 @@ const create = async (req, res) => {
           club: clubs[0],
         });
       } else {
-        const inviteCode = crypto
-          .randomBytes(20)
-          .toString("hex")
-          .substring(0, 8)
-          .toUpperCase();
         const club = new Club({
           _id: new mongoose.Types.ObjectId(),
           email,
-          inviteCode,
         });
         await club
           .save()
@@ -69,9 +63,9 @@ const create = async (req, res) => {
 // @desc Signup for clubs
 // @route POST /api/club/signup
 const signup = async (req, res) => {
-  const { name, email, password, type, inviteCode } = req.body;
+  const { name, email, password, type } = req.body;
 
-  if (!name || !email || !password || !type || !inviteCode) {
+  if (!name || !email || !password || !type) {
     return res.status(400).json({
       message: "1 or more parameter(s) missing from req.body",
     });
@@ -93,12 +87,6 @@ const signup = async (req, res) => {
         });
       }
 
-      if (clubs[0].inviteCode !== inviteCode) {
-        return res.status(459).json({
-          message: "Please enter a valid email or invite Code",
-        });
-      }
-
       await bcrypt
         .hash(password, 10)
         .then(async (hash) => {
@@ -111,7 +99,6 @@ const signup = async (req, res) => {
                 name,
                 password: hash,
                 type,
-                accountCreated: true,
               },
             }
           )
