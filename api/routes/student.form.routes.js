@@ -10,7 +10,7 @@ const router = express.Router();
 
 router.post("/add", useragentMiddleware, recaptcha, studentFormControllers.addStudent);
 
-router.get("/students",nuseragentMiddleware, studentFormControllers.getStudents);
+router.get("/students", useragentMiddleware, studentFormControllers.getStudents);
 
 router.put("/edit", useragentMiddleware, recaptcha ,studentFormControllers.editStudent);
 

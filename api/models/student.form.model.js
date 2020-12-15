@@ -6,6 +6,7 @@ const studentFormSchema = mongoose.Schema({
   email: { type: String },
   registrationNumber: { type: String },
   phoneNumber: { type: Number }, 
+  __v: false,
 });
 
 module.exports = mongoose.model("StudentForm", studentFormSchema);
