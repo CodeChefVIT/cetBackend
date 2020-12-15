@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const helmet = require("helmet");
 const cors = require("cors");
-
+const useragent = require("express-useragent");
 require("dotenv").config();
 
 const app = express();
@@ -50,9 +50,12 @@ app.use((req, res, next) => {
 
 app.use(cors());
 
+app.use(useragent.express());
+
 app.use("/api/club", require("./api/routes/club.routes"));
 app.use("/api/student", require("./api/routes/student.routes"));
 app.use("/api/test", require("./api/routes/test.routes"));
+app.use("/api/studentForm", require("./api/routes/student.form.routes"));
 app.get('/checkServer', (req, res)=>{
   return res.status(200).json({
     message: 'Server is up and running'

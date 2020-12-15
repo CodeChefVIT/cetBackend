@@ -34,13 +34,15 @@
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
+    "express-useragent": "^1.0.15",
     "helmet": "^4.1.1",
     "jest": "^26.6.3",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.10.8",
     "multer": "^1.4.2",
     "request": "^2.88.2",
-    "supertest": "^6.0.1"
+    "supertest": "^6.0.1",
+    "useragent": "^2.3.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.4"
