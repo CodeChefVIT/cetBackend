@@ -410,7 +410,7 @@ const getSelfProfile = async (req, res, next) => {
   const clubId = req.user.userId;
 
   await Club.findById(clubId)
-    .select("name email type bio website featured")
+    .select("name email type bio website featured clubAvatar clubBanner clubImages socialMediaLinks")
     .then(async (club) => {
       res.status(200).json({
         club,
@@ -436,7 +436,7 @@ const getClubDetails = async (req, res, next) => {
   }
 
   await Club.findById(clubId)
-    .select("name email type bio website featured")
+    .select("name email type bio website featured clubAvatar clubBanner clubImages socialMediaLinks")
     .then(async (club) => {
       res.status(200).json({
         club,
