@@ -7,10 +7,19 @@ const clubControllers = require("../controllers/club.controllers");
 
 const checkAuthClub = require("../middleware/checkAuthClub");
 
+const {
+  upload,
+  uploadClubAvatar,
+  uploadClubBanner,
+  uploadClubImages,
+  uploadAnswerMedia,
+  uploadQuestionMedia,
+} = require("../middleware/s3UploadClient");
+
 const router = express.Router();
 
 //Create Club
-router.post('/create', clubControllers.create)
+router.post("/create", clubControllers.create);
 
 //Club signup
 router.post("/signup", clubControllers.signup);
@@ -38,5 +47,21 @@ router.patch("/feature", checkAuthClub, clubControllers.feature);
 
 //Get all featured clubs
 router.get("/allFeatured", clubControllers.getAllFeaturedClubs);
+
+//Upload club avatar
+router.put(
+  "/avatar",
+  checkAuthClub,
+  uploadClubAvatar.single("avatar"),
+  clubControllers.uploadProfilePicture
+);
+
+//Upload club banner
+router.put(
+  "/banner",
+  checkAuthClub,
+  uploadClubBanner.single("banner"),
+  clubControllers.uploadBanner
+);
 
 module.exports = router;

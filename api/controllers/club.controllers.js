@@ -4,7 +4,6 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const multer = require("multer");
 const sgMail = require("@sendgrid/mail");
-const crypto = require("crypto");
 
 require("dotenv").config();
 
@@ -500,7 +499,78 @@ const getAllFeaturedClubs = async (req, res) => {
     });
 };
 
-const funcName = () => {};
+//
+const uploadProfilePicture = async (req, res, next) => {
+  const clubId = req.user.userId;
+  const clubAvatar = req.file.location;
+
+  await Club.updateOne(
+    { _id: clubId },
+    {
+      $set: { clubAvatar },
+    }
+  )
+    .then(async (result) => {
+      res.status(201).json({
+        message: "Posted profile image",
+        avatarURL: clubAvatar,
+      });
+    })
+    .catch((err) => {
+      res.status(500).json({
+        message: "Something went wrong",
+        error: err.toString(),
+      });
+    });
+};
+
+const uploadBanner = async (req, res, next) => {
+  const clubId = req.user.userId;
+  const clubBanner = req.file.location;
+
+  await Club.updateOne(
+    { _id: clubId },
+    {
+      $set: { clubBanner },
+    }
+  )
+    .then(async (result) => {
+      res.status(201).json({
+        message: "Posted profile image",
+        bannerURL: clubBanner,
+      });
+    })
+    .catch((err) => {
+      res.status(500).json({
+        message: "Something went wrong",
+        error: err.toString(),
+      });
+    });
+};
+
+const uploadImages = async (req, res, next) => {
+  const clubId = req.user.userId;
+  const clubBanner = req.file.location;
+
+  await Club.updateOne(
+    { _id: clubId },
+    {
+      $push: { clubBanner },
+    }
+  )
+    .then(async (result) => {
+      res.status(201).json({
+        message: "Posted profile image",
+        bannerURL: clubBanner,
+      });
+    })
+    .catch((err) => {
+      res.status(500).json({
+        message: "Something went wrong",
+        error: err.toString(),
+      });
+    });
+};
 
 module.exports = {
   create,
@@ -513,4 +583,7 @@ module.exports = {
   getClubDetails,
   feature,
   getAllFeaturedClubs,
+  uploadProfilePicture,
+  uploadBanner,
+  uploadImages,
 };
