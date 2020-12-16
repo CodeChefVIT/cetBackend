@@ -375,7 +375,16 @@ const login = async (req, res) => {
 // @desc Update club's profile
 // @route PATCH /api/club/profile
 const updateProfile = async (req, res, next) => {
-  const { name, type, bio, website } = req.body;
+  const {
+    name,
+    type,
+    bio,
+    website,
+    clubAvatar,
+    clubBanner,
+    clubImages,
+    socialMediaLinks,
+  } = req.body;
   const clubId = req.user.userId;
 
   await Club.updateOne(
@@ -388,6 +397,10 @@ const updateProfile = async (req, res, next) => {
         type,
         bio,
         website,
+        clubAvatar,
+        clubBanner,
+        clubImages,
+        socialMediaLinks,
       },
     }
   )
@@ -410,7 +423,9 @@ const getSelfProfile = async (req, res, next) => {
   const clubId = req.user.userId;
 
   await Club.findById(clubId)
-    .select("name email type bio website featured clubAvatar clubBanner clubImages socialMediaLinks")
+    .select(
+      "name email type bio website featured clubAvatar clubBanner clubImages socialMediaLinks"
+    )
     .then(async (club) => {
       res.status(200).json({
         club,
@@ -485,7 +500,9 @@ const getAllFeaturedClubs = async (req, res) => {
   await Club.find({
     featured: true,
   })
-    .select("name email type featured website")
+    .select(
+      "name email type featured website clubAvatar clubBanner clubImages socialMediaLinks"
+    )
     .then(async (clubs) => {
       res.status(200).json({
         clubs,
@@ -505,9 +522,13 @@ const uploadProfilePicture = async (req, res, next) => {
   const clubAvatar = req.file.location;
 
   await Club.updateOne(
-    { _id: clubId },
     {
-      $set: { clubAvatar },
+      _id: clubId,
+    },
+    {
+      $set: {
+        clubAvatar,
+      },
     }
   )
     .then(async (result) => {
@@ -529,9 +550,13 @@ const uploadBanner = async (req, res, next) => {
   const clubBanner = req.file.location;
 
   await Club.updateOne(
-    { _id: clubId },
     {
-      $set: { clubBanner },
+      _id: clubId,
+    },
+    {
+      $set: {
+        clubBanner,
+      },
     }
   )
     .then(async (result) => {
@@ -553,9 +578,13 @@ const uploadImages = async (req, res, next) => {
   const clubBanner = req.file.location;
 
   await Club.updateOne(
-    { _id: clubId },
     {
-      $push: { clubBanner },
+      _id: clubId,
+    },
+    {
+      $push: {
+        clubBanner,
+      },
     }
   )
     .then(async (result) => {
