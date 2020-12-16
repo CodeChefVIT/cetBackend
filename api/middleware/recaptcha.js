@@ -13,7 +13,6 @@ module.exports = (req, res, next) => {
     (err, response, body) => {
       body = JSON.parse(body);
       console.log(err)
-      console.log(response)
       console.log(body)
       try {
         if (!body.success || body.score < 0.4) {
