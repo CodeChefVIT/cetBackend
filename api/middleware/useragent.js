@@ -1,8 +1,5 @@
-const app = require('../../app')
-
 module.exports = async (req, res, next) => {
   if (process.env.NODE_ENV == "production") {
-    app.use((req, res, next) => {
       if (req.useragent["isBot"] == false) {
         next();
       } else {
@@ -10,7 +7,6 @@ module.exports = async (req, res, next) => {
           message: "Please try using a different browser: Interception is blocked",
         });
       }
-    });
   } else {
     next()
   }
