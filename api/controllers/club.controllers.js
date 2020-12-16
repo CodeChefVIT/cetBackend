@@ -380,9 +380,6 @@ const updateProfile = async (req, res, next) => {
     type,
     bio,
     website,
-    clubAvatar,
-    clubBanner,
-    clubImages,
     socialMediaLinks,
   } = req.body;
   const clubId = req.user.userId;
@@ -397,9 +394,6 @@ const updateProfile = async (req, res, next) => {
         type,
         bio,
         website,
-        clubAvatar,
-        clubBanner,
-        clubImages,
         socialMediaLinks,
       },
     }
