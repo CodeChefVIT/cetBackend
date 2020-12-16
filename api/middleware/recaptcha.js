@@ -9,18 +9,21 @@ module.exports = (req, res, next) => {
     });
   }
   request(
-    `https://www.google.com/recaptcha/api/siteverify?secret=${RECAPTCHA_SECRET_KEY}&response=${req.body.captcha}`,
+    `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${req.body.captcha}`,
     (err, response, body) => {
       body = JSON.parse(body);
       try {
         if (!body.success || body.score < 0.4) {
           flag = 1;
+
+          console.log(err)
           return res.status(500).json({
             message: "Something went wrong",
             error: err.toString(),
           });
         }
         if (err) {
+          console.log(err)
           return res.status(500).json({
             message: "Something went wrong",
             error: err.toString(),
@@ -28,6 +31,8 @@ module.exports = (req, res, next) => {
         }
         next();
       } catch (err) {
+
+        console.log(err)
         return res.status(500).json({
           message: "Something went wrong",
           error: err.toString(),
