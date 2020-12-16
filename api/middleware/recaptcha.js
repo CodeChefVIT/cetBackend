@@ -12,6 +12,9 @@ module.exports = (req, res, next) => {
     `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${req.body.captcha}`,
     (err, response, body) => {
       body = JSON.parse(body);
+      console.log(err)
+      console.log(response)
+      console.log(body)
       try {
         if (!body.success || body.score < 0.4) {
           flag = 1;
