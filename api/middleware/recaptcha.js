@@ -8,8 +8,11 @@ module.exports = (req, res, next) => {
       message: "No recaptcha token",
     });
   }
-  request(
-    `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${req.body.captcha}`,
+  request({
+    url: 'https://www.google.com/recaptcha/api/siteverify',
+    method: 'POST',
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: `secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${req.body.captcha}&remoteip=${user_ip}`},
     (err, response, body) => {
       body = JSON.parse(body);
       console.log(err)
