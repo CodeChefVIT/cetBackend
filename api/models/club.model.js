@@ -11,7 +11,7 @@ const clubSchema = mongoose.Schema({
   mobileNumber: { type: Number },
   password: { type: String },
 
-  bio: { type: String },
+  bio: { type: String, default: "Enter your bio" },
   website: { type: String },
   clubAvatar: { type: String },
   clubBanner: { type: String },
