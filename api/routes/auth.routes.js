@@ -11,7 +11,9 @@ router.use(cookieParser());
 router.get(
 	"/google",
 	passport.authenticate("google", {
+		hd: 'vitstudent.ac.in',
 		scope: ["profile", "email"],
+		prompt: 'select_account'
 	})
 );
 
