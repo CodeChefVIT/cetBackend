@@ -8,8 +8,10 @@ const easterEggFormControllers = require("../controllers/easterEggForm.controlle
 
 const router = express.Router();
 
+//Generate an OTP and save in database
 router.get("/generateOTP", easterEggFormControllers.generateOTP);
 
+//Submit easter egg form
 router.post("/form", easterEggFormControllers.form);
 
 module.exports = router;
