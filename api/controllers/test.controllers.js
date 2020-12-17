@@ -523,7 +523,7 @@ const addStudents = async (req, res, next) => {
             testId,
             clubId,
             appliedOn,
-            status: "Applied",
+            status: "Added/Promoted",
           },
         },
       }
