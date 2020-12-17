@@ -34,7 +34,7 @@ const testDomainSchema = mongoose.Schema({
     {
       _id: false,
       studentId: { type: mongoose.Schema.Types.ObjectId, ref: "Student" },
-      remarks: { type: String },
+      remark: { type: String },
     },
   ],
   selectedInDomain: [

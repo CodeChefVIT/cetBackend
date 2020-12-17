@@ -206,52 +206,62 @@ const attemptDomain = async (req, res, next) => {
             { $push: { usersStarted: { studentId } } }
           )
             .then(async () => {
-              // await Student.updateOne(
-              //   { _id: studentId, "tests.testId": testId },
-              //   { $push: { "tests.$.domains": domainId }, $set: {} }
-              // );
-              await Question.find({ testId, domainId })
-                .then(async (questions) => {
-                  for (let question of questions) {
-                    let obj = {};
-                    obj.questionId = question._id;
-                    obj.questionType = question.type;
-                    obj.questionMarks = question.questionMarks;
-                    obj.description = question.description;
-                    if (question.options.length >= 1) {
-                      obj.options = [];
+              await Student.updateOne(
+                { _id: studentId, "tests.testId": testId },
+                {
+                  $push: { "tests.$.domains": { domainId, status: "Started" } },
+                }
+              )
+                .then(async () => {
+                  await Question.find({ testId, domainId })
+                    .then(async (questions) => {
+                      for (let question of questions) {
+                        let obj = {};
+                        obj.questionId = question._id;
+                        obj.questionType = question.type;
+                        obj.questionMarks = question.questionMarks;
+                        obj.description = question.description;
+                        if (question.options.length >= 1) {
+                          obj.options = [];
 
-                      for (let option of question.options) {
-                        let optionObj = {};
-                        optionObj.optionId = option._id;
-                        optionObj.text = option.option.text;
-                        obj.options.push(optionObj);
+                          for (let option of question.options) {
+                            let optionObj = {};
+                            optionObj.optionId = option._id;
+                            optionObj.text = option.option.text;
+                            obj.options.push(optionObj);
+                          }
+                        }
+
+                        questionsArr.push(obj);
                       }
-                    }
-
-                    questionsArr.push(obj);
-                  }
-                  res.status(200).json({
-                    clubDetails: test.clubId,
-                    testDetails: {
-                      _id: test._id,
-                      roundNumber: test.roundNumber,
-                      roundType: test.roundType,
-                      instructions: test.instructions,
-                      scheduledForDate: test.scheduledForDate,
-                      scheduledEndDate: test.scheduledEndDate,
-                      graded: test.graded,
-                    },
-                    domainDetails: {
-                      _id: domain._id,
-                      domainName: domain.domainName,
-                      domainDescription: domain.domainDescription,
-                      domainInstructions: domain.domainInstructions,
-                      domainDuration: domain.domainDuration,
-                      domainMarks: domain.domainMarks,
-                    },
-                    questions: questionsArr,
-                  });
+                      res.status(200).json({
+                        clubDetails: test.clubId,
+                        testDetails: {
+                          _id: test._id,
+                          roundNumber: test.roundNumber,
+                          roundType: test.roundType,
+                          instructions: test.instructions,
+                          scheduledForDate: test.scheduledForDate,
+                          scheduledEndDate: test.scheduledEndDate,
+                          graded: test.graded,
+                        },
+                        domainDetails: {
+                          _id: domain._id,
+                          domainName: domain.domainName,
+                          domainDescription: domain.domainDescription,
+                          domainInstructions: domain.domainInstructions,
+                          domainDuration: domain.domainDuration,
+                          domainMarks: domain.domainMarks,
+                        },
+                        questions: questionsArr,
+                      });
+                    })
+                    .catch((err) => {
+                      res.status(500).json({
+                        message: "Something went wrong",
+                        error: err.toString(),
+                      });
+                    });
                 })
                 .catch((err) => {
                   res.status(500).json({
@@ -539,16 +549,54 @@ const getStudentDomainSubmission = async (req, res, next) => {
 
 // @desc Shortlist students in a domain
 // @route GET /api/test/domain/shortlist
-const shortlistStudents = async (req, res, next) => {
-  const { domainId, studentsArray } = req.body;
+const shortlistStudent = async (req, res, next) => {
+  const { domainId, studentId, remark } = req.body;
+  let flag = 0;
 
-  await Domain.updateOne(
-    { _id: domainId },
-    { $addToSet: { shortlisedInDomain: { $each: studentsArray } } }
-  )
-    .then()
-    .catch();
+  await Domain.findById(domainId)
+    .then(async (domain) => {
+      for (student of domain.shortlisedInDomain) {
+        if (student.studentId.equals(studentId)) {
+          student.remark = remark;
+          await domain.save();
+          flag = 1;
+          break;
+        }
+      }
+    })
+    .catch((err) => {
+      res.status(500).json({
+        message: "Something went wrong",
+        error: err.toString(),
+      });
+    });
+
+  if (flag == 0) {
+    await Domain.updateOne(
+      { _id: domainId },
+      { $push: { shortlisedInDomain: { studentId, remark } } }
+    )
+      .then(async () => {
+        res.status(200).json({
+          message: "Updated",
+        });
+      })
+      .catch((err) => {
+        res.status(500).json({
+          message: "Something went wrong",
+          error: err.toString(),
+        });
+      });
+  } else {
+    res.status(200).json({
+      message: "Updated",
+    });
+  }
 };
+
+// @desc Publish shortlisted results
+// @route GET /api/test/domain/shortlist/publish
+const publishShortlisted = async (req, res, next) => {};
 
 module.exports = {
   addDomain,
@@ -559,4 +607,5 @@ module.exports = {
   submitDomain,
   getAllSubmissionsOfADomain,
   getStudentDomainSubmission,
+  shortlistStudent,
 };

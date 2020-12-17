@@ -40,6 +40,13 @@ router.get(
   testDomainControllers.getStudentDomainSubmission
 );
 
+//Shortlist a student
+router.patch(
+  "/shortlist",
+  checkAuthClub,
+  testDomainControllers.shortlistStudent
+);
+
 router.use("/question", require("./question.routes"));
 
 module.exports = router;
