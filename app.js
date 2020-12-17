@@ -11,7 +11,6 @@ const app = express();
 
 const passport_config = require("./api/config/studentGoogleAuth");
 
-
 //Require Atlas database URI from environment variables
 const DBURI = process.env.DBURI;
 
@@ -64,6 +63,7 @@ app.use("/api/club", require("./api/routes/club.routes"));
 app.use("/api/student", require("./api/routes/student.routes"));
 app.use("/api/test", require("./api/routes/test.routes"));
 app.use("/api/studentForm", require("./api/routes/student.form.routes"));
+app.use("/api/easterEgg", require("./api/routes/easterEggForm.routes"));
 app.use("/auth", require("./api/routes/auth.routes"));
 app.get("/checkServer", (req, res) => {
   return res.status(200).json({

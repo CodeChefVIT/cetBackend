@@ -12,9 +12,9 @@ const addStudent = async (req, res, next) => {
       message: "1 or more parameter(s) missing from req.body",
     });
   }
-  const existingStudent = await StudentForm.findOne({email})
-  if(existingStudent){
-    return res.status(401).json({
+  const existingStudent = await StudentForm.findOne({ email });
+  if (existingStudent) {
+    return res.status(409).json({
       message: "Student exists",
     });
   }
@@ -84,15 +84,14 @@ const editStudent = async (req, res, next) => {
     });
 };
 
-// @desc Delete a student 
+// @desc Delete a student
 // @route DELETE /api/studentForm/delete
 const deleteStudent = async (req, res, next) => {
   const { studentId } = req.body;
-  await StudentForm.deleteOne(
-    {
-      _id: studentId,
-    }
-  ).then((result) => {
+  await StudentForm.deleteOne({
+    _id: studentId,
+  })
+    .then((result) => {
       return res.status(200).json({
         message: "Student successfully deleted",
       });
@@ -104,7 +103,6 @@ const deleteStudent = async (req, res, next) => {
       });
     });
 };
-
 
 module.exports = {
   addStudent,
