@@ -548,7 +548,7 @@ const getStudentDomainSubmission = async (req, res, next) => {
 };
 
 // @desc Shortlist students in a domain
-// @route GET /api/test/domain/shortlist
+// @route PATCH /api/test/domain/shortlist
 const shortlistStudent = async (req, res, next) => {
   const { domainId, studentId, remark } = req.body;
   let flag = 0;

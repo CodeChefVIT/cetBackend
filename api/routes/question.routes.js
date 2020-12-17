@@ -24,4 +24,7 @@ router.post(
 //Get all questions of a test -- to be viewed only by club
 router.get("/all", checkAuthClub, questionControllers.getAllQuestions);
 
+//Add marks
+router.post("/marks", checkAuthClub, questionControllers.updateMarks);
+
 module.exports = router;

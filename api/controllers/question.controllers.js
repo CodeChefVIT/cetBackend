@@ -11,6 +11,7 @@ const Student = require("../models/student.model");
 const Test = require("../models/test.model");
 const Question = require("../models/question.model");
 const Domain = require("../models/testDomain.model");
+const { response } = require("express");
 
 // @desc Add a question to a test
 // @route GET /api/question/add
@@ -149,8 +150,102 @@ const getAllQuestions = async (req, res, next) => {
     });
 };
 
+// @desc Add marks for a question for a student
+// @route POST /api/test/domain/question/marks
+const addMarks = async (req, res, next) => {
+  const { studentId, questionId, marks, domainId } = req.body;
+
+  // await Domain.updateOne(
+  //   {
+  //     _id: domainId,
+  //     // "usersFinished.studentId": studentId,
+  //   },
+  //   {
+  //     $set: { "usersFinished.$[i].responses.$[j].scoredQuestionMarks": marks },
+  //   },
+  //   {
+  //     arrayFilters: [
+  //       { "i.studentId": studentId },
+  //       { "j.questionId": questionId },
+  //     ],
+  //   }
+  // )
+  //   .then(async (check) => {
+  //     res.status(200).json({
+  //       check,
+  //       message: "Marks added",
+  //     });
+  //   })
+  //   .catch((err) => {
+  //     res.status(500).json({
+  //       message: "Something went wrong",
+  //       error: err.toString(),
+  //     });
+  //   });
+};
+
+const updateMarks = async (req, res, next) => {
+  const { studentId, questionId, marks, domainId } = req.body;
+
+  let flag = 0;
+
+  let domain = await Domain.findOne({ _id: domainId });
+
+  if (!domain) {
+    return res.status(418).json({
+      message: "Invalid parameters",
+    });
+  }
+
+  for (student of domain.usersFinished) {
+    if (student.studentId.equals(studentId)) {
+      for (sub of student.responses) {
+        if (sub.questionId.equals(questionId)) {
+          sub.scoredQuestionMarks = marks;
+          sub.corrected = true;
+          await domain
+            .save()
+            .then(async (result) => {
+              await Domain.updateOne({ _id: domainId }, result)
+                .then(() => {
+                  flag = 1;
+                })
+                .catch((err) => {
+                  return res.status(500).json({
+                    message: "Something went wrong",
+                    error: err.toString(),
+                  });
+                });
+            })
+            .catch((err) => {
+              return res.status(500).json({
+                message: "Something went wrong",
+                error: err.toString(),
+              });
+            });
+
+          break;
+        }
+      }
+      if (flag == 1) break;
+    }
+  }
+
+  if (flag == 1) {
+    return res.status(200).json({
+      message: "Updated",
+    });
+  } else {
+    return res.status(418).json({
+      message: "Invalid parameters",
+    });
+  }
+};
+
 module.exports = {
   addQuestion,
   addMultipleQuestions,
   getAllQuestions,
+  addMarks,
+  updateMarks,
 };
