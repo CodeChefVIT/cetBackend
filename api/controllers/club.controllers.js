@@ -375,13 +375,7 @@ const login = async (req, res) => {
 // @desc Update club's profile
 // @route PATCH /api/club/profile
 const updateProfile = async (req, res, next) => {
-  const {
-    name,
-    type,
-    bio,
-    website,
-    socialMediaLinks,
-  } = req.body;
+  const { name, type, bio, website, socialMediaLinks, mobileNumber } = req.body;
   const clubId = req.user.userId;
 
   await Club.updateOne(
@@ -395,6 +389,7 @@ const updateProfile = async (req, res, next) => {
         bio,
         website,
         socialMediaLinks,
+        mobileNumber,
       },
     }
   )
@@ -418,7 +413,7 @@ const getSelfProfile = async (req, res, next) => {
 
   await Club.findById(clubId)
     .select(
-      "name email type bio website featured clubAvatar clubBanner clubImages socialMediaLinks"
+      "name email type bio featured website clubAvatar clubBanner clubImages socialMediaLinks mobileNumber"
     )
     .then(async (club) => {
       res.status(200).json({
@@ -445,7 +440,9 @@ const getClubDetails = async (req, res, next) => {
   }
 
   await Club.findById(clubId)
-    .select("name email type bio website featured clubAvatar clubBanner clubImages socialMediaLinks")
+    .select(
+      "name email type bio featured website clubAvatar clubBanner clubImages socialMediaLinks mobileNumber"
+    )
     .then(async (club) => {
       res.status(200).json({
         club,
@@ -495,7 +492,7 @@ const getAllFeaturedClubs = async (req, res) => {
     featured: true,
   })
     .select(
-      "name email type featured website clubAvatar clubBanner clubImages socialMediaLinks"
+      "name email type bio featured website clubAvatar clubBanner clubImages socialMediaLinks mobileNumber"
     )
     .then(async (clubs) => {
       res.status(200).json({
