@@ -471,10 +471,11 @@ const getAllSubmissionsOfADomain = async (req, res, next) => {
     .populate({
       path: "clubId testId usersFinished",
       select:
-        "name email type roundNumber roundType instructions scheduledForDate scheduledEndDate graded",
+        "name email type roundNumber roundType instructions scheduledForDate scheduledEndDate graded responses",
       populate: {
-        path: "studentId",
+        path: "studentId responses",
         select: "name email mobileNumber timeTaken submittedOn",
+        populate: { path: "questionId", select: "description options" },
       },
     })
     .then(async (domain) => {
@@ -516,10 +517,11 @@ const getStudentDomainSubmission = async (req, res, next) => {
     .populate({
       path: "clubId testId usersFinished",
       select:
-        "name email type roundNumber roundType instructions scheduledForDate scheduledEndDate graded",
+        "name email type roundNumber roundType instructions scheduledForDate scheduledEndDate graded responses",
       populate: {
-        path: "studentId",
+        path: "studentId responses",
         select: "name email mobileNumber timeTaken submittedOn",
+        populate: { path: "questionId", select: "description options" },
       },
     })
     .then(async (domain) => {

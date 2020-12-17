@@ -23,7 +23,11 @@ const testDomainSchema = mongoose.Schema({
   usersFinished: [
     {
       studentId: { type: mongoose.Schema.Types.ObjectId, ref: "Student" },
-      responses: [],
+      responses: [
+        {
+          questionId: { type: mongoose.Schema.Types.ObjectId, ref: "Question" },
+        },
+      ],
       marks: { type: Number, default: 0 },
       timeTaken: { type: Number },
       corrected: { type: Boolean },
