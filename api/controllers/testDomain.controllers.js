@@ -619,6 +619,7 @@ const publishShortlisted = async (req, res, next) => {
     shortlistedStudentId = [...shortlistedStudentId, student.studentId]
   }
   const notShortlistedStudentsId = (totalStudentsId.filter(n => !shortlistedStudentId.includes(n)))
+  ///////////////////////////////////////////////////////SEND EMAILS///////////////////////////////////////
   for ( let studentId of shortlistedStudentId){
     await Student.updateOne(
       { _id: studentId, "tests.testId": testId },
@@ -647,4 +648,5 @@ module.exports = {
   getAllSubmissionsOfADomain,
   getStudentDomainSubmission,
   shortlistStudent,
+  publishShortlisted,
 };
