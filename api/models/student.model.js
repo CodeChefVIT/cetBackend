@@ -15,7 +15,9 @@ const studentSchema = mongoose.Schema({
 
   bio: { type: String },
   branch: { type: String },
-  
+
+  emailVerificationCode: { type: Number },
+  emailVerificationCodeExpires: { type: Number },
   isEmailVerified: { type: Boolean, default: false },
 
   mobileVerificationCode: { type: Number },

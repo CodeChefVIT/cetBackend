@@ -55,7 +55,7 @@ passport.use(
             Student.findById(currentUser._id).then((result7) => {
               result7.token = token;
               result7.googleId = profile.id;
-              result7.isEmailVerified = true;
+              result7.isEmailVerified = false;
               result7
                 .save()
                 .then((user) => {
@@ -72,7 +72,7 @@ passport.use(
               googleId: profile.id,
               name: profile.displayName,
               email: profile.emails[0].value,
-              isEmailVerified: true,
+              isEmailVerified: false,
             })
               .save()
               .then((newUser) => {
