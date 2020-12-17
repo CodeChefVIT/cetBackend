@@ -47,6 +47,13 @@ router.patch(
   testDomainControllers.shortlistStudent
 );
 
+//Publish Shortlisted result
+router.patch(
+  "/publishShortlist",
+  checkAuthClub,
+  testDomainControllers.publishShortlisted
+);
+
 router.use("/question", require("./question.routes"));
 
 module.exports = router;

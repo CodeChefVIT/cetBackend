@@ -425,21 +425,24 @@ const submitDomain = async (req, res, next) => {
     }
   )
     .then(async () => {
-      // await Student.updateOne(
-      //   { _id: studentId, "tests.testId": testId },
-      //   { $set: { "tests.$.submittedOn": now } }
-      // )
-      //   .then(async () => {
+      await Student.updateOne(
+        { _id: studentId, "tests.testId": testId },
+        {
+          $push: { "tests.$.domains": { domainId, status: "Submitted" } },
+        }
+      )
+      /// TODO - then catch
+        .then(async () => {
       res.status(200).json({
         message: "Domain submitted",
       });
-      // })
-      // .catch((err) => {
-      //   res.status(500).json({
-      //     message: "Something went wrong",
-      //     error: err.toString(),
-      //   });
-      // });
+      })
+      .catch((err) => {
+        res.status(500).json({
+          message: "Something went wrong",
+          error: err.toString(),
+        });
+      });
     })
     .catch((err) => {
       res.status(500).json({
@@ -596,7 +599,44 @@ const shortlistStudent = async (req, res, next) => {
 
 // @desc Publish shortlisted results
 // @route GET /api/test/domain/shortlist/publish
-const publishShortlisted = async (req, res, next) => {};
+const publishShortlisted = async (req, res, next) => {
+  const { domainId, testId } = req.body
+  const domain = await Domain.findById(domainId);
+  if(!domain){
+    res.status(500).json({
+      message: "Something went wrong",
+      error: err.toString(),
+    });
+  }
+  const totalStudents = domain.usersFinished
+  const shortlistStudents = domain.shortlisedInDomain
+  const totalStudentsId = []
+  const shortlistedStudentId = []
+  for (let student of totalStudents){
+    totalStudentsId = [...totalStudentsId, student.studentId]
+  }
+  for (let student of shortlistStudents){
+    shortlistedStudentId = [...shortlistedStudentId, student.studentId]
+  }
+  const notShortlistedStudentsId = (totalStudentsId.filter(n => !shortlistedStudentId.includes(n)))
+  ///////////////////////////////////////////////////////SEND EMAILS///////////////////////////////////////
+  for ( let studentId of shortlistedStudentId){
+    await Student.updateOne(
+      { _id: studentId, "tests.testId": testId },
+      {
+        $push: { "tests.$.domains": { domainId, status: "Shortlisted" } },
+      }
+    )
+  }
+  for ( let studentId of notShortlistedStudentsId){
+    await Student.updateOne(
+      { _id: studentId, "tests.testId": testId },
+      {
+        $push: { "tests.$.domains": { domainId, status: "Not Shortlisted" } },
+      }
+    )
+  }
+};
 
 module.exports = {
   addDomain,
@@ -608,4 +648,5 @@ module.exports = {
   getAllSubmissionsOfADomain,
   getStudentDomainSubmission,
   shortlistStudent,
+  publishShortlisted,
 };
