@@ -27,14 +27,13 @@ const studentSchema = mongoose.Schema({
   forgotPasswordCode: { type: Number },
   forgotPasswordCodeExpires: { type: Number },
 
-  domains: [{ type: String }],
-
   tests: [
     {
       testId: { type: mongoose.Schema.Types.ObjectId, ref: "Test" },
       clubId: { type: mongoose.Schema.Types.ObjectId, ref: "Club" },
       domains: [
         {
+          _id: false,
           domainId: { type: mongoose.Schema.Types.ObjectId, ref: "Domain" },
           status: { type: String },
         },

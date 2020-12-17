@@ -502,6 +502,48 @@ const getStudentDetails = async (req, res, next) => {
     });
 };
 
+const dashboard = async (req, res, next) => {
+  const studentId = req.user.userId;
+
+  await Student.findById(studentId)
+    .select(
+      "-password -isEmailVerified -isMobileVerified -emailVerificationCode -emailVerificationCodeExpires -__v"
+    )
+    .populate({
+      path: "tests",
+      populate: {
+        path: "testId clubId domains",
+        select:
+          "roundNumber roundType instructions scheduledForDate scheduledEndDate graded bio email name type clubAvatar clubBanner clubImages socialMediaLinks",
+        populate: {
+          path: "domainId",
+          select:
+            "domainName domainDescription domainInstructions domainDuration status",
+        },
+      },
+    })
+    .then(async (student) => {
+      res.status(200).json({
+        studentDetails: {
+          _id: student._id,
+          name: student.name,
+          email: student.email,
+          mobileNumber: student.mobileNumber,
+          bio: student.bio,
+          branch: student.branch,
+          registrationNumber: student.registrationNumber,
+        },
+        tests: student.tests,
+      });
+    })
+    .catch((err) => {
+      res.status(500).json({
+        message: "Something went wrong",
+        error: err.toString(),
+      });
+    });
+};
+
 module.exports = {
   signup,
   resendOTP,
@@ -512,4 +554,5 @@ module.exports = {
   updateProfile,
   getProfile,
   getStudentDetails,
+  dashboard,
 };

@@ -41,4 +41,7 @@ router.get("/profile", checkAuthStudent, studentControllers.getProfile);
 //Get a student's details
 router.get("/details", studentControllers.getStudentDetails);
 
+//Get student's dashboard
+router.get("/dashboard", checkAuthStudent, studentControllers.dashboard);
+
 module.exports = router;

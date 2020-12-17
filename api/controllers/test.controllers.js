@@ -233,9 +233,56 @@ const attempt = async (req, res, next) => {
       }
 
       if (appliedFlag === 0) {
-        return res.status(430).json({
-          message: "You have not applied for the test",
-        });
+        // return res.status(430).json({
+        //   message: "You have not applied for the test",
+        // });
+
+        await Test.updateOne(
+          {
+            _id: testId,
+          },
+          {
+            $push: {
+              users: {
+                studentId,
+              },
+            },
+          }
+        )
+          .then(async () => {
+            await Student.updateOne(
+              {
+                _id: studentId,
+              },
+              {
+                $push: {
+                  tests: {
+                    testId,
+                    clubId: test.clubId,
+                    appliedOn: now,
+                    status: "Applied",
+                  },
+                },
+              }
+            )
+              .then(async () => {
+                // res.status(200).json({
+                //   message: "Applied successfully",
+                // });
+              })
+              .catch((err) => {
+                res.status(500).json({
+                  message: "Something went wrong",
+                  error: err.toString(),
+                });
+              });
+          })
+          .catch((err) => {
+            res.status(500).json({
+              message: "Something went wrong",
+              error: err.toString(),
+            });
+          });
       }
 
       //Check if test hasn't started
@@ -288,7 +335,9 @@ const attempt = async (req, res, next) => {
               await Domain.find({
                 testId,
               })
-                .select("-__v")
+                .select(
+                  "-__v -usersStarted -usersFinished -shortlisedInDomain -selectedInDomain"
+                )
                 .then(async (domains) => {
                   res.status(200).json({
                     clubDetails: test.clubId,
