@@ -1,4 +1,5 @@
 const express = require("express");
+const passport = require("passport");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const helmet = require("helmet");
@@ -7,6 +8,9 @@ const useragent = require("express-useragent");
 require("dotenv").config();
 
 const app = express();
+
+const passport_config = require("./api/config/studentGoogleAuth");
+
 
 //Require Atlas database URI from environment variables
 const DBURI = process.env.DBURI;
@@ -34,6 +38,10 @@ app.use("/uploads", express.static("./public"));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
+// initialize passport
+app.use(passport.initialize());
+app.use(passport.session());
+
 // Allow CORS
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
@@ -56,11 +64,12 @@ app.use("/api/club", require("./api/routes/club.routes"));
 app.use("/api/student", require("./api/routes/student.routes"));
 app.use("/api/test", require("./api/routes/test.routes"));
 app.use("/api/studentForm", require("./api/routes/student.form.routes"));
-app.get('/checkServer', (req, res)=>{
+app.use("/auth", require("./api/routes/auth.routes"));
+app.get("/checkServer", (req, res) => {
   return res.status(200).json({
-    message: 'Server is up and running'
-  })
-})
+    message: "Server is up and running",
+  });
+});
 
 //This function will give a 404 response if an undefined API endpoint is fired
 app.use((req, res, next) => {
@@ -85,4 +94,4 @@ app.listen(PORT, () => {
   console.log(`Listening on port ${PORT}`);
 });
 
-module.exports = app
+module.exports = app;

@@ -4,6 +4,9 @@ const studentSchema = mongoose.Schema({
   _id: mongoose.Schema.Types.ObjectId,
   userType: { type: String, default: "Student" },
 
+  token: { type: String },
+  googleId: { type: String },
+
   name: { type: String },
   registrationNumber: { type: String },
   email: { type: String },
@@ -12,9 +15,7 @@ const studentSchema = mongoose.Schema({
 
   bio: { type: String },
   branch: { type: String },
-
-  emailVerificationCode: { type: Number },
-  emailVerificationCodeExpires: { type: Number },
+  
   isEmailVerified: { type: Boolean, default: false },
 
   mobileVerificationCode: { type: Number },
