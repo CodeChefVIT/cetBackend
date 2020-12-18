@@ -8,12 +8,12 @@ const studentFormControllers = require("../controllers/student.form.controller")
 
 const router = express.Router();
 
-router.post("/add", useragentMiddleware, recaptcha, studentFormControllers.addStudent);
+router.post("/add", useragentMiddleware,  studentFormControllers.addStudent);
 
-router.get("/students", useragentMiddleware, recaptcha, studentFormControllers.getStudents);
+router.get("/students", useragentMiddleware,  studentFormControllers.getStudents);
 
-router.put("/edit", useragentMiddleware, recaptcha, studentFormControllers.editStudent);
+router.put("/edit", useragentMiddleware,  studentFormControllers.editStudent);
 
-router.delete("/delete", useragentMiddleware, recaptcha, studentFormControllers.deleteStudent);
+router.delete("/delete", useragentMiddleware,  studentFormControllers.deleteStudent);
 
 module.exports = router;
