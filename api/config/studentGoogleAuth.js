@@ -25,7 +25,7 @@ passport.use(
     {
       clientID: process.env.CLIENT_ID,
       clientSecret: process.env.CLIENT_SECRET,
-      callbackURL: "/auth/google/redirect",
+      callbackURL: "/api/auth/google/redirect",
     },
     async (accessToken, refreshToken, profile, done) => {
       const emailRegex = /[A-Za-z]+.[A-Za-z]*20[0-9]{2}[A-Za-z]*@vitstudent.ac.in/;

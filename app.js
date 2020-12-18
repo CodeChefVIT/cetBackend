@@ -64,7 +64,7 @@ app.use("/api/student", require("./api/routes/student.routes"));
 app.use("/api/test", require("./api/routes/test.routes"));
 app.use("/api/studentForm", require("./api/routes/student.form.routes"));
 app.use("/api/easterEgg", require("./api/routes/easterEggForm.routes"));
-app.use("/auth", require("./api/routes/auth.routes"));
+app.use("/api/auth", require("./api/routes/auth.routes"));
 app.get("/checkServer", (req, res) => {
   return res.status(200).json({
     message: "Server is up and running",
