@@ -28,7 +28,7 @@ router.get(
 		res.redirect(
 			303,
 			// "https://cet.codechefvit.com/?name=" + name + "&token=" + token
-			"http://localhost:3000/student/oauth?name=" + name + "&token=" + token
+			"http://localhost:3000/student/oauth/?token=" + token
 		);
 		
 	}
