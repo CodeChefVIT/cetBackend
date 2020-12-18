@@ -13,6 +13,7 @@ const questionSchema = mongoose.Schema({
   media: {
     type: { type: String, enum: ["image", "video", "audio"] },
     url: { type: String },
+    ext: { type: String },
   },
   options: [
     {

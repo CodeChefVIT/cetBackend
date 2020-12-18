@@ -27,30 +27,67 @@ const addQuestion = async (req, res, next) => {
 
   const clubId = req.user.userId;
 
-  const question = new Question({
-    _id: new mongoose.Types.ObjectId(),
-    testId,
-    clubId,
-    domainId,
-    type,
-    questionMarks,
-    description,
-    options,
-  });
-
-  await question
-    .save()
-    .then(async () => {
-      res.status(201).json({
-        message: "Question added",
-      });
-    })
-    .catch((err) => {
-      res.status(500).json({
-        message: "Something went wrong",
-        error: err.toString(),
-      });
+  if (!req.file) {
+    const question = new Question({
+      _id: new mongoose.Types.ObjectId(),
+      testId,
+      clubId,
+      domainId,
+      type,
+      questionMarks,
+      description,
+      options,
     });
+
+    await question
+      .save()
+      .then(async () => {
+        res.status(201).json({
+          message: "Question added",
+        });
+      })
+      .catch((err) => {
+        res.status(500).json({
+          message: "Something went wrong",
+          error: err.toString(),
+        });
+      });
+  } else {
+    const url = req.file.location;
+    const arr = url.split(".");
+    const ext = arr[arr.length - 1];
+
+    // if(ext == "png"|| ext=="jpg" || "")
+
+    const question = new Question({
+      _id: new mongoose.Types.ObjectId(),
+      testId,
+      clubId,
+      domainId,
+      type,
+      questionMarks,
+      description,
+      options,
+      media: {
+        url,
+        ext,
+      },
+    });
+
+    await question
+      .save()
+      .then(async () => {
+        res.status(201).json({
+          message: "Question added",
+        });
+      })
+      .catch((err) => {
+        res.status(500).json({
+          message: "Something went wrong",
+          error: err.toString(),
+        });
+      });
+  }
 };
 
 // @desc Add multiple questions to a test
