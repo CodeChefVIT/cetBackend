@@ -6,6 +6,7 @@ const clubSchema = mongoose.Schema({
   featured: { type: Boolean, default: false },
 
   name: { type: String },
+  username: { type: String },
   type: { type: String },
   email: { type: String },
   mobileNumber: { type: Number },

@@ -62,9 +62,9 @@ const create = async (req, res) => {
 // @desc Signup for clubs
 // @route POST /api/club/signup
 const signup = async (req, res) => {
-  const { name, email, password, type } = req.body;
+  const { name, email, password, type, username } = req.body;
 
-  if (!name || !email || !password || !type) {
+  if (!name || !email || !password || !type || !username) {
     return res.status(400).json({
       message: "1 or more parameter(s) missing from req.body",
     });
@@ -98,6 +98,7 @@ const signup = async (req, res) => {
                 name,
                 password: hash,
                 type,
+                username,
               },
             }
           )
@@ -337,6 +338,7 @@ const login = async (req, res) => {
                 userId: club[0]._id,
                 email: club[0].email,
                 name: club[0].name,
+                username: club[0].username,
               },
               process.env.JWT_SECRET,
               {
@@ -349,6 +351,7 @@ const login = async (req, res) => {
                 userType: club[0].userType,
                 name: club[0].name,
                 email: club[0].email,
+                username: club[0].username,
               },
               token,
             });
@@ -375,7 +378,7 @@ const login = async (req, res) => {
 // @desc Update club's profile
 // @route PATCH /api/club/profile
 const updateProfile = async (req, res, next) => {
-  const { name, type, bio, website, socialMediaLinks, mobileNumber } = req.body;
+  const { name, type, bio, website, socialMediaLinks, mobileNumber, username } = req.body;
   const clubId = req.user.userId;
 
   await Club.updateOne(
@@ -390,6 +393,7 @@ const updateProfile = async (req, res, next) => {
         website,
         socialMediaLinks,
         mobileNumber,
+        username,
       },
     }
   )
@@ -413,7 +417,7 @@ const getSelfProfile = async (req, res, next) => {
 
   await Club.findById(clubId)
     .select(
-      "name email type bio featured website clubAvatar clubBanner clubImages socialMediaLinks mobileNumber"
+      "name email type bio featured website username clubAvatar clubBanner clubImages socialMediaLinks mobileNumber"
     )
     .then(async (club) => {
       res.status(200).json({
@@ -441,7 +445,35 @@ const getClubDetails = async (req, res, next) => {
 
   await Club.findById(clubId)
     .select(
-      "name email type bio featured website clubAvatar clubBanner clubImages socialMediaLinks mobileNumber"
+      "name email type bio featured website username clubAvatar clubBanner clubImages socialMediaLinks mobileNumber"
+    )
+    .then(async (club) => {
+      res.status(200).json({
+        club,
+      });
+    })
+    .catch((err) => {
+      res.status(500).json({
+        message: "Something went wrong",
+        error: err.toString(),
+      });
+    });
+};
+
+// @desc Get club's details via username
+// @route GET /api/club/details/username
+const getClubDetailsUsername = async (req, res, next) => {
+  const { username } = req.query;
+
+  if (!clubId) {
+    return res.status(400).json({
+      message: "1 or more parameter(s) missing from req.body",
+    });
+  }
+
+  await Club.findOne({username})
+    .select(
+      "name email type bio featured website username clubAvatar clubBanner clubImages socialMediaLinks mobileNumber"
     )
     .then(async (club) => {
       res.status(200).json({
@@ -492,7 +524,7 @@ const getAllFeaturedClubs = async (req, res) => {
     featured: true,
   })
     .select(
-      "name email type bio featured website clubAvatar clubBanner clubImages socialMediaLinks mobileNumber"
+      "name email type bio featured website username clubAvatar clubBanner clubImages socialMediaLinks mobileNumber"
     )
     .then(async (clubs) => {
       res.status(200).json({
@@ -601,6 +633,7 @@ module.exports = {
   updateProfile,
   getSelfProfile,
   getClubDetails,
+  getClubDetailsUsername,
   feature,
   getAllFeaturedClubs,
   uploadProfilePicture,

@@ -42,6 +42,9 @@ router.get("/profile", checkAuthClub, clubControllers.getSelfProfile);
 //Get club's details
 router.get("/details", clubControllers.getClubDetails);
 
+//Get Club's details username
+router.get("/details/username", clubControllers.getClubDetailsUsername);
+
 //Feature or unfeature a club for recruitments
 router.patch("/feature", checkAuthClub, clubControllers.feature);
 
