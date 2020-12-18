@@ -4,12 +4,15 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const multer = require("multer");
 const sgMail = require("@sendgrid/mail");
+const nodemailer = require("nodemailer");
 
 require("dotenv").config();
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 const Club = require("../models/club.model");
+
+const { sendVerificationOTP } = require("../utils/emailTemplates");
 
 // @desc Create Clubs for DEVS
 // @route POST /api/club/create
@@ -70,19 +73,11 @@ const signup = async (req, res) => {
     });
   }
 
-  await Club.find({
-    email,
-  })
+  await Club.find({ email })
     .then(async (clubs) => {
       if (clubs.length < 1) {
         return res.status(401).json({
           message: "Email not in database",
-        });
-      }
-
-      if (clubs[0].accountCreated) {
-        return res.status(409).json({
-          message: "An account with this email has already been created",
         });
       }
 
@@ -109,43 +104,77 @@ const signup = async (req, res) => {
               club.emailVerificationCodeExpires =
                 new Date().getTime() + 20 * 60 * 1000;
 
-              const msg = {
-                to: email,
-                from: {
-                  email: process.env.SENDGRID_EMAIL,
-                  name: "CodeChef-VIT",
+              let transporter = nodemailer.createTransport({
+                service: "gmail",
+                port: 465,
+
+                auth: {
+                  user: process.env.NODEMAILER_EMAIL,
+                  pass: process.env.NODEMAILER_PASSWORD,
                 },
+              });
+
+              let mailOptions = {
                 subject: `Common Entry Test - Email Verification`,
-                text: `Use the following code to verify your email: ${club.emailVerificationCode}`,
-                // html: EmailTemplates.tracker(
-                //   users[i].name,
-                //   companyArr[k].companyName,
-                //   status
-                // ),
+                to: email,
+                from: `CodeChef-VIT <${process.env.NODEMAILER_EMAIL}>`,
+                html: sendVerificationOTP(club.emailVerificationCode),
               };
-              await sgMail
-                .send(msg)
-                .then(async () => {
-                  await club
-                    .save()
-                    .then(async (result) => {
-                      res.status(201).json({
-                        message: "Signup successful",
-                      });
-                    })
-                    .catch((err) => {
-                      res.status(500).json({
-                        message: "Something went wrong",
-                        error: err.toString(),
-                      });
-                    });
-                })
-                .catch((err) => {
-                  res.status(500).json({
+
+              // const msg = {
+              //   to: email,
+              // from: {
+              // email: process.env.SENDGRID_EMAIL,
+              // name: "CodeChef-VIT",
+              // },
+              //   subject: `Common Entry Test - Email Verification`,
+              //   text: `Use the following code to verify your email: ${club.emailVerificationCode}`,
+              //   // html: EmailTemplates.tracker(
+              //   //   users[i].name,
+              //   //   companyArr[k].companyName,
+              //   //   status
+              //   // ),
+              // };
+              transporter.sendMail(mailOptions, (error, response) => {
+                if (error) {
+                  console.log("Email not sent: ", mailOptions.to);
+                  console.log(error.toString());
+
+                  return res.status(500).json({
                     message: "Something went wrong",
-                    error: err.toString(),
+                    error: error.toString(),
                   });
-                });
+                } else {
+                  console.log("Email sent: ", mailOptions.to);
+                  res.status(201).json({
+                    message: "Signup successful",
+                  });
+                }
+              });
+
+              // await sgMail
+              //   .send(msg)
+              //   .then(async () => {
+              //     await club
+              //       .save()
+              //       .then(async (result) => {
+              //         res.status(201).json({
+              //           message: "Signup successful",
+              //         });
+              //       })
+              //       .catch((err) => {
+              //         res.status(500).json({
+              //           message: "Something went wrong",
+              //           error: err.toString(),
+              //         });
+              //       });
+              //   })
+              //   .catch((err) => {
+              //     res.status(500).json({
+              //       message: "Something went wrong",
+              //       error: err.toString(),
+              //     });
+              //   });
             })
             .catch((err) => {
               res.status(500).json({
@@ -196,33 +225,67 @@ const resendOTP = async (req, res) => {
       await club
         .save()
         .then(async () => {
-          const msg = {
-            to: email,
-            from: {
-              email: process.env.SENDGRID_EMAIL,
-              name: "CodeChef-VIT",
+          let transporter = nodemailer.createTransport({
+            service: "gmail",
+            port: 465,
+
+            auth: {
+              user: process.env.NODEMAILER_EMAIL,
+              pass: process.env.NODEMAILER_PASSWORD,
             },
+          });
+
+          let mailOptions = {
             subject: `Common Entry Test - Email Verification`,
-            text: `Use the following code to verify your email: ${club.emailVerificationCode}`,
-            // html: EmailTemplates.tracker(
-            //   users[i].name,
-            //   companyArr[k].companyName,
-            //   status
-            // ),
+            to: email,
+            from: `CodeChef-VIT <${process.env.NODEMAILER_EMAIL}>`,
+            html: sendVerificationOTP(club.emailVerificationCode),
           };
-          await sgMail
-            .send(msg)
-            .then(async () => {
-              res.status(200).json({
+
+          transporter.sendMail(mailOptions, (error, response) => {
+            if (error) {
+              console.log("Email not sent: ", mailOptions.to);
+              console.log(error.toString());
+
+              return res.status(500).json({
+                message: "Something went wrong",
+                error: error.toString(),
+              });
+            } else {
+              console.log("Email sent: ", mailOptions.to);
+              res.status(201).json({
                 message: "Email verification OTP Sent",
               });
-            })
-            .catch((err) => {
-              res.status(500).json({
-                message: "Something went wrong",
-                error: err.toString(),
-              });
-            });
+            }
+          });
+
+          // const msg = {
+          //   to: email,
+          //   from: {
+          //     email: process.env.SENDGRID_EMAIL,
+          //     name: "CodeChef-VIT",
+          //   },
+          //   subject: `Common Entry Test - Email Verification`,
+          //   text: `Use the following code to verify your email: ${club.emailVerificationCode}`,
+          //   // html: EmailTemplates.tracker(
+          //   //   users[i].name,
+          //   //   companyArr[k].companyName,
+          //   //   status
+          //   // ),
+          // };
+          // await sgMail
+          //   .send(msg)
+          //   .then(async () => {
+          //     res.status(200).json({
+          //       message: "Email verification OTP Sent",
+          //     });
+          //   })
+          //   .catch((err) => {
+          //     res.status(500).json({
+          //       message: "Something went wrong",
+          //       error: err.toString(),
+          //     });
+          //   });
         })
         .catch((err) => {
           res.status(500).json({

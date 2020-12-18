@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const multer = require("multer");
 const sgMail = require("@sendgrid/mail");
+const nodemailer = require("nodemailer");
 
 require("dotenv").config();
 
@@ -11,6 +12,11 @@ const Club = require("../models/club.model");
 const Student = require("../models/student.model");
 const Test = require("../models/test.model");
 const Question = require("../models/question.model");
+
+const {
+  sendVerificationOTP,
+  sendForgotPasswordMail,
+} = require("../utils/emailTemplates");
 
 // @desc Student signup
 // @route POST /api/student/signup
@@ -54,34 +60,68 @@ const signup = async (req, res) => {
           await student
             .save()
             .then(async (result) => {
-              const msg = {
-                to: email,
-                from: {
-                  email: process.env.SENDGRID_EMAIL,
-                  name: "CodeChef-VIT",
+              let transporter = nodemailer.createTransport({
+                service: "gmail",
+                port: 465,
+
+                auth: {
+                  user: process.env.NODEMAILER_EMAIL,
+                  pass: process.env.NODEMAILER_PASSWORD,
                 },
+              });
+
+              let mailOptions = {
                 subject: `Common Entry Test - Email Verification`,
-                text: `Use the following code to verify your email: ${emailVerificationCode}`,
-                // html: EmailTemplates.tracker(
-                //   users[i].name,
-                //   companyArr[k].companyName,
-                //   status
-                // ),
+                to: email,
+                from: `CodeChef-VIT <${process.env.NODEMAILER_EMAIL}>`,
+                html: sendVerificationOTP(emailVerificationCode),
               };
 
-              await sgMail
-                .send(msg)
-                .then(async () => {
+              transporter.sendMail(mailOptions, (error, response) => {
+                if (error) {
+                  console.log("Email not sent: ", mailOptions.to);
+                  console.log(error.toString());
+
+                  return res.status(500).json({
+                    message: "Something went wrong",
+                    error: error.toString(),
+                  });
+                } else {
+                  console.log("Email sent: ", mailOptions.to);
                   res.status(201).json({
                     message: "Signup successful",
                   });
-                })
-                .catch((err) => {
-                  res.status(500).json({
-                    message: "Something went wrong",
-                    error: err.toString(),
-                  });
-                });
+                }
+              });
+
+              // const msg = {
+              //   to: email,
+              //   from: {
+              //     email: process.env.SENDGRID_EMAIL,
+              //     name: "CodeChef-VIT",
+              //   },
+              //   subject: `Common Entry Test - Email Verification`,
+              //   text: `Use the following code to verify your email: ${emailVerificationCode}`,
+              //   // html: EmailTemplates.tracker(
+              //   //   users[i].name,
+              //   //   companyArr[k].companyName,
+              //   //   status
+              //   // ),
+              // };
+
+              // await sgMail
+              //   .send(msg)
+              //   .then(async () => {
+              //     res.status(201).json({
+              //       message: "Signup successful",
+              //     });
+              //   })
+              //   .catch((err) => {
+              //     res.status(500).json({
+              //       message: "Something went wrong",
+              //       error: err.toString(),
+              //     });
+              //   });
             })
             .catch((err) => {
               res.status(500).json({
@@ -133,33 +173,66 @@ const resendOTP = async (req, res) => {
       await student
         .save()
         .then(async () => {
-          const msg = {
-            to: email,
-            from: {
-              email: process.env.SENDGRID_EMAIL,
-              name: "CodeChef-VIT",
+          let transporter = nodemailer.createTransport({
+            service: "gmail",
+            port: 465,
+
+            auth: {
+              user: process.env.NODEMAILER_EMAIL,
+              pass: process.env.NODEMAILER_PASSWORD,
             },
+          });
+
+          let mailOptions = {
             subject: `Common Entry Test - Email Verification`,
-            text: `Use the following code to verify your email: ${student.emailVerificationCode}`,
-            // html: EmailTemplates.tracker(
-            //   users[i].name,
-            //   companyArr[k].companyName,
-            //   status
-            // ),
+            to: email,
+            from: `CodeChef-VIT <${process.env.NODEMAILER_EMAIL}>`,
+            html: sendVerificationOTP(student.emailVerificationCode),
           };
-          await sgMail
-            .send(msg)
-            .then(async () => {
-              res.status(200).json({
-                message: "Email verification OTP Sent",
-              });
-            })
-            .catch((err) => {
-              res.status(500).json({
+
+          transporter.sendMail(mailOptions, (error, response) => {
+            if (error) {
+              console.log("Email not sent: ", mailOptions.to);
+              console.log(error.toString());
+
+              return res.status(500).json({
                 message: "Something went wrong",
-                error: err.toString(),
+                error: error.toString(),
               });
-            });
+            } else {
+              console.log("Email sent: ", mailOptions.to);
+              res.status(201).json({
+                message: "Signup successful",
+              });
+            }
+          });
+          // const msg = {
+          //   to: email,
+          //   from: {
+          //     email: process.env.SENDGRID_EMAIL,
+          //     name: "CodeChef-VIT",
+          //   },
+          //   subject: `Common Entry Test - Email Verification`,
+          //   text: `Use the following code to verify your email: ${student.emailVerificationCode}`,
+          //   // html: EmailTemplates.tracker(
+          //   //   users[i].name,
+          //   //   companyArr[k].companyName,
+          //   //   status
+          //   // ),
+          // };
+          // await sgMail
+          //   .send(msg)
+          //   .then(async () => {
+          //     res.status(200).json({
+          //       message: "Email verification OTP Sent",
+          //     });
+          //   })
+          //   .catch((err) => {
+          //     res.status(500).json({
+          //       message: "Something went wrong",
+          //       error: err.toString(),
+          //     });
+          //   });
         })
         .catch((err) => {
           res.status(500).json({
@@ -325,33 +398,66 @@ const sendForgotPasswordEmail = async (req, res) => {
       await student
         .save()
         .then(async () => {
-          const msg = {
-            to: email,
-            from: {
-              email: process.env.SENDGRID_EMAIL,
-              name: "CodeChef-VIT",
+          let transporter = nodemailer.createTransport({
+            service: "gmail",
+            port: 465,
+
+            auth: {
+              user: process.env.NODEMAILER_EMAIL,
+              pass: process.env.NODEMAILER_PASSWORD,
             },
+          });
+
+          let mailOptions = {
             subject: `Common Entry Test - Forgot Password`,
-            text: `Use the following code to reset your password: ${student.forgotPasswordCode}`,
-            // html: EmailTemplates.tracker(
-            //   users[i].name,
-            //   companyArr[k].companyName,
-            //   status
-            // ),
+            to: email,
+            from: `CodeChef-VIT <${process.env.NODEMAILER_EMAIL}>`,
+            html: sendForgotPasswordMail(student.forgotPasswordCode),
           };
-          await sgMail
-            .send(msg)
-            .then(async () => {
-              res.status(200).json({
-                message: "Forgot password code sent",
-              });
-            })
-            .catch((err) => {
-              res.status(500).json({
+
+          transporter.sendMail(mailOptions, (error, response) => {
+            if (error) {
+              console.log("Email not sent: ", mailOptions.to);
+              console.log(error.toString());
+
+              return res.status(500).json({
                 message: "Something went wrong",
-                error: err.toString(),
+                error: error.toString(),
               });
-            });
+            } else {
+              console.log("Email sent: ", mailOptions.to);
+              res.status(201).json({
+                message: "Signup successful",
+              });
+            }
+          });
+          // const msg = {
+          //   to: email,
+          //   from: {
+          //     email: process.env.SENDGRID_EMAIL,
+          //     name: "CodeChef-VIT",
+          //   },
+          //   subject: `Common Entry Test - Forgot Password`,
+          //   text: `Use the following code to reset your password: ${student.forgotPasswordCode}`,
+          //   // html: EmailTemplates.tracker(
+          //   //   users[i].name,
+          //   //   companyArr[k].companyName,
+          //   //   status
+          //   // ),
+          // };
+          // await sgMail
+          //   .send(msg)
+          //   .then(async () => {
+          //     res.status(200).json({
+          //       message: "Forgot password code sent",
+          //     });
+          //   })
+          //   .catch((err) => {
+          //     res.status(500).json({
+          //       message: "Something went wrong",
+          //       error: err.toString(),
+          //     });
+          //   });
         })
         .catch((err) => {
           res.status(500).json({
