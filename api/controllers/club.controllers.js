@@ -378,7 +378,15 @@ const login = async (req, res) => {
 // @desc Update club's profile
 // @route PATCH /api/club/profile
 const updateProfile = async (req, res, next) => {
-  const { name, type, bio, website, socialMediaLinks, mobileNumber, username } = req.body;
+  const {
+    name,
+    type,
+    bio,
+    website,
+    socialMediaLinks,
+    mobileNumber,
+    username,
+  } = req.body;
   const clubId = req.user.userId;
 
   await Club.updateOne(
@@ -465,13 +473,13 @@ const getClubDetails = async (req, res, next) => {
 const getClubDetailsUsername = async (req, res, next) => {
   const { username } = req.query;
 
-  if (!clubId) {
+  if (!username) {
     return res.status(400).json({
-      message: "1 or more parameter(s) missing from req.body",
+      message: "1 or more parameter(s) missing from req.query",
     });
   }
 
-  await Club.findOne({username})
+  await Club.findOne({ username })
     .select(
       "name email type bio featured website username clubAvatar clubBanner clubImages socialMediaLinks mobileNumber"
     )
