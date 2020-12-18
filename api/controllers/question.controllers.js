@@ -24,8 +24,13 @@ const addQuestion = async (req, res, next) => {
     description,
     options,
   } = req.body;
-  options = JSON.parse(options)
+
+  if (options) {
+    options = JSON.parse(options);
+  }
   const clubId = req.user.userId;
+
+  console.log(req.body, req.file);
 
   if (!req.file) {
     const question = new Question({
