@@ -8,12 +8,8 @@ const clubControllers = require("../controllers/club.controllers");
 const checkAuthClub = require("../middleware/checkAuthClub");
 
 const {
-  upload,
   uploadClubAvatar,
   uploadClubBanner,
-  uploadClubImages,
-  uploadAnswerMedia,
-  uploadQuestionMedia,
 } = require("../middleware/s3UploadClient");
 
 const router = express.Router();
