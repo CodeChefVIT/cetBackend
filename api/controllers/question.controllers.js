@@ -55,7 +55,7 @@ const addQuestion = async (req, res, next) => {
   } else {
     const url = req.file.location;
     const mimetype = req.file.mimetype;
-    const type = mimetype.split("/")[0];
+    const mediaType = mimetype.split("/")[0];
     const ext = mimetype.split("/")[1];
 
     const question = new Question({
@@ -70,7 +70,7 @@ const addQuestion = async (req, res, next) => {
       media: {
         url,
         mimetype,
-        type,
+        type: mediaType,
         ext,
       },
     });
