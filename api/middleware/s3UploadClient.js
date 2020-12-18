@@ -22,7 +22,7 @@ const upload = multer({
       cb(null, { fieldName: file.fieldname });
     },
     key: (req, file, cb) => {
-      cb(null, "files_from_node/" + Date.now().toString() + file.originalname);
+      cb(null, "files_from_node/" + Date.now().toString() + '_' + file.originalname);
     },
   }),
 });
@@ -40,7 +40,7 @@ const uploadClubAvatar = multer({
       cb(null, { fieldName: file.fieldname });
     },
     key: (req, file, cb) => {
-      cb(null, "clubs/avatars/" + Date.now().toString() + file.originalname);
+      cb(null, "clubs/avatars/" + Date.now().toString() + '_' + file.originalname);
     },
   }),
 });
@@ -58,7 +58,7 @@ const uploadClubBanner = multer({
       cb(null, { fieldName: file.fieldname });
     },
     key: (req, file, cb) => {
-      cb(null, "clubs/banners/" + Date.now().toString() + file.originalname);
+      cb(null, "clubs/banners/" + Date.now().toString() + '_' + file.originalname);
     },
   }),
 });
@@ -76,7 +76,7 @@ const uploadClubImages = multer({
       cb(null, { fieldName: file.fieldname });
     },
     key: (req, file, cb) => {
-      cb(null, "clubs/images/" + Date.now().toString() + file.originalname);
+      cb(null, "clubs/images/" + Date.now().toString() + '_' + file.originalname);
     },
   }),
 });
@@ -94,7 +94,7 @@ const uploadQuestionMedia = multer({
       cb(null, { fieldName: file.fieldname });
     },
     key: (req, file, cb) => {
-      cb(null, "media/question/" + Date.now().toString() + file.originalname);
+      cb(null, "media/question/" + Date.now().toString() + '_' + file.originalname);
     },
   }),
 });
@@ -112,7 +112,7 @@ const uploadAnswerMedia = multer({
       cb(null, { fieldName: file.fieldname });
     },
     key: (req, file, cb) => {
-      cb(null, "media/answer/" + Date.now().toString() + file.originalname);
+      cb(null, "media/answer/" + Date.now().toString() + '_' + file.originalname);
     },
   }),
 });
