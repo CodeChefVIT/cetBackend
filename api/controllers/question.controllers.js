@@ -16,7 +16,7 @@ const { response } = require("express");
 // @desc Add a question to a test
 // @route GET /api/question/add
 const addQuestion = async (req, res, next) => {
-  const {
+  let {
     testId,
     domainId,
     type,
