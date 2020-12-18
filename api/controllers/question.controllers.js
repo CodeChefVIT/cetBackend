@@ -54,10 +54,9 @@ const addQuestion = async (req, res, next) => {
       });
   } else {
     const url = req.file.location;
-    const arr = url.split(".");
-    const ext = arr[arr.length - 1];
-
-    // if(ext == "png"|| ext=="jpg" || "")
+    const mimetype = req.file.mimetype;
+    const type = mimetype.split("/")[0];
+    const ext = mimetype.split("/")[1];
 
     const question = new Question({
       _id: new mongoose.Types.ObjectId(),
@@ -70,6 +69,8 @@ const addQuestion = async (req, res, next) => {
       options,
       media: {
         url,
+        mimetype,
+        type,
         ext,
       },
     });
@@ -79,11 +80,12 @@ const addQuestion = async (req, res, next) => {
       .then(async () => {
         res.status(201).json({
           message: "Question added",
+          file: req.file,
         });
       })
       .catch((err) => {
-        res.status(500).json({
-          message: "Something went wrong",
+        res.status(400).json({
+          message: "Invalid media type",
           error: err.toString(),
         });
       });
