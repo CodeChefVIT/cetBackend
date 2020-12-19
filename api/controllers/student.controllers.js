@@ -13,6 +13,8 @@ const Student = require("../models/student.model");
 const Test = require("../models/test.model");
 const Question = require("../models/question.model");
 
+const { errorLogger } = require("../utils/logger");
+
 const {
   sendVerificationOTP,
   sendForgotPasswordMail,
@@ -79,9 +81,13 @@ const signup = async (req, res) => {
 
               transporter.sendMail(mailOptions, (error, response) => {
                 if (error) {
-                  console.log("Email not sent: ", mailOptions.to);
-                  console.log(error.toString());
-
+                  errorLogger.info(
+                    `System: ${req.ip} | ${req.method} | ${
+                      req.originalUrl
+                    } >> ${error.toString()} >> "Email not sent: ${
+                      mailOptions.to
+                    }`
+                  );
                   return res.status(500).json({
                     message: "Something went wrong",
                     error: error.toString(),
@@ -124,23 +130,38 @@ const signup = async (req, res) => {
               //   });
             })
             .catch((err) => {
+              errorLogger.info(
+                `System: ${req.ip} | ${req.method} | ${
+                  req.originalUrl
+                } >> ${err.toString()}`
+              );
               res.status(500).json({
                 message: "Something went wrong",
-                error: err.toString(),
+                // error: err.toString(),
               });
             });
         })
         .catch((err) => {
+          errorLogger.info(
+            `System: ${req.ip} | ${req.method} | ${
+              req.originalUrl
+            } >> ${err.toString()}`
+          );
           res.status(500).json({
             message: "Something went wrong",
-            error: err.toString(),
+            // error: err.toString(),
           });
         });
     })
     .catch((err) => {
+      errorLogger.info(
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
+        } >> ${err.toString()}`
+      );
       res.status(500).json({
         message: "Something went wrong",
-        error: err.toString(),
+        // error: err.toString(),
       });
     });
 };
@@ -192,8 +213,11 @@ const resendOTP = async (req, res) => {
 
           transporter.sendMail(mailOptions, (error, response) => {
             if (error) {
-              console.log("Email not sent: ", mailOptions.to);
-              console.log(error.toString());
+              errorLogger.info(
+                `System: ${req.ip} | ${req.method} | ${
+                  req.originalUrl
+                } >> ${error.toString()} >> "Email not sent: ${mailOptions.to}`
+              );
 
               return res.status(500).json({
                 message: "Something went wrong",
@@ -235,16 +259,26 @@ const resendOTP = async (req, res) => {
           //   });
         })
         .catch((err) => {
+          errorLogger.info(
+            `System: ${req.ip} | ${req.method} | ${
+              req.originalUrl
+            } >> ${err.toString()}`
+          );
           res.status(500).json({
             message: "Something went wrong",
-            error: err.toString(),
+            // error: err.toString(),
           });
         });
     })
     .catch((err) => {
+      errorLogger.info(
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
+        } >> ${err.toString()}`
+      );
       res.status(500).json({
         message: "Something went wrong",
-        error: err.toString(),
+        // error: err.toString(),
       });
     });
 };
@@ -276,9 +310,14 @@ const verifyEmail = async (req, res) => {
                 });
               })
               .catch((err) => {
+                errorLogger.info(
+                  `System: ${req.ip} | ${req.method} | ${
+                    req.originalUrl
+                  } >> ${err.toString()}`
+                );
                 res.status(500).json({
                   message: "Something went wrong",
-                  error: err.toString(),
+                  // error: err.toString(),
                 });
               });
           } else {
@@ -298,9 +337,14 @@ const verifyEmail = async (req, res) => {
       }
     })
     .catch((err) => {
+      errorLogger.info(
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
+        } >> ${err.toString()}`
+      );
       res.status(500).json({
         message: "Something went wrong",
-        error: err.toString(),
+        // error: err.toString(),
       });
     });
 };
@@ -359,16 +403,26 @@ const login = async (req, res) => {
           });
         })
         .catch((err) => {
+          errorLogger.info(
+            `System: ${req.ip} | ${req.method} | ${
+              req.originalUrl
+            } >> ${err.toString()}`
+          );
           res.status(500).json({
             message: "Something went wrong",
-            error: err.toString(),
+            // error: err.toString(),
           });
         });
     })
     .catch((err) => {
+      errorLogger.info(
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
+        } >> ${err.toString()}`
+      );
       res.status(500).json({
         message: "Something went wrong",
-        error: err.toString(),
+        // error: err.toString(),
       });
     });
 };
@@ -417,17 +471,18 @@ const sendForgotPasswordEmail = async (req, res) => {
 
           transporter.sendMail(mailOptions, (error, response) => {
             if (error) {
-              console.log("Email not sent: ", mailOptions.to);
-              console.log(error.toString());
-
+              errorLogger.info(
+                `System: ${req.ip} | ${req.method} | ${
+                  req.originalUrl
+                } >> ${error.toString()} >> "Email not sent: ${mailOptions.to}`
+              );
               return res.status(500).json({
                 message: "Something went wrong",
-                error: error.toString(),
+                // error: error.toString(),
               });
             } else {
-              console.log("Email sent: ", mailOptions.to);
-              res.status(201).json({
-                message: "Signup successful",
+              res.status(200).json({
+                message: "Forgot password email sent",
               });
             }
           });
@@ -460,16 +515,26 @@ const sendForgotPasswordEmail = async (req, res) => {
           //   });
         })
         .catch((err) => {
+          errorLogger.info(
+            `System: ${req.ip} | ${req.method} | ${
+              req.originalUrl
+            } >> ${err.toString()}`
+          );
           res.status(500).json({
             message: "Something went wrong",
-            error: err.toString(),
+            // error: err.toString(),
           });
         });
     })
     .catch((err) => {
+      errorLogger.info(
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
+        } >> ${err.toString()}`
+      );
       res.status(500).json({
         message: "Something went wrong",
-        error: err.toString(),
+        // error: err.toString(),
       });
     });
 };
@@ -505,16 +570,26 @@ const resetPassword = async (req, res) => {
                     });
                   })
                   .catch((err) => {
+                    errorLogger.info(
+                      `System: ${req.ip} | ${req.method} | ${
+                        req.originalUrl
+                      } >> ${err.toString()}`
+                    );
                     res.status(500).json({
                       message: "Something went wrong",
-                      error: err.toString(),
+                      // error: err.toString(),
                     });
                   });
               })
               .catch((err) => {
+                errorLogger.info(
+                  `System: ${req.ip} | ${req.method} | ${
+                    req.originalUrl
+                  } >> ${err.toString()}`
+                );
                 res.status(500).json({
                   message: "Something went wrong",
-                  error: err.toString(),
+                  // error: err.toString(),
                 });
               });
           } else {
@@ -534,9 +609,14 @@ const resetPassword = async (req, res) => {
       }
     })
     .catch((err) => {
+      errorLogger.info(
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
+        } >> ${err.toString()}`
+      );
       res.status(500).json({
         message: "Something went wrong",
-        error: err.toString(),
+        // error: err.toString(),
       });
     });
 };
@@ -557,9 +637,14 @@ const updateProfile = async (req, res, next) => {
       });
     })
     .catch((err) => {
+      errorLogger.info(
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
+        } >> ${err.toString()}`
+      );
       res.status(500).json({
         message: "Something went wrong",
-        error: err.toString(),
+        // error: err.toString(),
       });
     });
 };
@@ -577,9 +662,14 @@ const getProfile = async (req, res, next) => {
       });
     })
     .catch((err) => {
+      errorLogger.info(
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
+        } >> ${err.toString()}`
+      );
       res.status(500).json({
         message: "Something went wrong",
-        error: err.toString(),
+        // error: err.toString(),
       });
     });
 };
@@ -603,9 +693,14 @@ const getStudentDetails = async (req, res, next) => {
       });
     })
     .catch((err) => {
+      errorLogger.info(
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
+        } >> ${err.toString()}`
+      );
       res.status(500).json({
         message: "Something went wrong",
-        error: err.toString(),
+        // error: err.toString(),
       });
     });
 };
@@ -647,9 +742,14 @@ const dashboard = async (req, res, next) => {
       });
     })
     .catch((err) => {
+      errorLogger.info(
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
+        } >> ${err.toString()}`
+      );
       res.status(500).json({
         message: "Something went wrong",
-        error: err.toString(),
+        // error: err.toString(),
       });
     });
 };

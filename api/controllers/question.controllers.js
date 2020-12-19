@@ -11,7 +11,8 @@ const Student = require("../models/student.model");
 const Test = require("../models/test.model");
 const Question = require("../models/question.model");
 const Domain = require("../models/testDomain.model");
-const { response } = require("express");
+
+const { errorLogger } = require("../utils/logger");
 
 // @desc Add a question to a test
 // @route GET /api/question/add
@@ -52,9 +53,14 @@ const addQuestion = async (req, res, next) => {
         });
       })
       .catch((err) => {
+        errorLogger.info(
+          `System: ${req.ip} | ${req.method} | ${
+            req.originalUrl
+          } >> ${err.toString()}`
+        );
         res.status(500).json({
           message: "Something went wrong",
-          error: err.toString(),
+          // error: err.toString(),
         });
       });
   } else {
@@ -90,9 +96,15 @@ const addQuestion = async (req, res, next) => {
         });
       })
       .catch((err) => {
+        errorLogger.info(
+          `System: ${req.ip} | ${req.method} | ${
+            req.originalUrl
+          } >> ${err.toString()}`
+        );
+
         res.status(400).json({
           message: "Invalid media type",
-          error: err.toString(),
+          // error: err.toString(),
         });
       });
   }
@@ -127,23 +139,38 @@ const addMultipleQuestions = async (req, res, next) => {
               });
             })
             .catch((err) => {
+              errorLogger.info(
+                `System: ${req.ip} | ${req.method} | ${
+                  req.originalUrl
+                } >> ${err.toString()}`
+              );
               res.status(500).json({
-                message: "Some error occurred",
-                error: err.toString(),
+                message: "Something went wrong",
+                // error: err.toString(),
               });
             });
         })
         .catch((err) => {
+          errorLogger.info(
+            `System: ${req.ip} | ${req.method} | ${
+              req.originalUrl
+            } >> ${err.toString()}`
+          );
           res.status(500).json({
-            message: "Some error occurred",
-            error: err.toString(),
+            message: "Something went wrong",
+            // error: err.toString(),
           });
         });
     })
     .catch((err) => {
+      errorLogger.info(
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
+        } >> ${err.toString()}`
+      );
       res.status(500).json({
-        message: "Some error occurred",
-        error: err.toString(),
+        message: "Something went wrong",
+        // error: err.toString(),
       });
     });
 };
@@ -181,16 +208,26 @@ const getAllQuestions = async (req, res, next) => {
           });
         })
         .catch((err) => {
+          errorLogger.info(
+            `System: ${req.ip} | ${req.method} | ${
+              req.originalUrl
+            } >> ${err.toString()}`
+          );
           res.status(500).json({
             message: "Something went wrong",
-            error: err.toString(),
+            // error: err.toString(),
           });
         });
     })
     .catch((err) => {
+      errorLogger.info(
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
+        } >> ${err.toString()}`
+      );
       res.status(500).json({
         message: "Something went wrong",
-        error: err.toString(),
+        // error: err.toString(),
       });
     });
 };
@@ -224,16 +261,26 @@ const updateMarks = async (req, res, next) => {
                   flag = 1;
                 })
                 .catch((err) => {
-                  return res.status(500).json({
+                  errorLogger.info(
+                    `System: ${req.ip} | ${req.method} | ${
+                      req.originalUrl
+                    } >> ${err.toString()}`
+                  );
+                  res.status(500).json({
                     message: "Something went wrong",
-                    error: err.toString(),
+                    // error: err.toString(),
                   });
                 });
             })
             .catch((err) => {
+              errorLogger.info(
+                `System: ${req.ip} | ${req.method} | ${
+                  req.originalUrl
+                } >> ${err.toString()}`
+              );
               return res.status(500).json({
                 message: "Something went wrong",
-                error: err.toString(),
+                // error: err.toString(),
               });
             });
 
@@ -309,17 +356,27 @@ const deleteQuestion = async (req, res, next) => {
             });
           })
           .catch((err) => {
+            errorLogger.info(
+              `System: ${req.ip} | ${req.method} | ${
+                req.originalUrl
+              } >> ${err.toString()}`
+            );
             res.status(500).json({
               message: "Something went wrong",
-              error: err.toString(),
+              // error: err.toString(),
             });
           });
       }
     })
     .catch((err) => {
+      errorLogger.info(
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
+        } >> ${err.toString()}`
+      );
       res.status(500).json({
         message: "Something went wrong",
-        error: err.toString(),
+        // error: err.toString(),
       });
     });
 };

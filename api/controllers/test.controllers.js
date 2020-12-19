@@ -12,6 +12,8 @@ const Test = require("../models/test.model");
 const Question = require("../models/question.model");
 const Domain = require("../models/testDomain.model");
 
+const { errorLogger } = require("../utils/logger");
+
 // @desc Create a test
 // @route POST /api/test/create
 const create = async (req, res, next) => {
@@ -56,9 +58,14 @@ const create = async (req, res, next) => {
       });
     })
     .catch((err) => {
+      errorLogger.info(
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
+        } >> ${err.toString()}`
+      );
       res.status(500).json({
         message: "Something went wrong",
-        error: err.toString(),
+        // error: err.toString(),
       });
     });
 };
@@ -81,9 +88,14 @@ const getTestDetails = async (req, res, next) => {
       });
     })
     .catch((err) => {
+      errorLogger.info(
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
+        } >> ${err.toString()}`
+      );
       res.status(500).json({
         message: "Something went wrong",
-        error: err.toString(),
+        // error: err.toString(),
       });
     });
 };
@@ -135,9 +147,14 @@ const apply = async (req, res, next) => {
       }
     })
     .catch((err) => {
+      errorLogger.info(
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
+        } >> ${err.toString()}`
+      );
       res.status(500).json({
         message: "Something went wrong",
-        error: err.toString(),
+        // error: err.toString(),
       });
     });
 
@@ -175,16 +192,26 @@ const apply = async (req, res, next) => {
           });
         })
         .catch((err) => {
+          errorLogger.info(
+            `System: ${req.ip} | ${req.method} | ${
+              req.originalUrl
+            } >> ${err.toString()}`
+          );
           res.status(500).json({
             message: "Something went wrong",
-            error: err.toString(),
+            // error: err.toString(),
           });
         });
     })
     .catch((err) => {
+      errorLogger.info(
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
+        } >> ${err.toString()}`
+      );
       res.status(500).json({
         message: "Something went wrong",
-        error: err.toString(),
+        // error: err.toString(),
       });
     });
 };
@@ -271,16 +298,26 @@ const attempt = async (req, res, next) => {
                 // });
               })
               .catch((err) => {
+                errorLogger.info(
+                  `System: ${req.ip} | ${req.method} | ${
+                    req.originalUrl
+                  } >> ${err.toString()}`
+                );
                 res.status(500).json({
                   message: "Something went wrong",
-                  error: err.toString(),
+                  // error: err.toString(),
                 });
               });
           })
           .catch((err) => {
+            errorLogger.info(
+              `System: ${req.ip} | ${req.method} | ${
+                req.originalUrl
+              } >> ${err.toString()}`
+            );
             res.status(500).json({
               message: "Something went wrong",
-              error: err.toString(),
+              // error: err.toString(),
             });
           });
       }
@@ -354,30 +391,50 @@ const attempt = async (req, res, next) => {
                   });
                 })
                 .catch((err) => {
+                  errorLogger.info(
+                    `System: ${req.ip} | ${req.method} | ${
+                      req.originalUrl
+                    } >> ${err.toString()}`
+                  );
                   res.status(500).json({
                     message: "Something went wrong",
-                    error: err.toString(),
+                    // error: err.toString(),
                   });
                 });
             })
             .catch((err) => {
+              errorLogger.info(
+                `System: ${req.ip} | ${req.method} | ${
+                  req.originalUrl
+                } >> ${err.toString()}`
+              );
               res.status(500).json({
                 message: "Something went wrong",
-                error: err.toString(),
+                // error: err.toString(),
               });
             });
         })
         .catch((err) => {
+          errorLogger.info(
+            `System: ${req.ip} | ${req.method} | ${
+              req.originalUrl
+            } >> ${err.toString()}`
+          );
           res.status(500).json({
             message: "Something went wrong",
-            error: err.toString(),
+            // error: err.toString(),
           });
         });
     })
     .catch((err) => {
+      errorLogger.info(
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
+        } >> ${err.toString()}`
+      );
       res.status(500).json({
         message: "Something went wrong",
-        error: err.toString(),
+        // error: err.toString(),
       });
     });
 };
@@ -432,16 +489,26 @@ const submit = async (req, res, next) => {
           });
         })
         .catch((err) => {
+          errorLogger.info(
+            `System: ${req.ip} | ${req.method} | ${
+              req.originalUrl
+            } >> ${err.toString()}`
+          );
           res.status(500).json({
             message: "Something went wrong",
-            error: err.toString(),
+            // error: err.toString(),
           });
         });
     })
     .catch((err) => {
+      errorLogger.info(
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
+        } >> ${err.toString()}`
+      );
       res.status(500).json({
         message: "Something went wrong",
-        error: err.toString(),
+        // error: err.toString(),
       });
     });
 };
@@ -465,9 +532,14 @@ const allApplied = async (req, res, next) => {
       });
     })
     .catch((err) => {
+      errorLogger.info(
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
+        } >> ${err.toString()}`
+      );
       res.status(500).json({
         message: "Something went wrong",
-        error: err.toString(),
+        // error: err.toString(),
       });
     });
 };
@@ -491,9 +563,14 @@ const allSubmitted = async (req, res, next) => {
       });
     })
     .catch((err) => {
+      errorLogger.info(
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
+        } >> ${err.toString()}`
+      );
       res.status(500).json({
         message: "Something went wrong",
-        error: err.toString(),
+        // error: err.toString(),
       });
     });
 };
@@ -548,9 +625,14 @@ const addStudents = async (req, res, next) => {
       });
     })
     .catch((err) => {
+      errorLogger.info(
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
+        } >> ${err.toString()}`
+      );
       return res.status(500).json({
         message: "Something went wrong",
-        error: err.toString(),
+        // error: err.toString(),
       });
     });
 };
@@ -572,9 +654,15 @@ const publish = async (req, res, next) => {
       });
     })
     .catch((err) => {
+      errorLogger.info(
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
+        } >> ${err.toString()}`
+      );
+
       return res.status(500).json({
         message: "Something went wrong",
-        error: err.toString(),
+        // error: err.toString(),
       });
     });
 };
@@ -593,9 +681,15 @@ const getAllTestOfAClub = async (req, res, next) => {
       });
     })
     .catch((err) => {
+      errorLogger.info(
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
+        } >> ${err.toString()}`
+      );
+
       return res.status(500).json({
         message: "Something went wrong",
-        error: err.toString(),
+        // error: err.toString(),
       });
     });
 };
@@ -618,9 +712,15 @@ const getAllPublishedTestsOfAClub = async (req, res, next) => {
       });
     })
     .catch((err) => {
+      errorLogger.info(
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
+        } >> ${err.toString()}`
+      );
+
       return res.status(500).json({
         message: "Something went wrong",
-        error: err.toString(),
+        // error: err.toString(),
       });
     });
 };
@@ -664,17 +764,29 @@ const updateTest = async (req, res, next) => {
             });
           })
           .catch((err) => {
+            errorLogger.info(
+              `System: ${req.ip} | ${req.method} | ${
+                req.originalUrl
+              } >> ${err.toString()}`
+            );
+
             return res.status(500).json({
               message: "Something went wrong",
-              error: err.toString(),
+              // error: err.toString(),
             });
           });
       }
     })
     .catch((err) => {
+      errorLogger.info(
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
+        } >> ${err.toString()}`
+      );
+
       return res.status(500).json({
         message: "Something went wrong",
-        error: err.toString(),
+        // error: err.toString(),
       });
     });
 };

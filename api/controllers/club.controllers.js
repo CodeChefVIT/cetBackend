@@ -10,6 +10,8 @@ require("dotenv").config();
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
+const { errorLogger } = require("../utils/logger");
+
 const Club = require("../models/club.model");
 
 const {
@@ -50,17 +52,27 @@ const create = async (req, res) => {
             });
           })
           .catch((err) => {
+            errorLogger.info(
+              `System: ${req.ip} | ${req.method} | ${
+                req.originalUrl
+              } >> ${err.toString()}`
+            );
             res.status(500).json({
               message: "Something went wrong",
-              error: err.toString(),
+              // error: err.toString(),
             });
           });
       }
     })
     .catch((err) => {
+      errorLogger.info(
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
+        } >> ${err.toString()}`
+      );
       res.status(500).json({
         message: "Something went wrong",
-        error: err.toString(),
+        // error: err.toString(),
       });
     });
 };
@@ -185,9 +197,13 @@ const signup = async (req, res) => {
               // };
               transporter.sendMail(mailOptions, (error, response) => {
                 if (error) {
-                  console.log("Email not sent: ", mailOptions.to);
-                  console.log(error.toString());
-
+                  errorLogger.info(
+                    `System: ${req.ip} | ${req.method} | ${
+                      req.originalUrl
+                    } >> ${error.toString()} >> "Email not sent: ${
+                      mailOptions.to
+                    }`
+                  );
                   return res.status(500).json({
                     message: "Something went wrong",
                     error: error.toString(),
@@ -225,23 +241,38 @@ const signup = async (req, res) => {
               //   });
             })
             .catch((err) => {
+              errorLogger.info(
+                `System: ${req.ip} | ${req.method} | ${
+                  req.originalUrl
+                } >> ${err.toString()}`
+              );
               res.status(500).json({
                 message: "Something went wrong",
-                error: err.toString(),
+                // error: err.toString(),
               });
             });
         })
         .catch((err) => {
+          errorLogger.info(
+            `System: ${req.ip} | ${req.method} | ${
+              req.originalUrl
+            } >> ${err.toString()}`
+          );
           res.status(500).json({
             message: "Something went wrong",
-            error: err.toString(),
+            // error: err.toString(),
           });
         });
     })
     .catch((err) => {
+      errorLogger.info(
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
+        } >> ${err.toString()}`
+      );
       res.status(500).json({
         message: "Something went wrong",
-        error: err.toString(),
+        // error: err.toString(),
       });
     });
 };
@@ -292,15 +323,16 @@ const resendOTP = async (req, res) => {
 
           transporter.sendMail(mailOptions, (error, response) => {
             if (error) {
-              console.log("Email not sent: ", mailOptions.to);
-              console.log(error.toString());
-
+              errorLogger.info(
+                `System: ${req.ip} | ${req.method} | ${
+                  req.originalUrl
+                } >> ${error.toString()} >> "Email not sent: ${mailOptions.to}`
+              );
               return res.status(500).json({
                 message: "Something went wrong",
                 error: error.toString(),
               });
             } else {
-              console.log("Email sent: ", mailOptions.to);
               res.status(201).json({
                 message: "Email verification OTP Sent",
               });
@@ -336,13 +368,23 @@ const resendOTP = async (req, res) => {
           //   });
         })
         .catch((err) => {
+          errorLogger.info(
+            `System: ${req.ip} | ${req.method} | ${
+              req.originalUrl
+            } >> ${err.toString()}`
+          );
           res.status(500).json({
             message: "Something went wrong",
-            error: err.toString(),
+            // error: err.toString(),
           });
         });
     })
     .catch((err) => {
+      errorLogger.info(
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
+        } >> ${err.toString()}`
+      );
       res.status(500).json({
         message: "Something went wrong",
         error: err.toString(),
@@ -383,6 +425,11 @@ const verifyEmail = async (req, res) => {
                 });
               })
               .catch((err) => {
+                errorLogger.info(
+                  `System: ${req.ip} | ${req.method} | ${
+                    req.originalUrl
+                  } >> ${err.toString()}`
+                );
                 res.status(500).json({
                   message: "Something went wrong",
                   error: err.toString(),
@@ -405,9 +452,14 @@ const verifyEmail = async (req, res) => {
       }
     })
     .catch((err) => {
+      errorLogger.info(
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
+        } >> ${err.toString()}`
+      );
       res.status(500).json({
         message: "Something went wrong",
-        error: err.toString(),
+        // error: err.toString(),
       });
     });
 };
@@ -472,16 +524,26 @@ const login = async (req, res) => {
           });
         })
         .catch((err) => {
+          errorLogger.info(
+            `System: ${req.ip} | ${req.method} | ${
+              req.originalUrl
+            } >> ${err.toString()}`
+          );
           res.status(500).json({
             message: "Something went wrong",
-            error: err.toString(),
+            // error: err.toString(),
           });
         });
     })
     .catch((err) => {
+      errorLogger.info(
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
+        } >> ${err.toString()}`
+      );
       res.status(500).json({
         message: "Something went wrong",
-        error: err.toString(),
+        // error: err.toString(),
       });
     });
 };
@@ -522,9 +584,14 @@ const updateProfile = async (req, res, next) => {
       });
     })
     .catch((err) => {
+      errorLogger.info(
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
+        } >> ${err.toString()}`
+      );
       res.status(500).json({
         message: "Something went wrong",
-        error: err.toString(),
+        // error: err.toString(),
       });
     });
 };
@@ -544,9 +611,14 @@ const getSelfProfile = async (req, res, next) => {
       });
     })
     .catch((err) => {
+      errorLogger.info(
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
+        } >> ${err.toString()}`
+      );
       res.status(500).json({
         message: "Something went wrong",
-        error: err.toString(),
+        // error: err.toString(),
       });
     });
 };
@@ -572,9 +644,14 @@ const getClubDetails = async (req, res, next) => {
       });
     })
     .catch((err) => {
+      errorLogger.info(
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
+        } >> ${err.toString()}`
+      );
       res.status(500).json({
         message: "Something went wrong",
-        error: err.toString(),
+        // error: err.toString(),
       });
     });
 };
@@ -600,9 +677,14 @@ const getClubDetailsUsername = async (req, res, next) => {
       });
     })
     .catch((err) => {
+      errorLogger.info(
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
+        } >> ${err.toString()}`
+      );
       res.status(500).json({
         message: "Something went wrong",
-        error: err.toString(),
+        // error: err.toString(),
       });
     });
 };
@@ -629,9 +711,14 @@ const feature = async (req, res, next) => {
       });
     })
     .catch((err) => {
+      errorLogger.info(
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
+        } >> ${err.toString()}`
+      );
       res.status(500).json({
         message: "Something went wrong",
-        error: err.toString(),
+        // error: err.toString(),
       });
     });
 };
@@ -651,9 +738,14 @@ const getAllFeaturedClubs = async (req, res) => {
       });
     })
     .catch((err) => {
+      errorLogger.info(
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
+        } >> ${err.toString()}`
+      );
       res.status(500).json({
         message: "Something went wrong",
-        error: err.toString(),
+        // error: err.toString(),
       });
     });
 };
@@ -680,9 +772,14 @@ const uploadProfilePicture = async (req, res, next) => {
       });
     })
     .catch((err) => {
+      errorLogger.info(
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
+        } >> ${err.toString()}`
+      );
       res.status(500).json({
         message: "Something went wrong",
-        error: err.toString(),
+        // error: err.toString(),
       });
     });
 };
@@ -708,9 +805,14 @@ const uploadBanner = async (req, res, next) => {
       });
     })
     .catch((err) => {
+      errorLogger.info(
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
+        } >> ${err.toString()}`
+      );
       res.status(500).json({
         message: "Something went wrong",
-        error: err.toString(),
+        // error: err.toString(),
       });
     });
 };
@@ -736,9 +838,14 @@ const uploadImages = async (req, res, next) => {
       });
     })
     .catch((err) => {
+      errorLogger.info(
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
+        } >> ${err.toString()}`
+      );
       res.status(500).json({
         message: "Something went wrong",
-        error: err.toString(),
+        // error: err.toString(),
       });
     });
 };

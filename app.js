@@ -10,6 +10,7 @@ require("dotenv").config();
 const app = express();
 
 const passport_config = require("./api/config/studentGoogleAuth");
+const { errorLogger } = require("./api/utils/logger");
 
 //Require Atlas database URI from environment variables
 const DBURI = process.env.DBURI;
@@ -23,7 +24,9 @@ mongoose
     useFindAndModify: false,
   })
   .then(() => console.log("Database Connected"))
-  .catch((err) => console.log(err));
+  .catch((err) => {
+    errorLogger.error(`System: NIL >> ${err.toString()}`);
+  });
 
 mongoose.Promise = global.Promise;
 

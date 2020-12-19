@@ -48,7 +48,9 @@
     "passport-google-oauth20": "^2.0.0",
     "request": "^2.88.2",
     "supertest": "^6.0.1",
-    "useragent": "^2.3.0"
+    "useragent": "^2.3.0",
+    "winston": "^3.3.3",
+    "winston-mongodb": "^5.0.5"
   },
   "devDependencies": {
     "nodemon": "^2.0.4"
