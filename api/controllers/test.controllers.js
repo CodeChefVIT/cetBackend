@@ -298,6 +298,7 @@ const attempt = async (req, res, next) => {
                 // });
               })
               .catch((err) => {
+                console.log(err.toString());
                 errorLogger.info(
                   `System: ${req.ip} | ${req.method} | ${
                     req.originalUrl
@@ -305,11 +306,13 @@ const attempt = async (req, res, next) => {
                 );
                 res.status(500).json({
                   message: "Something went wrong",
-                  // error: err.toString(),
+                  error: err.toString(),
                 });
               });
           })
           .catch((err) => {
+            console.log(err.toString());
+
             errorLogger.info(
               `System: ${req.ip} | ${req.method} | ${
                 req.originalUrl
@@ -317,7 +320,7 @@ const attempt = async (req, res, next) => {
             );
             res.status(500).json({
               message: "Something went wrong",
-              // error: err.toString(),
+              error: err.toString(),
             });
           });
       }
@@ -391,6 +394,8 @@ const attempt = async (req, res, next) => {
                   });
                 })
                 .catch((err) => {
+                  console.log(err.toString());
+
                   errorLogger.info(
                     `System: ${req.ip} | ${req.method} | ${
                       req.originalUrl
@@ -398,11 +403,13 @@ const attempt = async (req, res, next) => {
                   );
                   res.status(500).json({
                     message: "Something went wrong",
-                    // error: err.toString(),
+                    error: err.toString(),
                   });
                 });
             })
             .catch((err) => {
+              console.log(err.toString());
+
               errorLogger.info(
                 `System: ${req.ip} | ${req.method} | ${
                   req.originalUrl
@@ -410,11 +417,13 @@ const attempt = async (req, res, next) => {
               );
               res.status(500).json({
                 message: "Something went wrong",
-                // error: err.toString(),
+                error: err.toString(),
               });
             });
         })
         .catch((err) => {
+          console.log(err.toString());
+
           errorLogger.info(
             `System: ${req.ip} | ${req.method} | ${
               req.originalUrl
@@ -422,11 +431,13 @@ const attempt = async (req, res, next) => {
           );
           res.status(500).json({
             message: "Something went wrong",
-            // error: err.toString(),
+            error: err.toString(),
           });
         });
     })
     .catch((err) => {
+      console.log(err.toString());
+
       errorLogger.info(
         `System: ${req.ip} | ${req.method} | ${
           req.originalUrl
@@ -434,7 +445,7 @@ const attempt = async (req, res, next) => {
       );
       res.status(500).json({
         message: "Something went wrong",
-        // error: err.toString(),
+        error: err.toString(),
       });
     });
 };
@@ -776,6 +787,80 @@ const updateTest = async (req, res, next) => {
             });
           });
       }
+    })
+    .catch((err) => {
+      errorLogger.info(
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
+        } >> ${err.toString()}`
+      );
+
+      return res.status(500).json({
+        message: "Something went wrong",
+        // error: err.toString(),
+      });
+    });
+};
+
+// @desc Delete a test
+// @route DELETE /api/test/delete
+const deleteTest = async (req, res, next) => {
+  const { testId } = req.body;
+
+  await Question.deleteMany({ testId })
+    .then(async () => {
+      await Domain.deleteMany({ testId })
+        .then(async () => {
+          await Student.updateMany(
+            {},
+            { $pull: { tests: { testId } } },
+            { multi: true }
+          )
+            .then(async () => {
+              await Test.deleteOne({ _id: testId })
+                .then(async () => {
+                  res.status(200).json({
+                    message: "Test deleted successfully",
+                  });
+                })
+                .catch((err) => {
+                  errorLogger.info(
+                    `System: ${req.ip} | ${req.method} | ${
+                      req.originalUrl
+                    } >> ${err.toString()}`
+                  );
+
+                  return res.status(500).json({
+                    message: "Something went wrong",
+                    // error: err.toString(),
+                  });
+                });
+            })
+            .catch((err) => {
+              errorLogger.info(
+                `System: ${req.ip} | ${req.method} | ${
+                  req.originalUrl
+                } >> ${err.toString()}`
+              );
+
+              return res.status(500).json({
+                message: "Something went wrong",
+                // error: err.toString(),
+              });
+            });
+        })
+        .catch((err) => {
+          errorLogger.info(
+            `System: ${req.ip} | ${req.method} | ${
+              req.originalUrl
+            } >> ${err.toString()}`
+          );
+
+          return res.status(500).json({
+            message: "Something went wrong",
+            // error: err.toString(),
+          });
+        });
     })
     .catch((err) => {
       errorLogger.info(

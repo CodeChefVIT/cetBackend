@@ -62,6 +62,19 @@ app.use(cors());
 
 app.use(useragent.express());
 
+if (process.env.NODE_ENV == "production") {
+  app.use((req, res, next) => {
+    if (req.useragent["isBot"] == false) {
+      next();
+    } else {
+      res.status(401).json({
+        message:
+          "Please try using a different browser: Interception is blocked",
+      });
+    }
+  });
+}
+
 app.use("/api/club", require("./api/routes/club.routes"));
 app.use("/api/student", require("./api/routes/student.routes"));
 app.use("/api/test", require("./api/routes/test.routes"));
