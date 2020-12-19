@@ -642,6 +642,57 @@ const publishShortlisted = async (req, res, next) => {
   }
 };
 
+// @desc Update domain details
+// @route PATCH /api/test/domain/details
+const updateDomainDetails = async (req, res, next) => {
+  const {
+    testId,
+    domainId,
+    domainName,
+    domainDescription,
+    domainInstructions,
+    domainDuration,
+  } = req.body;
+
+  await Test.findById(testId)
+    .then(async (test) => {
+      if (test.scheduledForDate <= Date.now()) {
+        return res.status(409).json({
+          message: "You can't update the domain since it has already started",
+        });
+      } else {
+        await Domain.updateOne(
+          { _id: domainId },
+          {
+            $set: {
+              domainName,
+              domainDescription,
+              domainInstructions,
+              domainDuration,
+            },
+          }
+        )
+          .then(async () => {
+            res.status(200).json({
+              message: "Domain details updated",
+            });
+          })
+          .catch((err) => {
+            return res.status(500).json({
+              message: "Something went wrong",
+              error: err.toString(),
+            });
+          });
+      }
+    })
+    .catch((err) => {
+      return res.status(500).json({
+        message: "Something went wrong",
+        error: err.toString(),
+      });
+    });
+};
+
 module.exports = {
   addDomain,
   getAllDomainsOfATest,
@@ -653,4 +704,5 @@ module.exports = {
   getStudentDomainSubmission,
   shortlistStudent,
   publishShortlisted,
+  updateDomainDetails,
 };

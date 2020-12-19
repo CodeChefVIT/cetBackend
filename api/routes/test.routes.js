@@ -52,5 +52,9 @@ router.get(
   testControllers.getAllPublishedTestsOfAClub
 );
 
+//Update test details
+router.patch("/details", checkAuthClub, testControllers.updateTest);
+
 router.use("/domain", require("./testDomain.routes"));
+
 module.exports = router;

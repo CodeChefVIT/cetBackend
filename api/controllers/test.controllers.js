@@ -555,6 +555,8 @@ const addStudents = async (req, res, next) => {
     });
 };
 
+// @desc Publish a test
+// @route PATCH /api/test/publish
 const publish = async (req, res, next) => {
   const { testId } = req.body;
 
@@ -577,11 +579,14 @@ const publish = async (req, res, next) => {
     });
 };
 
+// @desc Get all tests of a club -- admin only
+// @route GET /api/test/allTestsOfAClub
 const getAllTestOfAClub = async (req, res, next) => {
   // const { clubId } = req.query;
   const clubId = req.user.userId;
 
   await Test.find({ clubId })
+    .select("-usersFinished -usersStarted -users")
     .then(async (tests) => {
       res.status(200).json({
         tests,
@@ -595,6 +600,8 @@ const getAllTestOfAClub = async (req, res, next) => {
     });
 };
 
+// @desc Get all published tests of a club
+// @route PATCH /api/test/allPublishedTestsOfAClub
 const getAllPublishedTestsOfAClub = async (req, res, next) => {
   const { clubId } = req.query;
 
@@ -618,6 +625,60 @@ const getAllPublishedTestsOfAClub = async (req, res, next) => {
     });
 };
 
+// @desc Update test details
+// @route PATCH /api/test/details
+const updateTest = async (req, res, next) => {
+  const {
+    testId,
+    roundNumber,
+    roundType,
+    instructions,
+    scheduledForDate,
+    scheduledEndDate,
+    graded,
+  } = req.body;
+
+  await Test.findById(testId)
+    .then(async (test) => {
+      if (test.scheduledForDate <= Date.now()) {
+        return res.status(409).json({
+          message: "You can't update the test since it has already started",
+        });
+      } else {
+        await Test.updateOne(
+          { _id: testId },
+          {
+            $set: {
+              roundNumber,
+              roundType,
+              instructions,
+              scheduledForDate,
+              scheduledEndDate,
+              graded,
+            },
+          }
+        )
+          .then(async () => {
+            res.status(200).json({
+              message: "Test details updated",
+            });
+          })
+          .catch((err) => {
+            return res.status(500).json({
+              message: "Something went wrong",
+              error: err.toString(),
+            });
+          });
+      }
+    })
+    .catch((err) => {
+      return res.status(500).json({
+        message: "Something went wrong",
+        error: err.toString(),
+      });
+    });
+};
+
 module.exports = {
   create,
   getTestDetails,
@@ -630,4 +691,5 @@ module.exports = {
   publish,
   getAllTestOfAClub,
   getAllPublishedTestsOfAClub,
+  updateTest,
 };

@@ -54,6 +54,13 @@ router.patch(
   testDomainControllers.publishShortlisted
 );
 
+//Update domain details
+router.patch(
+  "/details",
+  checkAuthClub,
+  testDomainControllers.updateDomainDetails
+);
+
 router.use("/question", require("./question.routes"));
 
 module.exports = router;

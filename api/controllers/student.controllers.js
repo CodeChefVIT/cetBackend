@@ -584,6 +584,8 @@ const getProfile = async (req, res, next) => {
     });
 };
 
+// @desc Get student's profile details --for everyone
+// @route GET /api/student/details
 const getStudentDetails = async (req, res, next) => {
   const { studentId } = req.query;
 
@@ -608,6 +610,8 @@ const getStudentDetails = async (req, res, next) => {
     });
 };
 
+// @desc Get student's dashboard
+// @route GET /api/student/dashboard
 const dashboard = async (req, res, next) => {
   const studentId = req.user.userId;
 

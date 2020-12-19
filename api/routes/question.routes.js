@@ -9,14 +9,17 @@ const checkAuth = require("../middleware/checkAuth");
 const checkAuthClub = require("../middleware/checkAuthClub");
 const checkAuthStudent = require("../middleware/checkAuthStudent");
 
-const {
-  uploadQuestionMedia,
-} = require("../middleware/s3UploadClient");
+const { uploadQuestionMedia } = require("../middleware/s3UploadClient");
 
 const router = express.Router();
 
 //Add a question to a test
-router.post("/add", checkAuthClub, uploadQuestionMedia.single("media"),  questionControllers.addQuestion);
+router.post(
+  "/add",
+  checkAuthClub,
+  uploadQuestionMedia.single("media"),
+  questionControllers.addQuestion
+);
 
 //Add multiple questions to a test
 router.post(
@@ -30,5 +33,8 @@ router.get("/all", checkAuthClub, questionControllers.getAllQuestions);
 
 //Add marks
 router.post("/marks", checkAuthClub, questionControllers.updateMarks);
+
+//Delete a question
+router.delete("/delete", checkAuthClub, questionControllers.deleteQuestion);
 
 module.exports = router;
