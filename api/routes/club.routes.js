@@ -17,6 +17,9 @@ const router = express.Router();
 //Create Club
 router.post("/create", clubControllers.create);
 
+//Send welcome email
+router.post("/sendWelcomeEmail", clubControllers.sendWelcomeEmail);
+
 //Club signup
 router.post("/signup", clubControllers.signup);
 

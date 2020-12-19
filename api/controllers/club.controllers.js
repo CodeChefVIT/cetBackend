@@ -12,7 +12,10 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 const Club = require("../models/club.model");
 
-const { sendVerificationOTP } = require("../utils/emailTemplates");
+const {
+  sendVerificationOTP,
+  sendWelcomeMail,
+} = require("../utils/emailTemplates");
 
 // @desc Create Clubs for DEVS
 // @route POST /api/club/create
@@ -60,6 +63,51 @@ const create = async (req, res) => {
         error: err.toString(),
       });
     });
+};
+
+// @desc Send welcome emails
+// @route POST /api/club/sendWelcomeEmail
+const sendWelcomeEmail = async (req, res) => {
+  if (process.env.NODE_ENV == "development") {
+    const { email } = req.body;
+    let transporter = nodemailer.createTransport({
+      service: "gmail",
+      port: 465,
+
+      auth: {
+        user: process.env.NODEMAILER_EMAIL,
+        pass: process.env.NODEMAILER_PASSWORD,
+      },
+    });
+
+    let mailOptions = {
+      subject: `Common Entry Test - Email Whitelisted`,
+      to: email,
+      from: `CodeChef-VIT <${process.env.NODEMAILER_EMAIL}>`,
+      html: sendWelcomeMail(),
+    };
+
+    transporter.sendMail(mailOptions, (error, response) => {
+      if (error) {
+        console.log("Email not sent: ", mailOptions.to);
+        console.log(error.toString());
+
+        return res.status(500).json({
+          message: "Something went wrong",
+          error: error.toString(),
+        });
+      } else {
+        console.log("Email sent: ", mailOptions.to);
+        res.status(200).json({
+          message: "Email sent",
+        });
+      }
+    });
+  } else {
+    return res.status(401).json({
+      message: "Cannot perform this action",
+    });
+  }
 };
 
 // @desc Signup for clubs
@@ -697,6 +745,7 @@ const uploadImages = async (req, res, next) => {
 
 module.exports = {
   create,
+  sendWelcomeEmail,
   signup,
   resendOTP,
   verifyEmail,
