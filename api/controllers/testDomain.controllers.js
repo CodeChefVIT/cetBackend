@@ -282,6 +282,8 @@ const attemptDomain = async (req, res, next) => {
                       });
                     })
                     .catch((err) => {
+                      console.log(err.toString());
+
                       errorLogger.info(
                         `System: ${req.ip} | ${req.method} | ${
                           req.originalUrl
@@ -295,6 +297,8 @@ const attemptDomain = async (req, res, next) => {
                     });
                 })
                 .catch((err) => {
+                  console.log(err.toString());
+
                   errorLogger.info(
                     `System: ${req.ip} | ${req.method} | ${
                       req.originalUrl
@@ -307,6 +311,8 @@ const attemptDomain = async (req, res, next) => {
                 });
             })
             .catch((err) => {
+              console.log(err.toString());
+
               errorLogger.info(
                 `System: ${req.ip} | ${req.method} | ${
                   req.originalUrl
@@ -320,6 +326,8 @@ const attemptDomain = async (req, res, next) => {
         })
 
         .catch((err) => {
+          console.log(err.toString());
+
           errorLogger.info(
             `System: ${req.ip} | ${req.method} | ${
               req.originalUrl
@@ -332,6 +340,8 @@ const attemptDomain = async (req, res, next) => {
         });
     })
     .catch((err) => {
+      console.log(err.toString());
+
       errorLogger.info(
         `System: ${req.ip} | ${req.method} | ${
           req.originalUrl
