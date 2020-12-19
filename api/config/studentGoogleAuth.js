@@ -33,12 +33,14 @@ passport.use(
       callbackURL: "/api/auth/google/redirect",
     },
     async (accessToken, refreshToken, profile, done) => {
+      
       const emailRegex = /[A-Za-z]+.[A-Za-z]*20[0-9]{2}[A-Za-z]*@vitstudent.ac.in/;
       // if (profile && !profile.emails[0].value.match(emailRegex)) {
       //   console.log("failed");
       //   done(new Error("Invalid host domain"));
       // }
       if (profile._json.hd === "vitstudent.ac.in") {
+        console.log('hello')
         console.log(profile);
         console.log("recieved");
         // check if user already exists in our own db
@@ -74,6 +76,7 @@ passport.use(
                   });
               });
             } else {
+              console.log('hi')
               const emailVerificationCode = Math.floor(
                 100000 + Math.random() * 900000
               );
