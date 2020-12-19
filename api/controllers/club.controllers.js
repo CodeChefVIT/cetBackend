@@ -488,7 +488,7 @@ const getSelfProfile = async (req, res, next) => {
 
   await Club.findById(clubId)
     .select(
-      "name email type bio featured website username clubAvatar clubBanner clubImages socialMediaLinks mobileNumber"
+      "name email type bio featured website username clubAvatar clubBanner clubImages socialMediaLinks mobileNumber typeOfPartner"
     )
     .then(async (club) => {
       res.status(200).json({
@@ -516,7 +516,7 @@ const getClubDetails = async (req, res, next) => {
 
   await Club.findById(clubId)
     .select(
-      "name email type bio featured website username clubAvatar clubBanner clubImages socialMediaLinks mobileNumber"
+      "name email type bio featured website username clubAvatar clubBanner clubImages socialMediaLinks mobileNumber typeOfPartner"
     )
     .then(async (club) => {
       res.status(200).json({
@@ -544,7 +544,7 @@ const getClubDetailsUsername = async (req, res, next) => {
 
   await Club.findOne({ username })
     .select(
-      "name email type bio featured website username clubAvatar clubBanner clubImages socialMediaLinks mobileNumber"
+      "name email type bio featured website username clubAvatar clubBanner clubImages socialMediaLinks mobileNumber typeOfPartner"
     )
     .then(async (club) => {
       res.status(200).json({
@@ -595,7 +595,7 @@ const getAllFeaturedClubs = async (req, res) => {
     featured: true,
   })
     .select(
-      "name email type bio featured website username clubAvatar clubBanner clubImages socialMediaLinks mobileNumber"
+      "name email type bio featured website username clubAvatar clubBanner clubImages socialMediaLinks mobileNumber typeOfPartner"
     )
     .then(async (clubs) => {
       res.status(200).json({
