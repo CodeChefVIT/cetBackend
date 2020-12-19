@@ -36,5 +36,23 @@ router.post("/marks", checkAuthClub, questionControllers.updateMarks);
 
 //Delete a question
 router.delete("/delete", checkAuthClub, questionControllers.deleteQuestion);
+const Question = require("../models/question.model");
+
+// router.patch("/changes", async (req, res) => {
+//   await Question.find()
+//     .then(async (questions) => {
+//       for (question of questions) {
+//         // console.log(question);
+//         await Question.updateOne(
+//           { _id: question._id },
+//           { $set: { mediaURL: question.media.url } }
+//         )
+//           .then(async () => {})
+//           .catch();
+//       }
+//       res.status(200).json({ message: "Done" });
+//     })
+//     .catch();
+// });
 
 module.exports = router;
