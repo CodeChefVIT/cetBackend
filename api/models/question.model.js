@@ -16,6 +16,7 @@ const questionSchema = mongoose.Schema({
     url: { type: String },
     ext: { type: String },
   },
+  mediaURL: { type: String },
   options: [
     {
       option: {

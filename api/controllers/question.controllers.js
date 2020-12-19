@@ -78,6 +78,7 @@ const addQuestion = async (req, res, next) => {
         type: mediaType,
         ext,
       },
+      mediaURL: url,
     });
 
     await question
