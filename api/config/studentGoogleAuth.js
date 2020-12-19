@@ -5,6 +5,11 @@ const sgMail = require("@sendgrid/mail");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 require("dotenv").config();
+const nodemailer = require("nodemailer");
+
+const {
+  sendVerificationOTP,
+} = require("../utils/emailTemplates");
 
 passport.serializeUser((user, done) => {
   done(null, user.id);
@@ -87,24 +92,30 @@ passport.use(
               })
                 .save()
                 .then(async (newUser) => {
-                  const msg = {
-                    to: profile.emails[0].value,
-                    from: {
-                      email: process.env.SENDGRID_EMAIL,
-                      name: "CodeChef-VIT",
+                  let transporter = nodemailer.createTransport({
+                    service: "gmail",
+                    port: 465,
+    
+                    auth: {
+                      user: process.env.NODEMAILER_EMAIL,
+                      pass: process.env.NODEMAILER_PASSWORD,
                     },
+                  });
+    
+                  let mailOptions = {
                     subject: `Common Entry Test - Email Verification`,
-                    text: `Use the following code to verify your email: ${emailVerificationCode}`,
-                    // html: EmailTemplates.tracker(
-                    //   users[i].name,
-                    //   companyArr[k].companyName,
-                    //   status
-                    // ),
+                    to: profile.emails[0].value,
+                    from: `CodeChef-VIT <${process.env.NODEMAILER_EMAIL}>`,
+                    html: sendVerificationOTP(emailVerificationCode),
                   };
-  
-                  await sgMail
-                    .send(msg)
-                    .then(async () => {
+                  transporter.sendMail(mailOptions, (error, response) => {
+                    if (error) {
+                      console.log("Email not sent: ", mailOptions.to);
+                      console.log(error.toString());
+                    } else {
+                      console.log("Email sent: ", mailOptions.to);
+                    }
+                  });
                       console.log("email sent successfully");
                       console.log(newUser);
                       const token = jwt.sign(
@@ -132,10 +143,6 @@ passport.use(
                             console.log(err);
                           });
                       });
-                    })
-                    .catch((err) => {
-                      console.log(err);
-                    });
                 })
                 .catch((err) => {
                   console.log(err);
