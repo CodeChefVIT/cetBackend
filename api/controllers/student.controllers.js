@@ -5,7 +5,7 @@ const bcrypt = require("bcrypt");
 const multer = require("multer");
 const sgMail = require("@sendgrid/mail");
 const nodemailer = require("nodemailer");
-const AWS = require('aws-sdk');
+const AWS = require("aws-sdk");
 require("dotenv").config();
 
 const Club = require("../models/club.model");
@@ -62,8 +62,7 @@ const signup = async (req, res) => {
           await student
             .save()
             .then(async (result) => {
-
-              const emailSent = sendSesOtp(email, emailVerificationCode)
+              const emailSent = sendSesOtp(email, emailVerificationCode);
               // let transporter = nodemailer.createTransport({
               //   service: "gmail",
               //   port: 465,
@@ -131,7 +130,8 @@ const signup = async (req, res) => {
             })
             .catch((err) => {
               errorLogger.info(
-                `System: ${req.ip} | ${req.method} | ${req.originalUrl
+                `System: ${req.ip} | ${req.method} | ${
+                  req.originalUrl
                 } >> ${err.toString()}`
               );
               res.status(500).json({
@@ -142,7 +142,8 @@ const signup = async (req, res) => {
         })
         .catch((err) => {
           errorLogger.info(
-            `System: ${req.ip} | ${req.method} | ${req.originalUrl
+            `System: ${req.ip} | ${req.method} | ${
+              req.originalUrl
             } >> ${err.toString()}`
           );
           res.status(500).json({
@@ -153,7 +154,8 @@ const signup = async (req, res) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -191,7 +193,7 @@ const resendOTP = async (req, res) => {
       await student
         .save()
         .then(async () => {
-          const emailSent = sendSesOtp(email, student.emailVerificationCode)
+          const emailSent = sendSesOtp(email, student.emailVerificationCode);
           // let transporter = nodemailer.createTransport({
           //   service: "gmail",
           //   port: 465,
@@ -258,12 +260,11 @@ const resendOTP = async (req, res) => {
           res.status(200).json({
             message: "Email verification OTP Sent",
           });
-
-
         })
         .catch((err) => {
           errorLogger.info(
-            `System: ${req.ip} | ${req.method} | ${req.originalUrl
+            `System: ${req.ip} | ${req.method} | ${
+              req.originalUrl
             } >> ${err.toString()}`
           );
           res.status(500).json({
@@ -274,7 +275,8 @@ const resendOTP = async (req, res) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -312,7 +314,8 @@ const verifyEmail = async (req, res) => {
               })
               .catch((err) => {
                 errorLogger.info(
-                  `System: ${req.ip} | ${req.method} | ${req.originalUrl
+                  `System: ${req.ip} | ${req.method} | ${
+                    req.originalUrl
                   } >> ${err.toString()}`
                 );
                 res.status(500).json({
@@ -338,7 +341,8 @@ const verifyEmail = async (req, res) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -403,7 +407,8 @@ const login = async (req, res) => {
         })
         .catch((err) => {
           errorLogger.info(
-            `System: ${req.ip} | ${req.method} | ${req.originalUrl
+            `System: ${req.ip} | ${req.method} | ${
+              req.originalUrl
             } >> ${err.toString()}`
           );
           res.status(500).json({
@@ -414,7 +419,8 @@ const login = async (req, res) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -449,7 +455,10 @@ const sendForgotPasswordEmail = async (req, res) => {
       await student
         .save()
         .then(async () => {
-          const emailSent = sendSesForgotPassword(email, student.forgotPasswordCode)
+          const emailSent = sendSesForgotPassword(
+            email,
+            student.forgotPasswordCode
+          );
           // let transporter = nodemailer.createTransport({
           //   service: "gmail",
           //   port: 465,
@@ -513,7 +522,8 @@ const sendForgotPasswordEmail = async (req, res) => {
         })
         .catch((err) => {
           errorLogger.info(
-            `System: ${req.ip} | ${req.method} | ${req.originalUrl
+            `System: ${req.ip} | ${req.method} | ${
+              req.originalUrl
             } >> ${err.toString()}`
           );
           res.status(500).json({
@@ -524,7 +534,8 @@ const sendForgotPasswordEmail = async (req, res) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -566,7 +577,8 @@ const resetPassword = async (req, res) => {
                   })
                   .catch((err) => {
                     errorLogger.info(
-                      `System: ${req.ip} | ${req.method} | ${req.originalUrl
+                      `System: ${req.ip} | ${req.method} | ${
+                        req.originalUrl
                       } >> ${err.toString()}`
                     );
                     res.status(500).json({
@@ -577,7 +589,8 @@ const resetPassword = async (req, res) => {
               })
               .catch((err) => {
                 errorLogger.info(
-                  `System: ${req.ip} | ${req.method} | ${req.originalUrl
+                  `System: ${req.ip} | ${req.method} | ${
+                    req.originalUrl
                   } >> ${err.toString()}`
                 );
                 res.status(500).json({
@@ -603,7 +616,8 @@ const resetPassword = async (req, res) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -630,7 +644,8 @@ const updateProfile = async (req, res, next) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -654,7 +669,8 @@ const getProfile = async (req, res, next) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -684,7 +700,8 @@ const getStudentDetails = async (req, res, next) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -708,7 +725,7 @@ const dashboard = async (req, res, next) => {
       populate: {
         path: "testId clubId domains",
         select:
-          "roundNumber roundType instructions scheduledForDate scheduledEndDate graded bio email name type clubAvatar clubBanner clubImages socialMediaLinks",
+          "roundNumber roundType instructions scheduledForDate scheduledEndDate graded bio email name type clubAvatar clubBanner clubImages socialMediaLinks redirectURL",
         populate: {
           path: "domainId",
           select:
@@ -732,7 +749,8 @@ const dashboard = async (req, res, next) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -741,89 +759,82 @@ const dashboard = async (req, res, next) => {
       });
     });
 };
+
 const sendSesOtp = (mailto, code) => {
   const SES_CONFIG = {
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-    region: 'ap-south-1',
+    region: "ap-south-1",
   };
 
   const AWS_SES = new AWS.SES(SES_CONFIG);
   let params = {
-    Source: 'contact@codechefvit.com',
+    Source: "contact@codechefvit.com",
     Destination: {
-      ToAddresses: [
-        mailto
-      ],
+      ToAddresses: [mailto],
     },
     ReplyToAddresses: [],
     Message: {
       Body: {
         Html: {
-          Charset: 'UTF-8',
+          Charset: "UTF-8",
           Data: sendVerificationOTP(code),
         },
       },
       Subject: {
-        Charset: 'UTF-8',
+        Charset: "UTF-8",
         Data: `Hello,!`,
-      }
+      },
     },
   };
 
-
-
-  AWS_SES.sendEmail(params).promise().then(() => {
-    return true
-  }).catch(() => {
-    return false
-  })
-
-
-}
+  AWS_SES.sendEmail(params)
+    .promise()
+    .then(() => {
+      return true;
+    })
+    .catch(() => {
+      return false;
+    });
+};
 
 const sendSesForgotPassword = (mailto, code) => {
   const SES_CONFIG = {
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-    region: 'ap-south-1',
+    region: "ap-south-1",
   };
 
   const AWS_SES = new AWS.SES(SES_CONFIG);
   let params = {
-    Source: 'contact@codechefvit.com',
+    Source: "contact@codechefvit.com",
     Destination: {
-      ToAddresses: [
-        mailto
-      ],
+      ToAddresses: [mailto],
     },
     ReplyToAddresses: [],
     Message: {
       Body: {
         Html: {
-          Charset: 'UTF-8',
+          Charset: "UTF-8",
           Data: sendForgotPasswordMail(code),
         },
       },
       Subject: {
-        Charset: 'UTF-8',
+        Charset: "UTF-8",
         Data: `C`,
-      }
+      },
     },
   };
 
-
-
-  AWS_SES.sendEmail(params).promise().then(() => {
-    return true
-  }).catch(() => {
-    return false
-  })
-
-
-}
-
-
+  AWS_SES.sendEmail(params)
+    .promise()
+    .then(() => {
+      return true;
+    })
+    .catch(() => {
+      return false;
+    });
+};
 
 module.exports = {
   signup,

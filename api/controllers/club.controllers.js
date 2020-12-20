@@ -5,10 +5,7 @@ const bcrypt = require("bcrypt");
 const multer = require("multer");
 const sgMail = require("@sendgrid/mail");
 const nodemailer = require("nodemailer");
-const AWS = require('aws-sdk');
-
-
-
+const AWS = require("aws-sdk");
 
 require("dotenv").config();
 
@@ -57,7 +54,8 @@ const create = async (req, res) => {
           })
           .catch((err) => {
             errorLogger.info(
-              `System: ${req.ip} | ${req.method} | ${req.originalUrl
+              `System: ${req.ip} | ${req.method} | ${
+                req.originalUrl
               } >> ${err.toString()}`
             );
             res.status(500).json({
@@ -69,7 +67,8 @@ const create = async (req, res) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -165,7 +164,7 @@ const signup = async (req, res) => {
               );
               club.emailVerificationCodeExpires =
                 new Date().getTime() + 20 * 60 * 1000;
-              const emailSent = sendSesOtp(email, club.emailVerificationCode)
+              const emailSent = sendSesOtp(email, club.emailVerificationCode);
               // let transporter = nodemailer.createTransport({
               //   service: "gmail",
 
@@ -231,7 +230,8 @@ const signup = async (req, res) => {
                 })
                 .catch((err) => {
                   errorLogger.info(
-                    `System: ${req.ip} | ${req.method} | ${req.originalUrl
+                    `System: ${req.ip} | ${req.method} | ${
+                      req.originalUrl
                     } >> ${err.toString()}`
                   );
                   res.status(500).json({
@@ -240,7 +240,6 @@ const signup = async (req, res) => {
                   });
                 });
 
-
               //   })
               //   .catch((err) => {
               //     res.status(500).json({
@@ -248,11 +247,11 @@ const signup = async (req, res) => {
               //       error: err.toString(),
               //     });
               //   });
-
             })
             .catch((err) => {
               errorLogger.info(
-                `System: ${req.ip} | ${req.method} | ${req.originalUrl
+                `System: ${req.ip} | ${req.method} | ${
+                  req.originalUrl
                 } >> ${err.toString()}`
               );
               res.status(500).json({
@@ -263,7 +262,8 @@ const signup = async (req, res) => {
         })
         .catch((err) => {
           errorLogger.info(
-            `System: ${req.ip} | ${req.method} | ${req.originalUrl
+            `System: ${req.ip} | ${req.method} | ${
+              req.originalUrl
             } >> ${err.toString()}`
           );
           res.status(500).json({
@@ -274,7 +274,8 @@ const signup = async (req, res) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -311,7 +312,7 @@ const resendOTP = async (req, res) => {
       await club
         .save()
         .then(async () => {
-          const emailSent = sendSesOtp(email, club.emailVerificationCode)
+          const emailSent = sendSesOtp(email, club.emailVerificationCode);
           // let transporter = nodemailer.createTransport({
           //   service: "gmail",
           //   port: 465,
@@ -376,7 +377,8 @@ const resendOTP = async (req, res) => {
         })
         .catch((err) => {
           errorLogger.info(
-            `System: ${req.ip} | ${req.method} | ${req.originalUrl
+            `System: ${req.ip} | ${req.method} | ${
+              req.originalUrl
             } >> ${err.toString()}`
           );
           res.status(500).json({
@@ -387,7 +389,8 @@ const resendOTP = async (req, res) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -431,7 +434,8 @@ const verifyEmail = async (req, res) => {
               })
               .catch((err) => {
                 errorLogger.info(
-                  `System: ${req.ip} | ${req.method} | ${req.originalUrl
+                  `System: ${req.ip} | ${req.method} | ${
+                    req.originalUrl
                   } >> ${err.toString()}`
                 );
                 res.status(500).json({
@@ -457,7 +461,8 @@ const verifyEmail = async (req, res) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -528,7 +533,8 @@ const login = async (req, res) => {
         })
         .catch((err) => {
           errorLogger.info(
-            `System: ${req.ip} | ${req.method} | ${req.originalUrl
+            `System: ${req.ip} | ${req.method} | ${
+              req.originalUrl
             } >> ${err.toString()}`
           );
           res.status(500).json({
@@ -539,7 +545,8 @@ const login = async (req, res) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -560,6 +567,7 @@ const updateProfile = async (req, res, next) => {
     socialMediaLinks,
     mobileNumber,
     username,
+    redirectURL,
   } = req.body;
   const clubId = req.user.userId;
 
@@ -576,6 +584,7 @@ const updateProfile = async (req, res, next) => {
         socialMediaLinks,
         mobileNumber,
         username,
+        redirectURL,
       },
     }
   )
@@ -586,7 +595,8 @@ const updateProfile = async (req, res, next) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -603,7 +613,7 @@ const getSelfProfile = async (req, res, next) => {
 
   await Club.findById(clubId)
     .select(
-      "name email type bio featured website username clubAvatar clubBanner clubImages socialMediaLinks mobileNumber typeOfPartner"
+      "name email type bio featured website username clubAvatar clubBanner clubImages socialMediaLinks mobileNumber typeOfPartner redirectURL"
     )
     .then(async (club) => {
       res.status(200).json({
@@ -612,7 +622,8 @@ const getSelfProfile = async (req, res, next) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -635,7 +646,7 @@ const getClubDetails = async (req, res, next) => {
 
   await Club.findById(clubId)
     .select(
-      "name email type bio featured website username clubAvatar clubBanner clubImages socialMediaLinks mobileNumber typeOfPartner"
+      "name email type bio featured website username clubAvatar clubBanner clubImages socialMediaLinks mobileNumber typeOfPartner redirectURL"
     )
     .then(async (club) => {
       res.status(200).json({
@@ -644,7 +655,8 @@ const getClubDetails = async (req, res, next) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -667,7 +679,7 @@ const getClubDetailsUsername = async (req, res, next) => {
 
   await Club.findOne({ username })
     .select(
-      "name email type bio featured website username clubAvatar clubBanner clubImages socialMediaLinks mobileNumber typeOfPartner"
+      "name email type bio featured website username clubAvatar clubBanner clubImages socialMediaLinks mobileNumber typeOfPartner redirectURL"
     )
     .then(async (club) => {
       res.status(200).json({
@@ -676,7 +688,8 @@ const getClubDetailsUsername = async (req, res, next) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -709,7 +722,8 @@ const feature = async (req, res, next) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -726,7 +740,7 @@ const getAllFeaturedClubs = async (req, res) => {
     featured: true,
   })
     .select(
-      "name email type bio featured website username clubAvatar clubBanner clubImages socialMediaLinks mobileNumber typeOfPartner"
+      "name email type bio featured website username clubAvatar clubBanner clubImages socialMediaLinks mobileNumber typeOfPartner redirectURL"
     )
     .then(async (clubs) => {
       res.status(200).json({
@@ -735,7 +749,8 @@ const getAllFeaturedClubs = async (req, res) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -768,7 +783,8 @@ const uploadProfilePicture = async (req, res, next) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -800,7 +816,8 @@ const uploadBanner = async (req, res, next) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -832,7 +849,8 @@ const uploadImages = async (req, res, next) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -846,42 +864,39 @@ const sendSesOtp = (mailto, code) => {
   const SES_CONFIG = {
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-    region: 'ap-south-1',
+    region: "ap-south-1",
   };
 
   const AWS_SES = new AWS.SES(SES_CONFIG);
   let params = {
-    Source: 'contact@codechefvit.com',
+    Source: "contact@codechefvit.com",
     Destination: {
-      ToAddresses: [
-        mailto
-      ],
+      ToAddresses: [mailto],
     },
     ReplyToAddresses: [],
     Message: {
       Body: {
         Html: {
-          Charset: 'UTF-8',
+          Charset: "UTF-8",
           Data: sendVerificationOTP(code),
         },
       },
       Subject: {
-        Charset: 'UTF-8',
+        Charset: "UTF-8",
         Data: `Common Entry Test - Email Verification`,
-      }
+      },
     },
   };
 
-
-
-  AWS_SES.sendEmail(params).promise().then(() => {
-    return true
-  }).catch(() => {
-    return false
-  })
-
-
-}
+  AWS_SES.sendEmail(params)
+    .promise()
+    .then(() => {
+      return true;
+    })
+    .catch(() => {
+      return false;
+    });
+};
 
 module.exports = {
   create,
