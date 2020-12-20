@@ -624,7 +624,7 @@ const resetPassword = async (req, res) => {
 // @desc Update student's profile
 // @route PATCH /api/student/profile
 const updateProfile = async (req, res, next) => {
-  const { name, registrationNumber, bio, branch } = req.body;
+  const { name, registrationNumber, bio, branch, mobileNumber } = req.body;
   const studentId = req.user.userId;
 
   await Student.updateOne(
