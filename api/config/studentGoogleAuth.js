@@ -51,7 +51,6 @@ passport.use(
                   userId: currentUser._id,
                   email: currentUser.email,
                   name: currentUser.name,
-                  isEmailVerified: currentUser.isEmailVerified,
                 },
                 process.env.JWT_SECRET,
                 {
@@ -62,7 +61,6 @@ passport.use(
               Student.findById(currentUser._id).then((result7) => {
                 result7.token = token;
                 result7.googleId = profile.id;
-                result7.isEmailVerified = true;
                 result7.loginCount += 1
                 result7
                   .save()
@@ -90,7 +88,6 @@ passport.use(
                 googleId: profile.id,
                 name: name,
                 email: profile.emails[0].value,
-                isEmailVerified: false,
                 emailVerificationCode,
                 emailVerificationCodeExpires,
                 registrationNumber: registrationNumber,
@@ -130,7 +127,6 @@ passport.use(
                       userId: newUser._id,
                       email: newUser.email,
                       name: newUser.name,
-                      isEmailVerified: newUser.isEmailVerified,
                     },
                     process.env.JWT_SECRET,
                     {
@@ -198,11 +194,11 @@ passport.use(
 
 
 
-  AWS_SES.sendEmail(params).promise().then(() => {
-    return true
-  }).catch(() => {
-    return false
-  })
+//   AWS_SES.sendEmail(params).promise().then(() => {
+//     return true
+//   }).catch(() => {
+//     return false
+//   })
 
 
-}
+// }

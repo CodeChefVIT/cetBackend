@@ -367,11 +367,11 @@ const login = async (req, res) => {
         });
       }
 
-      if (!student[0].isEmailVerified) {
-        return res.status(403).json({
-          message: "Email not verified",
-        });
-      }
+      // if (!student[0].isEmailVerified) {
+      //   return res.status(403).json({
+      //     message: "Email not verified",
+      //   });
+      // }
       await bcrypt
         .compare(password, student[0].password)
         .then((result) => {

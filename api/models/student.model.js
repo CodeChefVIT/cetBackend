@@ -17,13 +17,13 @@ const studentSchema = mongoose.Schema({
   branch: { type: String },
   loginCount: { type: Number, default: 0 },
 
-  emailVerificationCode: { type: Number },
-  emailVerificationCodeExpires: { type: Number },
-  isEmailVerified: { type: Boolean, default: false },
+  // emailVerificationCode: { type: Number },
+  // emailVerificationCodeExpires: { type: Number },
+  // isEmailVerified: { type: Boolean, default: true },
 
-  mobileVerificationCode: { type: Number },
-  mobileVerificationCodeExpires: { type: Number },
-  isMobileVerified: { type: Boolean, default: false },
+  // mobileVerificationCode: { type: Number },
+  // mobileVerificationCodeExpires: { type: Number },
+  // isMobileVerified: { type: Boolean, default: false },
 
   forgotPasswordCode: { type: Number },
   forgotPasswordCodeExpires: { type: Number },
