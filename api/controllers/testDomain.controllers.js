@@ -211,8 +211,8 @@ const attemptDomain = async (req, res, next) => {
             }
           }
 
-          for (i in test.usersFinished) {
-            if (test.usersFinished[i].studentId == studentId) {
+          for (i in domain.usersFinished) {
+            if (domain.usersFinished[i].studentId == studentId) {
               flag = 1;
             }
           }
@@ -292,7 +292,7 @@ const attemptDomain = async (req, res, next) => {
 
                       res.status(500).json({
                         message: "Something went wrong",
-                        // error: err.toString(),
+                        error: err.toString(),
                       });
                     });
                 })
@@ -306,7 +306,7 @@ const attemptDomain = async (req, res, next) => {
                   );
                   res.status(500).json({
                     message: "Something went wrong",
-                    // error: err.toString(),
+                    error: err.toString(),
                   });
                 });
             })
@@ -320,7 +320,7 @@ const attemptDomain = async (req, res, next) => {
               );
               res.status(500).json({
                 message: "Something went wrong",
-                // error: err.toString(),
+                error: err.toString(),
               });
             });
         })
@@ -335,7 +335,7 @@ const attemptDomain = async (req, res, next) => {
           );
           res.status(500).json({
             message: "Something went wrong",
-            // error: err.toString(),
+            error: err.toString(),
           });
         });
     })
@@ -349,7 +349,7 @@ const attemptDomain = async (req, res, next) => {
       );
       res.status(500).json({
         message: "Something went wrong",
-        // error: err.toString(),
+        error: err.toString(),
       });
     });
 };
