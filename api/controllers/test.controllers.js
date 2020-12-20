@@ -235,11 +235,11 @@ const attempt = async (req, res, next) => {
     .populate("clubId", "name email type")
     .then(async (test) => {
       //Check if user has already given the test
-      for (i in test.usersStarted) {
-        if (test.usersStarted[i].studentId == studentId) {
-          flag = 1;
-        }
-      }
+      // for (i in test.usersStarted) {
+      //   if (test.usersStarted[i].studentId == studentId) {
+      //     flag = 1;
+      //   }
+      // }
       for (i in test.usersFinished) {
         if (test.usersFinished[i].studentId == studentId) {
           flag = 1;
