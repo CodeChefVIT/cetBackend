@@ -7,9 +7,7 @@ const mongoose = require("mongoose");
 require("dotenv").config();
 const nodemailer = require("nodemailer");
 
-const {
-  sendVerificationOTP,
-} = require("../utils/emailTemplates");
+const { sendVerificationOTP } = require("../utils/emailTemplates");
 
 passport.serializeUser((user, done) => {
   done(null, user.id);
@@ -33,14 +31,13 @@ passport.use(
       callbackURL: "/api/auth/google/redirect",
     },
     async (accessToken, refreshToken, profile, done) => {
-      
       const emailRegex = /[A-Za-z]+.[A-Za-z]*20[0-9]{2}[A-Za-z]*@vitstudent.ac.in/;
       // if (profile && !profile.emails[0].value.match(emailRegex)) {
       //   console.log("failed");
       //   done(new Error("Invalid host domain"));
       // }
       if (profile._json.hd === "vitstudent.ac.in") {
-        console.log('hello')
+        console.log("hello");
         console.log(profile);
         console.log("recieved");
         // check if user already exists in our own db
@@ -61,7 +58,7 @@ passport.use(
                   expiresIn: "1d",
                 }
               );
-  
+
               Student.findById(currentUser._id).then((result7) => {
                 result7.token = token;
                 result7.googleId = profile.id;
@@ -76,35 +73,39 @@ passport.use(
                   });
               });
             } else {
-              console.log('hi')
+              console.log("hi");
               const emailVerificationCode = Math.floor(
                 100000 + Math.random() * 900000
               );
-  
+
               const emailVerificationCodeExpires =
                 new Date().getTime() + 20 * 60 * 1000;
               // if not, create user in our db
+              let nameArr = profile.displayName.split(" ");
+              let name = nameArr[0] + " " + nameArr[1];
+              let registrationNumber = nameArr[2];
               new Student({
                 _id: new mongoose.Types.ObjectId(),
                 googleId: profile.id,
-                name: profile.displayName,
+                name: name,
                 email: profile.emails[0].value,
                 isEmailVerified: false,
                 emailVerificationCode,
                 emailVerificationCodeExpires,
+                registrationNumber: registrationNumber,
               })
                 .save()
                 .then(async (newUser) => {
                   let transporter = nodemailer.createTransport({
                     service: "gmail",
                     port: 465,
-    
+
                     auth: {
                       user: process.env.NODEMAILER_EMAIL,
                       pass: process.env.NODEMAILER_PASSWORD,
                     },
                   });
-    
+
                   let mailOptions = {
                     subject: `Common Entry Test - Email Verification`,
                     to: profile.emails[0].value,
@@ -119,33 +120,33 @@ passport.use(
                       console.log("Email sent: ", mailOptions.to);
                     }
                   });
-                      console.log("email sent successfully");
-                      console.log(newUser);
-                      const token = jwt.sign(
-                        {
-                          userType: newUser.userType,
-                          userId: newUser._id,
-                          email: newUser.email,
-                          name: newUser.name,
-                          isEmailVerified: newUser.isEmailVerified,
-                        },
-                        process.env.JWT_SECRET,
-                        {
-                          expiresIn: "1d",
-                        }
-                      );
-                      Student.findById(newUser._id).then((result7) => {
-                        result7.token = token;
-                        result7
-                          .save()
-                          .then((user) => {
-                            console.log(user);
-                            done(null, user);
-                          })
-                          .catch((err) => {
-                            console.log(err);
-                          });
+                  console.log("email sent successfully");
+                  console.log(newUser);
+                  const token = jwt.sign(
+                    {
+                      userType: newUser.userType,
+                      userId: newUser._id,
+                      email: newUser.email,
+                      name: newUser.name,
+                      isEmailVerified: newUser.isEmailVerified,
+                    },
+                    process.env.JWT_SECRET,
+                    {
+                      expiresIn: "1d",
+                    }
+                  );
+                  Student.findById(newUser._id).then((result7) => {
+                    result7.token = token;
+                    result7
+                      .save()
+                      .then((user) => {
+                        console.log(user);
+                        done(null, user);
+                      })
+                      .catch((err) => {
+                        console.log(err);
                       });
+                  });
                 })
                 .catch((err) => {
                   console.log(err);

@@ -629,7 +629,7 @@ const updateProfile = async (req, res, next) => {
 
   await Student.updateOne(
     { _id: studentId },
-    { $set: { name, registrationNumber, bio, branch } }
+    { $set: { name, registrationNumber, bio, branch, mobileNumber } }
   )
     .then(async () => {
       res.status(200).json({
