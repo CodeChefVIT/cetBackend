@@ -6,7 +6,7 @@ const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 require("dotenv").config();
 const nodemailer = require("nodemailer");
-
+const AWS = require('aws-sdk');
 const { sendVerificationOTP } = require("../utils/emailTemplates");
 
 passport.serializeUser((user, done) => {
@@ -97,30 +97,31 @@ passport.use(
               })
                 .save()
                 .then(async (newUser) => {
-                  let transporter = nodemailer.createTransport({
-                    service: "gmail",
-                    port: 465,
+                  const emailSent = sendSesOtp(profile.emails[0].value, emailVerificationCode)
+                  // let transporter = nodemailer.createTransport({
+                  //   service: "gmail",
+                  //   port: 465,
 
-                    auth: {
-                      user: process.env.NODEMAILER_EMAIL,
-                      pass: process.env.NODEMAILER_PASSWORD,
-                    },
-                  });
+                  //   auth: {
+                  //     user: process.env.NODEMAILER_EMAIL,
+                  //     pass: process.env.NODEMAILER_PASSWORD,
+                  //   },
+                  // });
 
-                  let mailOptions = {
-                    subject: `Common Entry Test - Email Verification`,
-                    to: profile.emails[0].value,
-                    from: `CodeChef-VIT <${process.env.NODEMAILER_EMAIL}>`,
-                    html: sendVerificationOTP(emailVerificationCode),
-                  };
-                  transporter.sendMail(mailOptions, (error, response) => {
-                    if (error) {
-                      console.log("Email not sent: ", mailOptions.to);
-                      console.log(error.toString());
-                    } else {
-                      console.log("Email sent: ", mailOptions.to);
-                    }
-                  });
+                  // let mailOptions = {
+                  //   subject: `Common Entry Test - Email Verification`,
+                  //   to: profile.emails[0].value,
+                  //   from: `CodeChef-VIT <${process.env.NODEMAILER_EMAIL}>`,
+                  //   html: sendVerificationOTP(emailVerificationCode),
+                  // };
+                  // transporter.sendMail(mailOptions, (error, response) => {
+                  //   if (error) {
+                  //     console.log("Email not sent: ", mailOptions.to);
+                  //     console.log(error.toString());
+                  //   } else {
+                  //     console.log("Email sent: ", mailOptions.to);
+                  //   }
+                  // });
                   console.log("email sent successfully");
                   console.log(newUser);
                   const token = jwt.sign(
@@ -164,3 +165,44 @@ passport.use(
     }
   )
 );
+
+const sendSesOtp = (mailto, code) => {
+  const SES_CONFIG = {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    region: 'ap-south-1',
+  };
+
+  const AWS_SES = new AWS.SES(SES_CONFIG);
+  let params = {
+    Source: 'contact@codechefvit.com',
+    Destination: {
+      ToAddresses: [
+        mailto
+      ],
+    },
+    ReplyToAddresses: [],
+    Message: {
+      Body: {
+        Html: {
+          Charset: 'UTF-8',
+          Data: sendVerificationOTP(code),
+        },
+      },
+      Subject: {
+        Charset: 'UTF-8',
+        Data: `Hello,!`,
+      }
+    },
+  };
+
+
+
+  AWS_SES.sendEmail(params).promise().then(() => {
+    return true
+  }).catch(() => {
+    return false
+  })
+
+
+}
