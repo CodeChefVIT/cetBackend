@@ -807,7 +807,7 @@ const sendSesForgotPassword = (mailto, code) => {
       },
       Subject: {
         Charset: 'UTF-8',
-        Data: `Hello,!`,
+        Data: `C`,
       }
     },
   };

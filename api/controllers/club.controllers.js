@@ -867,7 +867,7 @@ const sendSesOtp = (mailto, code) => {
       },
       Subject: {
         Charset: 'UTF-8',
-        Data: `Hello,!`,
+        Data: `Common Entry Test - Email Verification`,
       }
     },
   };
