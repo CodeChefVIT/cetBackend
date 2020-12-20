@@ -62,7 +62,7 @@ passport.use(
               Student.findById(currentUser._id).then((result7) => {
                 result7.token = token;
                 result7.googleId = profile.id;
-                result7.isEmailVerified = false;
+                result7.isEmailVerified = true;
                 result7.loginCount += 1
                 result7
                   .save()
@@ -97,7 +97,7 @@ passport.use(
               })
                 .save()
                 .then(async (newUser) => {
-                  const emailSent = sendSesOtp(profile.emails[0].value, emailVerificationCode)
+                  // const emailSent = sendSesOtp(profile.emails[0].value, emailVerificationCode)
                   // let transporter = nodemailer.createTransport({
                   //   service: "gmail",
                   //   port: 465,
@@ -122,7 +122,7 @@ passport.use(
                   //     console.log("Email sent: ", mailOptions.to);
                   //   }
                   // });
-                  console.log("email sent successfully");
+                  // console.log("email sent successfully");
                   console.log(newUser);
                   const token = jwt.sign(
                     {
