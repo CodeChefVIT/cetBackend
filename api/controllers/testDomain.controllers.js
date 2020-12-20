@@ -398,7 +398,7 @@ const submitDomain = async (req, res, next) => {
       answerObj.questionType = question.type;
       answerObj.correctAnswer = correctAnswer;
       answerObj.questionMarks = question.questionMarks;
-      answerObj.answers = response.answers[0];
+      answerObj.answers = response.answers;
       answerObj.scoredQuestionMarks = scoredQuestionMarks;
       answerObj.corrected = true;
 
