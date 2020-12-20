@@ -244,7 +244,7 @@ const attemptDomain = async (req, res, next) => {
                         obj.description = question.description;
                         if (question.media.type) {
                           obj.media = question.media;
-                          object.mediaURL = question.mediaURL;
+                          obj.mediaURL = question.mediaURL;
                         }
                         if (question.options.length >= 1) {
                           obj.options = [];
