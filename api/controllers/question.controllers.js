@@ -29,6 +29,9 @@ const addQuestion = async (req, res, next) => {
   if (options) {
     options = JSON.parse(options);
   }
+  if (!questionMarks) {
+    questionMarks = 0;
+  }
   const clubId = req.user.userId;
 
   console.log(req.body, req.file);
