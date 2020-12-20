@@ -445,7 +445,7 @@ const submitDomain = async (req, res, next) => {
       answerObj.questionId = question._id;
       answerObj.questionType = question.type;
       answerObj.questionMarks = question.questionMarks;
-      answerObj.answers = response.answers[0];
+      answerObj.answers = response.answers;
       answerObj.scoredQuestionMarks = 0;
       answerObj.corrected = false;
 
@@ -492,8 +492,13 @@ const submitDomain = async (req, res, next) => {
           $push: { "tests.$.domains": { domainId, status: "Submitted" } },
         }
       )
+
         /// TODO - then catch
         .then(async () => {
+          const domain = await Domain.findById(domainId)
+          if(domain){
+            console.log(domain)
+          }
           res.status(200).json({
             message: "Domain submitted",
           });
