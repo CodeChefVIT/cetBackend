@@ -27,6 +27,10 @@ const testDomainSchema = mongoose.Schema({
         {
           questionId: { type: mongoose.Schema.Types.ObjectId, ref: "Question" },
           answers,
+          questionType,
+          questionMarks,
+          corrected,
+          scoredQuestionMarks,
         },
       ],
       marks: { type: Number, default: 0 },
