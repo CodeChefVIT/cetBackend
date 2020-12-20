@@ -166,6 +166,8 @@ const signup = async (req, res) => {
 
               let transporter = nodemailer.createTransport({
                 service: "gmail",
+                name:"www.gmail.com",
+                host:'smtp.gmail.com',
                 port: 465,
 
                 auth: {

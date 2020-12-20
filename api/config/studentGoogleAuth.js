@@ -63,6 +63,7 @@ passport.use(
                 result7.token = token;
                 result7.googleId = profile.id;
                 result7.isEmailVerified = false;
+                result7.loginCount += 1
                 result7
                   .save()
                   .then((user) => {

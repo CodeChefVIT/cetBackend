@@ -15,6 +15,7 @@ const studentSchema = mongoose.Schema({
 
   bio: { type: String },
   branch: { type: String },
+  loginCount: { type: Number, default: 0 },
 
   emailVerificationCode: { type: Number },
   emailVerificationCodeExpires: { type: Number },

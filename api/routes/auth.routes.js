@@ -21,12 +21,13 @@ router.get(
   passport.authenticate("google"),
   (req, res, next) => {
     const x = req.user;
+    console.log(req.user)
     var token = encodeURIComponent(req.user.token);
     var name = encodeURIComponent(req.user.name);
     res.redirect(
       303,
       
-      "http://cet-portal.codechefvit.com/student/oauth/" + token + "/"
+      "http://cet-portal.codechefvit.com/student/oauth/" + token + "/" + req.user.loginCount + '/'
       // "http://localhost:3000/student/oauth/" + token + "/"
     );
   }
