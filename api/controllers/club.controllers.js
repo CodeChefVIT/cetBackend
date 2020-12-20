@@ -14,6 +14,7 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 const { errorLogger } = require("../utils/logger");
 
 const Club = require("../models/club.model");
+const Test = require("../models/test.model");
 
 const {
   sendVerificationOTP,
@@ -740,7 +741,7 @@ const getAllFeaturedClubs = async (req, res) => {
     featured: true,
   })
     .select(
-      "name email type bio featured website username clubAvatar clubBanner clubImages socialMediaLinks mobileNumber typeOfPartner redirectURL"
+      "name email type bio featured website username clubAvatar clubBanner clubImages socialMediaLinks mobileNumber typeOfPartner redirectURL numOfTestsPublished"
     )
     .then(async (clubs) => {
       let megaResult = clubs.filter((club) => club.typeOfPartner == "Mega");

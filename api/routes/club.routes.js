@@ -65,5 +65,13 @@ router.put(
   uploadClubBanner.single("banner"),
   clubControllers.uploadBanner
 );
+const Club = require("../models/club.model");
+
+// router.patch("/changes", async (req, res) => {
+//   await Club.updateOne(
+//     { _id: "5fde0fca6ddabc5e08a3f567" },
+//     { $set: { numOfTestsPublished: 1 } }
+//   ).then(res.send("done"));
+// });
 
 module.exports = router;

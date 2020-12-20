@@ -34,6 +34,8 @@ const clubSchema = mongoose.Schema({
     },
   ],
 
+  numOfTestsPublished: { type: Number, default: 0 },
+
   emailVerificationCode: { type: Number },
   emailVerificationCodeExpires: { type: Number },
   isEmailVerified: { type: Boolean, default: false },
