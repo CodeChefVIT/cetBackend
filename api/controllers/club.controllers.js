@@ -743,8 +743,18 @@ const getAllFeaturedClubs = async (req, res) => {
       "name email type bio featured website username clubAvatar clubBanner clubImages socialMediaLinks mobileNumber typeOfPartner redirectURL"
     )
     .then(async (clubs) => {
+      let megaResult = clubs.filter((club) => club.typeOfPartner == "Mega");
+      let nanoResult = clubs.filter((club) => club.typeOfPartner == "Nano");
+      let microResult = clubs.filter((club) => club.typeOfPartner == "Micro");
+      let gigaResult = clubs.filter((club) => club.typeOfPartner == "Giga");
+      let typeSortedClubs = gigaResult.concat(
+        megaResult,
+        microResult,
+        nanoResult
+      );
+
       res.status(200).json({
-        clubs,
+        clubs: typeSortedClubs,
       });
     })
     .catch((err) => {
