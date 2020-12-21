@@ -3,8 +3,6 @@ os: linux
 files:
   - source: /
     destination: /home/ec2-user/common-deploy
-  # - source: /package.json
-  #   destination: /home/ec2-user/common-deploy
 
 hooks:
   ApplicationStop:
