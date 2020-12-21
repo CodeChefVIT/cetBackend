@@ -82,7 +82,7 @@ passport.use(
               // if not, create user in our db
               let nameArr = profile.displayName.split(" ");
               let name = nameArr[0] + " " + nameArr[1];
-              let registrationNumber = nameArr[2];
+              let registrationNumber = nameArr[-1];
               new Student({
                 _id: new mongoose.Types.ObjectId(),
                 googleId: profile.id,
