@@ -28,4 +28,16 @@ router.get("/allDomainsOfATest", devControllers.getAllDomainsOfATest);
 
 router.get("/domainByID", devControllers.getDomainByID);
 
+router.patch(
+  "/clearEntriesFromDomainByStudentID",
+  devControllers.clearEntriesFromDomainByStudentID
+);
+
+router.get("/studentTestDashboard", devControllers.studentTestDashboard);
+
+router.get(
+  "/multipleStudentDetails",
+  devControllers.getDetailsOfMultipleStudents
+);
+
 module.exports = router;
