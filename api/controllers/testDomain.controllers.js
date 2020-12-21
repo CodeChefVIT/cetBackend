@@ -535,9 +535,10 @@ const getAllSubmissionsOfADomain = async (req, res, next) => {
 
   if (!domainId) {
     return res.status(400).json({
-      message: "1 or more parameter(s) missing from req.body",
+      message: "1 or more parameter(s) missing from req.query",
     });
   }
+  if( !mongoose.Types.ObjectId.isValid(domainId) ) return res.status(401);
 
   await Domain.findById(domainId)
     // .populate(
@@ -550,7 +551,7 @@ const getAllSubmissionsOfADomain = async (req, res, next) => {
         "name email type roundNumber roundType instructions scheduledForDate scheduledEndDate graded responses",
       populate: {
         path: "studentId responses",
-        select: "name email mobileNumber timeTaken submittedOn",
+        select: "name email mobileNumber timeTaken submittedOn answers questionType questionMarks corrected scoredQuestionMarks",
         populate: { path: "questionId", select: "description options" },
       },
     })
@@ -577,7 +578,7 @@ const getAllSubmissionsOfADomain = async (req, res, next) => {
       );
       res.status(500).json({
         message: "Something went wrong",
-        // error: err.toString(),
+        error: err.toString(),
       });
     });
 };
