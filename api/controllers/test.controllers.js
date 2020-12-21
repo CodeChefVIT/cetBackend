@@ -658,11 +658,29 @@ const publish = async (req, res, next) => {
       message: "1 or more parameter(s) missing from req.query",
     });
   }
-  await Test.updateOne({ _id: testId }, { published: true })
-    .then(async () => {
-      res.status(200).json({
-        message: "Published succesfully",
-      });
+  await Test.findOneAndUpdate({ _id: testId }, { published: true })
+    .then(async (test) => {
+      await Club.updateOne(
+        { _id: test.clubId },
+        { $inc: { numOfTestsPublished: 1 } }
+      )
+        .then(async () => {
+          res.status(200).json({
+            message: "Published succesfully",
+          });
+        })
+        .catch((err) => {
+          errorLogger.info(
+            `System: ${req.ip} | ${req.method} | ${
+              req.originalUrl
+            } >> ${err.toString()}`
+          );
+
+          return res.status(500).json({
+            message: "Something went wrong",
+            // error: err.toString(),
+          });
+        });
     })
     .catch((err) => {
       errorLogger.info(
