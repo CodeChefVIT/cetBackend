@@ -556,6 +556,7 @@ const getAllSubmissionsOfADomain = async (req, res, next) => {
       },
     })
     .then(async (domain) => {
+      console.log(domain)
       res.status(200).json({
         clubDetails: domain.clubId,
         testDetails: domain.testId,
