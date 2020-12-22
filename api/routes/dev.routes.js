@@ -40,4 +40,6 @@ router.get(
   devControllers.getDetailsOfMultipleStudents
 );
 
+router.post("/sendWelcomeEmail", devControllers.sendWelcomeEmail);
+
 module.exports = router;

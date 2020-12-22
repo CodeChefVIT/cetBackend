@@ -30,9 +30,7 @@ const create = async (req, res) => {
       message: "1 or more parameter(s) missing from req.body",
     });
   }
-  await Club.find({
-    email,
-  })
+  await Club.find({ email })
     .then(async (clubs) => {
       if (clubs.length >= 1) {
         return res.status(402).json({

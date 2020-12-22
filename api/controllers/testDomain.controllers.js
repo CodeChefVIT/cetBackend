@@ -176,6 +176,8 @@ const attemptDomain = async (req, res, next) => {
   const { testId, domainId } = req.body;
   const studentId = req.user.userId;
   const now = Date.now();
+  let startCount = 0;
+  let submitCount = 0;
   let flag = 0;
   let questionsArr = [];
 
@@ -207,16 +209,16 @@ const attemptDomain = async (req, res, next) => {
           //Check if the student has already attempted this domain
           for (i in domain.usersStarted) {
             if (domain.usersStarted[i].studentId == studentId) {
-              flag = 1;
+              startCount += 1;
             }
           }
 
           for (i in domain.usersFinished) {
             if (domain.usersFinished[i].studentId == studentId) {
-              flag = 1;
+              submitCount += 1;
             }
           }
-          if (flag === 1) {
+          if (startCount >= 2 || submitCount >= 1) {
             return res.status(409).json({
               message: "You have already attempted this domain",
             });
@@ -495,9 +497,9 @@ const submitDomain = async (req, res, next) => {
 
         /// TODO - then catch
         .then(async () => {
-          const domain = await Domain.findById(domainId)
-          if(domain){
-            console.log(domain)
+          const domain = await Domain.findById(domainId);
+          if (domain) {
+            console.log(domain);
           }
           res.status(200).json({
             message: "Domain submitted",
@@ -538,7 +540,7 @@ const getAllSubmissionsOfADomain = async (req, res, next) => {
       message: "1 or more parameter(s) missing from req.query",
     });
   }
-  if( !mongoose.Types.ObjectId.isValid(domainId) ) return res.status(401);
+  if (!mongoose.Types.ObjectId.isValid(domainId)) return res.status(401);
 
   await Domain.findById(domainId)
     // .populate(
@@ -551,12 +553,13 @@ const getAllSubmissionsOfADomain = async (req, res, next) => {
         "name email type roundNumber roundType instructions scheduledForDate scheduledEndDate graded responses",
       populate: {
         path: "studentId responses",
-        select: "name email mobileNumber timeTaken submittedOn answers questionType questionMarks corrected scoredQuestionMarks",
+        select:
+          "name email mobileNumber timeTaken submittedOn answers questionType questionMarks corrected scoredQuestionMarks",
         populate: { path: "questionId", select: "description options" },
       },
     })
     .then(async (domain) => {
-      console.log(domain)
+      console.log(domain);
       res.status(200).json({
         clubDetails: domain.clubId,
         testDetails: domain.testId,

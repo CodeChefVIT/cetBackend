@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const multer = require("multer");
+const AWS = require("aws-sdk");
 
 require("dotenv").config();
 
@@ -13,6 +14,11 @@ const Question = require("../models/question.model");
 const Domain = require("../models/testDomain.model");
 
 const { errorLogger } = require("../utils/logger");
+
+const {
+  sendVerificationOTP,
+  sendWelcomeMail,
+} = require("../utils/emailTemplates");
 
 const getAllClubs = async (req, res, next) => {
   await Club.find()
@@ -144,23 +150,42 @@ const clearEntriesFromDomainByStudentID = async (req, res) => {
   const { domainId, studentsArr, testId } = req.body;
 
   for (studentId of studentsArr) {
-    await Domain.updateOne(
-      { _id: domainId },
-      { $pull: { usersFinished: { studentId } } }
+    // console.log(studentId);
+    await Test.updateOne(
+      { _id: testId },
+      {
+        // $pull: { usersFinished: { studentId } },
+        $pull: { usersStarted: { studentId } },
+      }
     )
       .then(async () => {
-        await Student.updateOne(
-          { _id: studentId, "tests.testId": testId },
+        await Domain.updateOne(
+          { testId },
           {
-            $pull: { "tests.$.domains": { domainId } },
+            // $pull: { usersFinished: { studentId } },
+            $pull: { usersStarted: { studentId } },
           }
         )
-          .then((msg) => {
-            console.log(msg);
+          .then(async (sdasd) => {
+            // console.log(sdasd);
+            await Student.updateOne(
+              { _id: studentId },
+              {
+                $pull: { tests: { testId } },
+              }
+            )
+              .then((msg) => {
+                // console.log(msg);
+              })
+              .catch((err) => {
+                res.status(500).json({
+                  error: err.toString(),
+                });
+              });
           })
           .catch((err) => {
             res.status(500).json({
-              error: err.toString(),
+              error: err.toString,
             });
           });
       })
@@ -401,6 +426,97 @@ const sendSESMailCubeStudents = async (req, res) => {
   }
 };
 
+const sendWelcomeEmail = async (req, res) => {
+  const { emailArray } = req.body;
+
+  const SES_CONFIG = {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    region: "ap-south-1",
+  };
+
+  const AWS_SES = new AWS.SES(SES_CONFIG);
+
+  let params = {
+    Source: "contact@codechefvit.com",
+    Destination: {
+      ToAddresses: emailArray,
+    },
+    ReplyToAddresses: [],
+    Message: {
+      Body: {
+        Html: {
+          Charset: "UTF-8",
+          Data: sendWelcomeMail(),
+        },
+      },
+      Subject: {
+        Charset: "UTF-8",
+        Data: `Common Entry Test - Email Whitelisted`,
+      },
+    },
+  };
+
+  AWS_SES.sendEmail(params)
+    .promise()
+    .then(() => {
+      res.status(200).json({ message: "Emails Sent" });
+    })
+    .catch(() => {
+      res.status(500).json({ message: "Something went wrong" });
+    });
+};
+
+//incomplete
+const whitelistEmails = async (req, res) => {
+  const { clubsArray } = req.body;
+
+  for (club of clubsArray) {
+    await Club.find({ email: club.email })
+      .then(async (clubs) => {
+        if (clubs.length >= 1) {
+          console.log("club already exists");
+        } else {
+          let club = new Club({
+            _id: new mongoose.Types.ObjectId(),
+            email,
+          });
+          await club
+            .save()
+            .then((result) => {
+              console.log(result);
+              return res.status(201).json({
+                message: "Club successfully created",
+                result,
+              });
+            })
+            .catch((err) => {
+              errorLogger.info(
+                `System: ${req.ip} | ${req.method} | ${
+                  req.originalUrl
+                } >> ${err.toString()}`
+              );
+              res.status(500).json({
+                message: "Something went wrong",
+                // error: err.toString(),
+              });
+            });
+        }
+      })
+      .catch((err) => {
+        errorLogger.info(
+          `System: ${req.ip} | ${req.method} | ${
+            req.originalUrl
+          } >> ${err.toString()}`
+        );
+        res.status(500).json({
+          message: "Something went wrong",
+          // error: err.toString(),
+        });
+      });
+  }
+};
+
 module.exports = {
   getAllClubs,
   getAllFeaturedClubs,
@@ -411,4 +527,5 @@ module.exports = {
   clearEntriesFromDomainByStudentID,
   studentTestDashboard,
   getDetailsOfMultipleStudents,
+  sendWelcomeEmail,
 };
