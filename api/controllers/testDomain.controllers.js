@@ -374,6 +374,35 @@ const submitDomain = async (req, res, next) => {
   var now = Date.now();
   var corrected = false;
   var autoCorrectCount = 0;
+  let submitCount = 0;
+
+  await Domain.findById(domainId)
+    .then(async (domain) => {
+      //Check if the student has already attempted this domain
+      for (i in domain.usersFinished) {
+        if (domain.usersFinished[i].studentId == studentId) {
+          submitCount++;
+          break;
+        }
+      }
+    })
+    .catch((err) => {
+      errorLogger.info(
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
+        } >> ${err.toString()}`
+      );
+      res.status(500).json({
+        message: "Something went wrong",
+        // error: err.toString(),
+      });
+    });
+
+  if (submitCount >= 1) {
+    return res.status(409).json({
+      message: "You have already attempted this domain",
+    });
+  }
 
   for (i = 0; i < submissions.length; i++) {
     answerObj = {};
