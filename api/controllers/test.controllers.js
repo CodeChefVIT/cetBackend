@@ -907,4 +907,5 @@ module.exports = {
   getAllTestOfAClub,
   getAllPublishedTestsOfAClub,
   updateTest,
+  deleteTest,
 };

@@ -55,6 +55,9 @@ router.get(
 //Update test details
 router.patch("/details", checkAuthClub, testControllers.updateTest);
 
+//Delete a test
+router.delete("/delete", checkAuthClub, testControllers.deleteTest);
+
 router.use("/domain", require("./testDomain.routes"));
 
 module.exports = router;
