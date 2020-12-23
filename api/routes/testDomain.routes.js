@@ -68,6 +68,9 @@ router.patch(
   testDomainControllers.updateDomainDetails
 );
 
+//Delete a domain
+router.delete("/delete", checkAuthClub, testDomainControllers.deleteDomain);
+
 router.use("/question", require("./question.routes"));
 
 module.exports = router;

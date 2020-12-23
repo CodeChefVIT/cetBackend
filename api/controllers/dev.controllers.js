@@ -4,6 +4,8 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const multer = require("multer");
 const AWS = require("aws-sdk");
+const jsonexport = require("jsonexport");
+const fs = require("fs");
 
 require("dotenv").config();
 
@@ -565,6 +567,49 @@ const getAllSubmissionsOfDomain = async (req, res) => {
     });
 };
 
+const exportSubmissionsOfAllDomains = async (req, res) => {
+  const { testId } = req.query;
+
+  await Domain.findById({ testId })
+    .populate({
+      path: "usersFinished",
+      select: "responses",
+      populate: {
+        path: "studentId responses",
+        select:
+          "name email mobileNumber timeTaken submittedOn answers questionType questionMarks corrected scoredQuestionMarks",
+        populate: { path: "questionId", select: "description options" },
+      },
+    })
+    .then(async (domains) => {
+      // for (domain of domains) {
+      //   jsonexport(domain.usersFinished, function (err, csv) {
+      //     if (err) return console.error(err);
+      //     // console.log(csv);
+      //     fs.writeFileSync(`${domain.name}.csv`, csv);
+      //   });
+      // }
+      // for (i in domains) {
+      //   if (i == 0) {
+      //     console.log("domains[0].usersFinished");
+      // jsonexport(domains[0].usersFinished, function (err, csv) {
+      //   if (err) return console.error(err);
+      //   // console.log(csv);
+      //   fs.writeFileSync(`${domains[0].name}.csv`, csv);
+      // });
+      // }
+      // }
+      res.status(200).json({
+        message: "Done",
+      });
+    })
+    .catch((err) => {
+      res.status(500).json({
+        error: err.toString(),
+      });
+    });
+};
+
 module.exports = {
   getAllClubs,
   getAllFeaturedClubs,
@@ -577,4 +622,5 @@ module.exports = {
   getDetailsOfMultipleStudents,
   whitelistEmails,
   getAllSubmissionsOfDomain,
+  exportSubmissionsOfAllDomains,
 };

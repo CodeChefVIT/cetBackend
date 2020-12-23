@@ -49,4 +49,9 @@ router.get(
   devControllers.getAllSubmissionsOfDomain
 );
 
+router.get(
+  "/exportSubmissionsOfAllDomains",
+  devControllers.exportSubmissionsOfAllDomains
+);
+
 module.exports = router;

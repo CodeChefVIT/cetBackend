@@ -865,6 +865,69 @@ const updateDomainDetails = async (req, res, next) => {
     });
 };
 
+// @desc Delete a domain
+// @route DELETE /api/test/domain/delete
+const deleteDomain = async (req, res, next) => {
+  const { testId, domainId } = req.body;
+
+  await Question.deleteMany({ domainId })
+    .then(async () => {
+      await Student.updateOne(
+        // {},
+        // {
+        //   $pull: { "tests.$[].domains": { domainId } },
+        // },
+        {},
+        { $pull: { "tests.$[].domains": { domainId } } },
+        { multi: true }
+      )
+        .then(async () => {
+          await Domain.deleteOne({ _id: domainId })
+            .then(async () => {
+              res.status(200).json({
+                message: "Domain deleted successfully",
+              });
+            })
+            .catch((err) => {
+              errorLogger.info(
+                `System: ${req.ip} | ${req.method} | ${
+                  req.originalUrl
+                } >> ${err.toString()}`
+              );
+
+              return res.status(500).json({
+                message: "Something went wrong",
+                error: err.toString(),
+              });
+            });
+        })
+        .catch((err) => {
+          errorLogger.info(
+            `System: ${req.ip} | ${req.method} | ${
+              req.originalUrl
+            } >> ${err.toString()}`
+          );
+
+          return res.status(500).json({
+            message: "Something went wrong",
+            error: err.toString(),
+          });
+        });
+    })
+    .catch((err) => {
+      errorLogger.info(
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
+        } >> ${err.toString()}`
+      );
+
+      return res.status(500).json({
+        message: "Something went wrong",
+        // error: err.toString(),
+      });
+    });
+};
+
 module.exports = {
   addDomain,
   getAllDomainsOfATest,
@@ -878,4 +941,5 @@ module.exports = {
   removeShortlistedStudent,
   publishShortlisted,
   updateDomainDetails,
+  deleteDomain,
 };
