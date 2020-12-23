@@ -577,7 +577,7 @@ const getAllSubmissionsOfADomain = async (req, res, next) => {
     //   "name email type roundNumber roundType instructions scheduledForDate scheduledEndDate graded"
     // )
     .populate({
-      path: "clubId testId usersFinished",
+      path: "clubId testId usersFinished shortlisedInDomain",
       select:
         "name email type roundNumber roundType instructions scheduledForDate scheduledEndDate graded responses",
       populate: {
@@ -729,6 +729,32 @@ const shortlistStudent = async (req, res, next) => {
   }
 };
 
+// @desc Delete a shortlisted student
+// @route PATCH /api/test/domain/shortlist/removeStudent
+const removeShortlistedStudent = async (req, res, next) => {
+  const { domainId, studentId } = req.body;
+
+  await Domain.updateOne(
+    { _id: domainId },
+    { $pull: { shortlisedInDomain: { studentId } } }
+  )
+    .then(async () => {
+      res.status(200).json({
+        message: "Removed",
+      });
+    })
+    .catch((err) => {
+      errorLogger.info(
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
+        } >> ${err.toString()}`
+      );
+      res.status(500).json({
+        message: "Something went wrong",
+        // error: err.toString(),
+      });
+    });
+};
 // @desc Publish shortlisted results
 // @route GET /api/test/domain/shortlist/publish
 const publishShortlisted = async (req, res, next) => {
@@ -849,6 +875,7 @@ module.exports = {
   getAllSubmissionsOfADomain,
   getStudentDomainSubmission,
   shortlistStudent,
+  removeShortlistedStudent,
   publishShortlisted,
   updateDomainDetails,
 };

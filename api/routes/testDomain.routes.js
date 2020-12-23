@@ -47,6 +47,13 @@ router.patch(
   testDomainControllers.shortlistStudent
 );
 
+//Remove a shortlisted student
+router.patch(
+  "/removeShortlistedStudent",
+  checkAuthClub,
+  testDomainControllers.removeShortlistedStudent
+);
+
 //Publish Shortlisted result
 router.patch(
   "/publishShortlist",
