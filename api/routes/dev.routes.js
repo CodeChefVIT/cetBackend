@@ -40,6 +40,13 @@ router.get(
   devControllers.getDetailsOfMultipleStudents
 );
 
-router.post("/sendWelcomeEmail", devControllers.sendWelcomeEmail);
+// router.post("/sendWelcomeEmail", devControllers.sendWelcomeEmail);
+
+router.post("/whitelistEmails", devControllers.whitelistEmails);
+
+router.get(
+  "/allSubmissionsOfADomain",
+  devControllers.getAllSubmissionsOfDomain
+);
 
 module.exports = router;

@@ -559,7 +559,6 @@ const getAllSubmissionsOfADomain = async (req, res, next) => {
       },
     })
     .then(async (domain) => {
-      console.log(domain);
       res.status(200).json({
         clubDetails: domain.clubId,
         testDetails: domain.testId,
@@ -572,6 +571,7 @@ const getAllSubmissionsOfADomain = async (req, res, next) => {
           domainMarks: domain.domainMarks,
         },
         usersFinished: domain.usersFinished,
+        shortlisedInDomain: domain.shortlisedInDomain,
       });
     })
     .catch((err) => {

@@ -15,6 +15,14 @@ const Domain = require("../models/testDomain.model");
 
 const { errorLogger } = require("../utils/logger");
 
+const SES_CONFIG = {
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  region: "ap-south-1",
+};
+
+const AWS_SES = new AWS.SES(SES_CONFIG);
+
 const {
   sendVerificationOTP,
   sendWelcomeMail,
@@ -467,7 +475,6 @@ const sendWelcomeEmail = async (req, res) => {
     });
 };
 
-//incomplete
 const whitelistEmails = async (req, res) => {
   const { clubsArray } = req.body;
 
@@ -475,46 +482,87 @@ const whitelistEmails = async (req, res) => {
     await Club.find({ email: club.email })
       .then(async (clubs) => {
         if (clubs.length >= 1) {
-          console.log("club already exists");
+          console.log("Club already exists: ", clubs[0].email);
         } else {
-          let club = new Club({
+          let newClub = new Club({
             _id: new mongoose.Types.ObjectId(),
-            email,
+            email: club.email,
+            typeOfPartner: club.typeOfPartner,
           });
-          await club
+          await newClub
             .save()
             .then((result) => {
-              console.log(result);
-              return res.status(201).json({
-                message: "Club successfully created",
-                result,
-              });
+              console.log("Club created successfully: ", result.email);
+
+              let params = {
+                Source: "contact@codechefvit.com",
+                Destination: {
+                  ToAddresses: [club.email],
+                },
+                ReplyToAddresses: [],
+                Message: {
+                  Body: {
+                    Html: {
+                      Charset: "UTF-8",
+                      Data: sendWelcomeMail(),
+                    },
+                  },
+                  Subject: {
+                    Charset: "UTF-8",
+                    Data: `Common Entry Test - Email Whitelisted`,
+                  },
+                },
+              };
+
+              AWS_SES.sendEmail(params)
+                .promise()
+                .then(() => {
+                  console.log(
+                    "Email sent to: ",
+                    params.Destination.ToAddresses[0]
+                  );
+                })
+                .catch((err) => {
+                  console.log(err.toString());
+                });
             })
             .catch((err) => {
-              errorLogger.info(
-                `System: ${req.ip} | ${req.method} | ${
-                  req.originalUrl
-                } >> ${err.toString()}`
-              );
-              res.status(500).json({
-                message: "Something went wrong",
-                // error: err.toString(),
-              });
+              console.log(err.toString());
             });
         }
       })
       .catch((err) => {
-        errorLogger.info(
-          `System: ${req.ip} | ${req.method} | ${
-            req.originalUrl
-          } >> ${err.toString()}`
-        );
-        res.status(500).json({
-          message: "Something went wrong",
-          // error: err.toString(),
-        });
+        console.log(err.toString());
       });
   }
+  res.status(200).json({
+    message: "Done",
+  });
+};
+
+const getAllSubmissionsOfDomain = async (req, res) => {
+  const { domainId } = req.query;
+
+  await Domain.findById(domainId)
+    .populate({
+      path: "clubId testId usersFinished",
+      select:
+        "name email type roundNumber roundType instructions scheduledForDate scheduledEndDate graded responses",
+      populate: {
+        path: "studentId responses",
+        select:
+          "name email mobileNumber timeTaken submittedOn answers questionType questionMarks corrected scoredQuestionMarks",
+        populate: { path: "questionId", select: "description options" },
+      },
+    })
+    .then(async (domain) => {
+      res.status(200).json(domain);
+    })
+    .catch((err) => {
+      res.status(500).json({
+        error: err.toString,
+      });
+    });
 };
 
 module.exports = {
@@ -527,5 +575,6 @@ module.exports = {
   clearEntriesFromDomainByStudentID,
   studentTestDashboard,
   getDetailsOfMultipleStudents,
-  sendWelcomeEmail,
+  whitelistEmails,
+  getAllSubmissionsOfDomain,
 };
