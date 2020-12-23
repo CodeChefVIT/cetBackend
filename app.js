@@ -87,6 +87,10 @@ app.get("/checkServer", (req, res) => {
   });
 });
 
+if (process.env.NODE_ENV == "development") {
+  app.use("/dev", require("./api/routes/dev.routes"));
+}
+
 //This function will give a 404 response if an undefined API endpoint is fired
 app.use((req, res, next) => {
   const error = new Error("Route not found");
