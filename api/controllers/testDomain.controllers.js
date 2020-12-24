@@ -588,11 +588,11 @@ const getAllSubmissionsOfADomain = async (req, res, next) => {
       },
     })
     .then(async (domain) => {
-      if(domain.clubId != req.user.userId){
-        return res.status(402).json({
-          message: "This is not your club!"
-        })
-      }
+      // if(domain.clubId != req.user.userId){
+      //   return res.status(402).json({
+      //     message: "This is not your club!"
+      //   })
+      // }
       res.status(200).json({
         clubDetails: domain.clubId,
         testDetails: domain.testId,
