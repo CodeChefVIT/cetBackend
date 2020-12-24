@@ -4,14 +4,17 @@ const express = require("express");
 
 // const recaptcha = require("../middleware/recaptcha");
 
+const recaptcha = require("../middleware/recaptcha");
+
+
 const easterEggFormControllers = require("../controllers/easterEggForm.controllers");
 
 const router = express.Router();
 
 //Generate an OTP and save in database
-router.get("/generateOTP", easterEggFormControllers.generateOTP);
+router.get("/generateOTP",  easterEggFormControllers.generateOTP);
 
 //Submit easter egg form
-router.post("/form", easterEggFormControllers.form);
+router.post("/form",  recaptcha, easterEggFormControllers.form);
 
 module.exports = router;

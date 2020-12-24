@@ -5,6 +5,8 @@ const bcrypt = require("bcrypt");
 
 const clubControllers = require("../controllers/club.controllers");
 
+const recaptcha = require("../middleware/recaptcha");
+
 const checkAuthClub = require("../middleware/checkAuthClub");
 
 const {
@@ -15,25 +17,25 @@ const {
 const router = express.Router();
 
 //Create Club
-router.post("/create", clubControllers.create);
+router.post("/create", recaptcha, clubControllers.create);
 
 //Send welcome email
-router.post("/sendWelcomeEmail", clubControllers.sendWelcomeEmail);
+router.post("/sendWelcomeEmail", recaptcha,clubControllers.sendWelcomeEmail);
 
 //Club signup
-router.post("/signup", clubControllers.signup);
+router.post("/signup", recaptcha,clubControllers.signup);
 
 //Club email verification
-router.post("/email/verify", clubControllers.verifyEmail);
+router.post("/email/verify",recaptcha, clubControllers.verifyEmail);
 
 //Resend email verication OTP
-router.post("/email/resendOTP", clubControllers.resendOTP);
+router.post("/email/resendOTP", recaptcha,clubControllers.resendOTP);
 
 //Club login
-router.post("/login", clubControllers.login);
+router.post("/login", recaptcha,clubControllers.login);
 
 //Update club's profile
-router.patch("/profile", checkAuthClub, clubControllers.updateProfile);
+router.patch("/profile", recaptcha,checkAuthClub, clubControllers.updateProfile);
 
 //Get club's profile -- Only for club admin
 router.get("/profile", checkAuthClub, clubControllers.getSelfProfile);
@@ -45,7 +47,7 @@ router.get("/details", clubControllers.getClubDetails);
 router.get("/details/username", clubControllers.getClubDetailsUsername);
 
 //Feature or unfeature a club for recruitments
-router.patch("/feature", checkAuthClub, clubControllers.feature);
+router.patch("/feature", recaptcha,checkAuthClub, clubControllers.feature);
 
 //Get all featured clubs
 router.get("/allFeatured", clubControllers.getAllFeaturedClubs);
@@ -54,6 +56,7 @@ router.get("/allFeatured", clubControllers.getAllFeaturedClubs);
 router.put(
   "/avatar",
   checkAuthClub,
+  recaptcha,
   uploadClubAvatar.single("avatar"),
   clubControllers.uploadProfilePicture
 );
@@ -62,6 +65,7 @@ router.put(
 router.put(
   "/banner",
   checkAuthClub,
+  recaptcha,
   uploadClubBanner.single("banner"),
   clubControllers.uploadBanner
 );

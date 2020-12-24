@@ -5,6 +5,9 @@ const bcrypt = require("bcrypt");
 
 const studentControllers = require("../controllers/student.controllers");
 
+const recaptcha = require("../middleware/recaptcha");
+
+
 const checkAuth = require("../middleware/checkAuth");
 const checkAuthClub = require("../middleware/checkAuthClub");
 const checkAuthStudent = require("../middleware/checkAuthStudent");
@@ -12,28 +15,29 @@ const checkAuthStudent = require("../middleware/checkAuthStudent");
 const router = express.Router();
 
 //Student signup
-router.post("/signup", studentControllers.signup);
+router.post("/signup", recaptcha, studentControllers.signup);
 
 //Resend email verication OTP
-router.post("/email/resendOTP", studentControllers.resendOTP);
+router.post("/email/resendOTP", recaptcha, studentControllers.resendOTP);
 
 //Student email verification
-router.post("/email/verify", studentControllers.verifyEmail);
+router.post("/email/verify", recaptcha, studentControllers.verifyEmail);
 
 //Student login
-router.post("/login", studentControllers.login);
+router.post("/login", recaptcha, studentControllers.login);
 
 //Forgot password - Send OTP
 router.post(
   "/forgotPassword/sendEmail",
+  recaptcha, 
   studentControllers.sendForgotPasswordEmail
 );
 
 //Forgot password - Verify OTP
-router.post("/forgotPassword/verifyOTP", studentControllers.resetPassword);
+router.post("/forgotPassword/verifyOTP", recaptcha, studentControllers.resetPassword);
 
 //Update student's profile
-router.patch("/profile", checkAuthStudent, studentControllers.updateProfile);
+router.patch("/profile", checkAuthStudent, recaptcha, studentControllers.updateProfile);
 
 //Get a student's profile
 router.get("/profile", checkAuthStudent, studentControllers.getProfile);

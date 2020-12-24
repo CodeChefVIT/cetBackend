@@ -3,6 +3,9 @@ const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
+
+const recaptcha = require("../middleware/recaptcha");
+
 const checkAuth = require("../middleware/checkAuth");
 const checkAuthClub = require("../middleware/checkAuthClub");
 const checkAuthStudent = require("../middleware/checkAuthStudent");
