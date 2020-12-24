@@ -18,8 +18,7 @@ const router = express.Router();
 //Add a question to a test
 router.post(
   "/add",
-  checkAuthClub,
-  recaptcha, 
+  checkAuthClub, 
   uploadQuestionMedia.single("media"),
   questionControllers.addQuestion
 );
