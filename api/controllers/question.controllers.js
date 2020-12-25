@@ -261,7 +261,7 @@ const updateMarks = async (req, res, next) => {
       message: "Invalid parameters",
     });
   }
-  const domain = await Domain.findById(domainId)
+  // const domain = await Domain.findById(domainId)
   if(domain.clubId != req.user.userId){
     return res.status(402).json({
       message: "This is not your club!"
