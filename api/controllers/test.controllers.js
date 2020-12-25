@@ -23,6 +23,7 @@ const create = async (req, res, next) => {
     instructions,
     scheduledForDate,
     scheduledEndDate,
+    clubId,
   } = req.body;
 
   if (
@@ -36,8 +37,12 @@ const create = async (req, res, next) => {
       message: "1 or more parameter(s) missing from req.body",
     });
   }
-
-  const clubId = req.user.userId;
+  if(clubId != req.user.userId){
+    return res.status(402).json({
+      message: "This is not your club!"
+    })
+  }
+  // const clubId = req.user.userId;
 
   const test = new Test({
     _id: new mongoose.Types.ObjectId(),

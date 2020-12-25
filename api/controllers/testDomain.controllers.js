@@ -22,6 +22,7 @@ const addDomain = async (req, res, next) => {
     domainDescription,
     domainInstructions,
     domainDuration,
+    clubId,
   } = req.body;
 
   if (!testId || !domainName || !domainDuration) {
@@ -30,7 +31,7 @@ const addDomain = async (req, res, next) => {
     });
   }
   
-  const clubId = req.user.userId;
+  // const clubId = req.user.userId;
   if(clubId != req.user.userId){
     return res.status(402).json({
       message: "This is not your club!"
