@@ -26,6 +26,12 @@ const addQuestion = async (req, res, next) => {
     options,
   } = req.body;
 
+  const domain = await Domain.findById(domainId)
+  if(domain.clubId != req.user.userId){
+    return res.status(402).json({
+      message: "This is not your club!"
+    })
+  }
   if (options) {
     options = JSON.parse(options);
   }
@@ -67,6 +73,7 @@ const addQuestion = async (req, res, next) => {
         });
       });
   } else {
+    
     const url = req.file.location;
     const mimetype = req.file.mimetype;
     const mediaType = mimetype.split("/")[0];
@@ -123,7 +130,12 @@ const addMultipleQuestions = async (req, res, next) => {
       message: "1 or more parameter(s) missing from req.query",
     });
   }
-
+  const domain = await Domain.findById(domainId)
+  if(domain.clubId != req.user.userId){
+    return res.status(402).json({
+      message: "This is not your club!"
+    })
+  }
   //find domain => make domainMarks+=marks
 
   await Question.insertMany(questions)
@@ -249,7 +261,12 @@ const updateMarks = async (req, res, next) => {
       message: "Invalid parameters",
     });
   }
-
+  const domain = await Domain.findById(domainId)
+  if(domain.clubId != req.user.userId){
+    return res.status(402).json({
+      message: "This is not your club!"
+    })
+  }
   for (student of domain.usersFinished) {
     if (student.studentId.equals(studentId)) {
       for (sub of student.responses) {
