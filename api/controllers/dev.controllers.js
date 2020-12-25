@@ -29,6 +29,7 @@ const {
   sendVerificationOTP,
   sendWelcomeMail,
 } = require("../utils/emailTemplates");
+const { domain } = require("process");
 
 const getAllClubs = async (req, res, next) => {
   await Club.find()
@@ -567,43 +568,45 @@ const getAllSubmissionsOfDomain = async (req, res) => {
     });
 };
 
-const exportSubmissionsOfAllDomains = async (req, res) => {
+const getNumSubmissionOfAllDomains = async (req, res) => {
   const { testId } = req.query;
 
   await Domain.find({ testId })
-    .populate({
-      path: "usersFinished testId",
-      select: "responses",
-      populate: {
-        path: "studentId responses",
-        select:
-          "name email mobileNumber timeTaken submittedOn answers questionType questionMarks corrected scoredQuestionMarks",
-        populate: { path: "questionId", select: "description options" },
-      },
-    })
+    // .populate({
+    //   path: "usersFinished testId",
+    //   select: "responses",
+    //   populate: {
+    //     path: "studentId responses",
+    //     select:
+    //       "name email mobileNumber timeTaken submittedOn answers questionType questionMarks corrected scoredQuestionMarks",
+    //     populate: { path: "questionId", select: "description options" },
+    //   },
+    // })
+    .populate("testId", "roundType")
     .then(async (domains) => {
       // console.log(domains);
-      // console.log(domains[0].testId);
-      // for (domain of domains) {
-      //   console.log(domain.domainName, domain.usersFinished.length);
-      // }
-
-      for (domain of domains) {
-        jsonexport(domain.usersFinished, async function (err, csv) {
-          if (err) return console.error(err);
-          // console.log(csv);
-          await fs.writeFileSync(`${domain.domainName}.csv`, csv);
-        });
+      // console.log(domains);
+      console.log(domains[0].testId.roundType);
+      for (i in domains) {
+        console.log(domains[i].domainName, domains[i].usersFinished.length);
       }
+
+      // for (domain of domains) {
+      //   jsonexport(domain.usersFinished, async function (err, csv) {
+      //     if (err) return console.error(err);
+      //     // console.log(csv);
+      //     await fs.writeFileSync(`${domain.domainName}.csv`, csv);
+      //   });
+      // }
       // for (i in domains) {
       //   if (i == 0) {
       //     console.log("domains[0].usersFinished");
-      // jsonexport(domains[0].usersFinished, function (err, csv) {
-      //   if (err) return console.error(err);
-      //   // console.log(csv);
-      //   fs.writeFileSync(`${domains[0].name}.csv`, csv);
-      // });
-      // }
+      //     jsonexport(domains[0].usersFinished, function (err, csv) {
+      //       if (err) return console.error(err);
+      //       // console.log(csv);
+      //       fs.writeFileSync(`${domains[0].name}.csv`, csv);
+      //     });
+      //   }
       // }
       res.status(200).json({
         message: "Done",
@@ -614,6 +617,29 @@ const exportSubmissionsOfAllDomains = async (req, res) => {
         error: err.toString(),
       });
     });
+};
+
+const getNumSubmissionOfAllDomainsofMultipleTests = async (req, res) => {
+  const { testIdArr } = req.body;
+
+  for (testId of testIdArr) {
+    await Domain.find({ testId })
+      .populate("testId", "roundType")
+      .then(async (domains) => {
+        console.log(domains[0].testId.roundType);
+        for (i in domains) {
+          console.log(domains[i].domainName, domains[i].usersFinished.length);
+        }
+      })
+      .catch((err) => {
+        res.status(500).json({
+          error: err.toString(),
+        });
+      });
+  }
+  res.status(200).json({
+    message: "Done",
+  });
 };
 
 module.exports = {
@@ -628,5 +654,6 @@ module.exports = {
   getDetailsOfMultipleStudents,
   whitelistEmails,
   getAllSubmissionsOfDomain,
-  exportSubmissionsOfAllDomains,
+  getNumSubmissionOfAllDomains,
+  getNumSubmissionOfAllDomainsofMultipleTests,
 };

@@ -6,7 +6,6 @@ const bcrypt = require("bcrypt");
 const devControllers = require("../controllers/dev.controllers");
 const recaptcha = require("../middleware/recaptcha");
 
-
 const checkAuth = require("../middleware/checkAuth");
 const checkAuthClub = require("../middleware/checkAuthClub");
 const checkAuthStudent = require("../middleware/checkAuthStudent");
@@ -52,8 +51,13 @@ router.get(
 );
 
 router.get(
-  "/exportSubmissionsOfAllDomains",
-  devControllers.exportSubmissionsOfAllDomains
+  "/getNumSubmissionOfAllDomains",
+  devControllers.getNumSubmissionOfAllDomains
+);
+
+router.get(
+  "/getNumSubmissionOfAllDomainsofMultipleTests",
+  devControllers.getNumSubmissionOfAllDomainsofMultipleTests
 );
 
 module.exports = router;
