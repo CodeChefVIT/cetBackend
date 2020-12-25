@@ -33,7 +33,7 @@ const create = async (req, res) => {
   await Club.find({ email })
     .then(async (clubs) => {
       if (clubs.length >= 1) {
-        return res.status(402).json({
+        return res.status(409).json({
           message: "Email already exists",
           club: clubs[0],
         });
