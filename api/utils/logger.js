@@ -19,7 +19,7 @@ const errorLogger = createLogger({
     }),
     new transports.MongoDB({
       level: "error",
-      db: process.env.DBURI,
+      db: global.env.DBURI,
       options: {
         useUnifiedTopology: true,
       },

@@ -18,8 +18,8 @@ const Domain = require("../models/testDomain.model");
 const { errorLogger } = require("../utils/logger");
 
 const SES_CONFIG = {
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  accessKeyId: global.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: global.env.AWS_SECRET_ACCESS_KEY,
   region: "ap-south-1",
 };
 
@@ -69,8 +69,7 @@ const getAllFeaturedClubs = async (req, res) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${
-          req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -114,8 +113,7 @@ const getAllPublishedTestsOfAClub = async (req, res, next) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${
-          req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${req.originalUrl
         } >> ${err.toString()}`
       );
 
@@ -244,8 +242,7 @@ const studentTestDashboard = async (req, res, next) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${
-          req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -266,8 +263,7 @@ const getDetailsOfMultipleStudents = async (req, res) => {
       })
       .catch((err) => {
         errorLogger.info(
-          `System: ${req.ip} | ${req.method} | ${
-            req.originalUrl
+          `System: ${req.ip} | ${req.method} | ${req.originalUrl
           } >> ${err.toString()}`
         );
         res.status(500).json({
@@ -397,8 +393,8 @@ const sendSESMailCubeStudents = async (req, res) => {
     },
   ];
   const SES_CONFIG = {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    accessKeyId: global.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: global.env.AWS_SECRET_ACCESS_KEY,
     region: "ap-south-1",
   };
 
@@ -440,8 +436,8 @@ const sendWelcomeEmail = async (req, res) => {
   const { emailArray } = req.body;
 
   const SES_CONFIG = {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    accessKeyId: global.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: global.env.AWS_SECRET_ACCESS_KEY,
     region: "ap-south-1",
   };
 
