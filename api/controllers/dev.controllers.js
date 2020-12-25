@@ -653,7 +653,7 @@ const removeUsersFinished = async ( ) => {
   ).then((result)=> {
     return res.status(200).json({message: "done"})
   }).catch((err)=>{
-    return .status(500).json({
+    return res.status(500).json({
       err: err.toString()
     })
   })
