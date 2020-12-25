@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const helmet = require("helmet");
 const cors = require("cors");
-
+const rateLimit = require("express-rate-limit");
 require("dotenv").config();
 
 const secureEnv = require('secure-env');
@@ -18,6 +18,14 @@ const useragent = require("express-useragent");
 
 
 const app = express();
+app.set('trust proxy', 1);
+var limiter = new rateLimit({
+  windowMs: 1 * 60 * 1000,
+  max: 60,
+  message:
+    "Too many requests created from this IP, please try again after an hour",
+});
+app.use(limiter)
 
 const passport_config = require("./api/config/studentGoogleAuth");
 const { errorLogger } = require("./api/utils/logger");
