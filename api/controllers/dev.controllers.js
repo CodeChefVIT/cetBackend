@@ -642,6 +642,23 @@ const getNumSubmissionOfAllDomainsofMultipleTests = async (req, res) => {
   });
 };
 
+const removeUsersFinished = async ( ) => {
+  const { domainId, studentId} = req.body 
+  await Domain.updateOne(
+    { _id: domainId },
+    {
+      $pull: { usersFinished: { studentId } },
+      // $pull: { usersStarted: { studentId } },
+    }
+  ).then((result)=> {
+    res.status(200).json({message: "done"})
+  }).catch((err)=>{
+    res.status(500).json({
+      err: err.toString()
+    })
+  })
+}
+
 module.exports = {
   getAllClubs,
   getAllFeaturedClubs,
@@ -656,4 +673,5 @@ module.exports = {
   getAllSubmissionsOfDomain,
   getNumSubmissionOfAllDomains,
   getNumSubmissionOfAllDomainsofMultipleTests,
+  removeUsersFinished,
 };

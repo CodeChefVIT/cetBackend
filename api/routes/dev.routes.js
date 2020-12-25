@@ -60,4 +60,6 @@ router.get(
   devControllers.getNumSubmissionOfAllDomainsofMultipleTests
 );
 
+router.patch("/removeFinished", devControllers.removeUsersFinished)
+
 module.exports = router;
