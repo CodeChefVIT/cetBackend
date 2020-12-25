@@ -53,7 +53,8 @@ const create = async (req, res) => {
           })
           .catch((err) => {
             errorLogger.info(
-              `System: ${req.ip} | ${req.method} | ${req.originalUrl
+              `System: ${req.ip} | ${req.method} | ${
+                req.originalUrl
               } >> ${err.toString()}`
             );
             res.status(500).json({
@@ -65,7 +66,8 @@ const create = async (req, res) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -227,7 +229,8 @@ const signup = async (req, res) => {
                 })
                 .catch((err) => {
                   errorLogger.info(
-                    `System: ${req.ip} | ${req.method} | ${req.originalUrl
+                    `System: ${req.ip} | ${req.method} | ${
+                      req.originalUrl
                     } >> ${err.toString()}`
                   );
                   res.status(500).json({
@@ -246,7 +249,8 @@ const signup = async (req, res) => {
             })
             .catch((err) => {
               errorLogger.info(
-                `System: ${req.ip} | ${req.method} | ${req.originalUrl
+                `System: ${req.ip} | ${req.method} | ${
+                  req.originalUrl
                 } >> ${err.toString()}`
               );
               res.status(500).json({
@@ -257,7 +261,8 @@ const signup = async (req, res) => {
         })
         .catch((err) => {
           errorLogger.info(
-            `System: ${req.ip} | ${req.method} | ${req.originalUrl
+            `System: ${req.ip} | ${req.method} | ${
+              req.originalUrl
             } >> ${err.toString()}`
           );
           res.status(500).json({
@@ -268,7 +273,8 @@ const signup = async (req, res) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -370,7 +376,8 @@ const resendOTP = async (req, res) => {
         })
         .catch((err) => {
           errorLogger.info(
-            `System: ${req.ip} | ${req.method} | ${req.originalUrl
+            `System: ${req.ip} | ${req.method} | ${
+              req.originalUrl
             } >> ${err.toString()}`
           );
           res.status(500).json({
@@ -381,7 +388,8 @@ const resendOTP = async (req, res) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -425,7 +433,8 @@ const verifyEmail = async (req, res) => {
               })
               .catch((err) => {
                 errorLogger.info(
-                  `System: ${req.ip} | ${req.method} | ${req.originalUrl
+                  `System: ${req.ip} | ${req.method} | ${
+                    req.originalUrl
                   } >> ${err.toString()}`
                 );
                 res.status(500).json({
@@ -451,7 +460,8 @@ const verifyEmail = async (req, res) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -478,7 +488,7 @@ const login = async (req, res) => {
     .then(async (club) => {
       if (club.length < 1) {
         return res.status(401).json({
-          message: "Auth failed: Email not found",
+          message: "Auth failed!",
         });
       }
 
@@ -522,7 +532,8 @@ const login = async (req, res) => {
         })
         .catch((err) => {
           errorLogger.info(
-            `System: ${req.ip} | ${req.method} | ${req.originalUrl
+            `System: ${req.ip} | ${req.method} | ${
+              req.originalUrl
             } >> ${err.toString()}`
           );
           res.status(500).json({
@@ -533,7 +544,8 @@ const login = async (req, res) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -555,39 +567,62 @@ const updateProfile = async (req, res, next) => {
     mobileNumber,
     username,
     redirectURL,
+    password,
   } = req.body;
+
   const clubId = req.user.userId;
 
-  await Club.updateOne(
-    {
-      _id: clubId,
-    },
-    {
-      $set: {
-        name,
-        type,
-        bio,
-        website,
-        socialMediaLinks,
-        mobileNumber,
-        username,
-        redirectURL,
-      },
-    }
-  )
-    .then(async () => {
-      res.status(200).json({
-        message: "Updated",
-      });
+  await bcrypt
+    .compare(password, club[0].password)
+    .then(async (result) => {
+      if (result) {
+        await Club.updateOne(
+          {
+            _id: clubId,
+          },
+          {
+            $set: {
+              name,
+              type,
+              bio,
+              website,
+              socialMediaLinks,
+              mobileNumber,
+              username,
+              redirectURL,
+            },
+          }
+        )
+          .then(async () => {
+            res.status(200).json({
+              message: "Updated",
+            });
+          })
+          .catch((err) => {
+            errorLogger.info(
+              `System: ${req.ip} | ${req.method} | ${
+                req.originalUrl
+              } >> ${err.toString()}`
+            );
+            res.status(500).json({
+              message: "Something went wrong",
+              // error: err.toString(),
+            });
+          });
+      } else {
+        res.status(401).json({
+          message: "Auth failed",
+        });
+      }
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
-      res.status(500).json({
-        message: "Something went wrong",
-        // error: err.toString(),
+      res.status(401).json({
+        message: "Auth failed",
       });
     });
 };
@@ -608,7 +643,8 @@ const getSelfProfile = async (req, res, next) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -640,7 +676,8 @@ const getClubDetails = async (req, res, next) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -672,7 +709,8 @@ const getClubDetailsUsername = async (req, res, next) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -705,7 +743,8 @@ const feature = async (req, res, next) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -741,7 +780,8 @@ const getAllFeaturedClubs = async (req, res) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -774,7 +814,8 @@ const uploadProfilePicture = async (req, res, next) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -806,7 +847,8 @@ const uploadBanner = async (req, res, next) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -838,7 +880,8 @@ const uploadImages = async (req, res, next) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({

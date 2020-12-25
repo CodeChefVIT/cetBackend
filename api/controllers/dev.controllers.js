@@ -621,7 +621,9 @@ const getNumSubmissionOfAllDomains = async (req, res) => {
 
 const getNumSubmissionOfAllDomainsofMultipleTests = async (req, res) => {
   const { testIdArr } = req.body;
-
+  let studentIdsArr = [];
+  let uniqueArr = [];
+  console.log("-----------------------------");
   for (testId of testIdArr) {
     await Domain.find({ testId })
       .populate("testId", "roundType")
@@ -629,7 +631,12 @@ const getNumSubmissionOfAllDomainsofMultipleTests = async (req, res) => {
         console.log(domains[0].testId.roundType);
         for (i in domains) {
           console.log(domains[i].domainName, domains[i].usersFinished.length);
+          for (j in domains[i].usersFinished) {
+            studentIdsArr.push(domains[i].usersFinished[j].studentId);
+          }
         }
+        console.log("-----------------------------");
+        uniqueArr = [...new Set(studentIdsArr)];
       })
       .catch((err) => {
         res.status(500).json({
@@ -639,36 +646,41 @@ const getNumSubmissionOfAllDomainsofMultipleTests = async (req, res) => {
   }
   res.status(200).json({
     message: "Done",
+    studentIdsArr,
+    uniqueArr,
   });
 };
 
 const removeUsersFinished = async (req, res, next) => {
-  const { domainId, studentId} = req.body 
+  const { domainId, studentId } = req.body;
   await Domain.updateOne(
     { _id: domainId },
     {
       $pull: { usersFinished: { studentId } },
-      // $pull: { usersStarted: { studentId } },
+      $pull: { usersStarted: { studentId } },
     }
-  ).then((result)=> {
-    return res.status(200).json({message: "done"})
-  }).catch((err)=>{
-    return res.status(500).json({
-      err: err.toString()
+  )
+    .then((result) => {
+      console.log(result);
+      return res.status(200).json({ message: "done" });
     })
-  })
-}
+    .catch((err) => {
+      return res.status(500).json({
+        err: err.toString(),
+      });
+    });
+};
 
-const findUserByEmail = async  (req,res ,next )=>{
-  const student = await Student.findOne({email: req.body.email})
-  if(!student){
+const findUserByEmail = async (req, res, next) => {
+  const student = await Student.findOne({ email: req.body.email });
+  if (!student) {
     return res.status(404).json({
-      message: "Student not found"
-    })
-  }else{
-     return res.status(200).json({student})
+      message: "Student not found",
+    });
+  } else {
+    return res.status(200).json({ student });
   }
-}
+};
 
 module.exports = {
   getAllClubs,

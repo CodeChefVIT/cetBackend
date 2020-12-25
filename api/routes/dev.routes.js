@@ -60,8 +60,28 @@ router.get(
   devControllers.getNumSubmissionOfAllDomainsofMultipleTests
 );
 
-router.patch("/removeFinished", devControllers.removeUsersFinished)
-router.get("/findByEmail", devControllers.findUserByEmail)
+router.patch("/removeFinished", devControllers.removeUsersFinished);
 
+router.get("/findByEmail", devControllers.findUserByEmail);
+
+const Club = require("../models/club.model");
+// router.patch("/changepass", async (req, res) => {
+//   await bcrypt.hash(password, 10).then(async (hash) => {
+//     await Club.findOneAndUpdate(
+//       { _id: clubId },
+//       {
+//         $set: { password: hash },
+//       }
+//     )
+//       .then(() => {
+//         res.status(200).json({ message: "Done" });
+//         console.log("done");
+//       })
+//       .catch((err) => {
+//         res.status(500).json({ message: err.toString() });
+//         console.log(err.toString());
+//       });
+//   });
+// });
 
 module.exports = router;
