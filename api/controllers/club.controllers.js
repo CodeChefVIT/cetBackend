@@ -135,7 +135,7 @@ const signup = async (req, res) => {
     .then(async (clubs) => {
       if (clubs.length < 1) {
         return res.status(401).json({
-          message: "Email not in database",
+          message: "Auth failed!",
         });
       }
 
@@ -517,7 +517,7 @@ const login = async (req, res) => {
             });
           }
           return res.status(401).json({
-            message: "Auth failed: Invalid password",
+            message: "Auth failed!!",
           });
         })
         .catch((err) => {
