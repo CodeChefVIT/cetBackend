@@ -26,8 +26,8 @@ router.get(
     var name = encodeURIComponent(req.user.name);
     res.redirect(
       303,
-      
-      "http://cet-portal.codechefvit.com/student/oauth/" + token + "/" + req.user.loginCount + '/'
+      "https://cet-dev.netlify.app/student/oauth/" + token + "/" + req.user.loginCount + '/'
+      // "http://cet-portal.codechefvit.com/student/oauth/" + token + "/" + req.user.loginCount + '/'
       // "http://localhost:3000/student/oauth/" + token + "/"
     );
   }
