@@ -572,48 +572,59 @@ const updateProfile = async (req, res, next) => {
 
   const clubId = req.user.userId;
 
-  await bcrypt
-    .compare(password, club[0].password)
-    .then(async (result) => {
-      if (result) {
-        await Club.updateOne(
-          {
-            _id: clubId,
-          },
-          {
-            $set: {
-              name,
-              type,
-              bio,
-              website,
-              socialMediaLinks,
-              mobileNumber,
-              username,
-              redirectURL,
-            },
+  await Club.findById(clubId)
+    .then(async (club) => {
+      await bcrypt
+        .compare(password, club.password)
+        .then(async (result) => {
+          if (result) {
+            await Club.updateOne(
+              { _id: clubId },
+              {
+                $set: {
+                  name,
+                  type,
+                  bio,
+                  website,
+                  socialMediaLinks,
+                  mobileNumber,
+                  username,
+                  redirectURL,
+                },
+              }
+            )
+              .then(async () => {
+                res.status(200).json({
+                  message: "Updated",
+                });
+              })
+              .catch((err) => {
+                errorLogger.info(
+                  `System: ${req.ip} | ${req.method} | ${
+                    req.originalUrl
+                  } >> ${err.toString()}`
+                );
+                res.status(500).json({
+                  message: "Something went wrong",
+                  // error: err.toString(),
+                });
+              });
+          } else {
+            res.status(401).json({
+              message: "Auth failed",
+            });
           }
-        )
-          .then(async () => {
-            res.status(200).json({
-              message: "Updated",
-            });
-          })
-          .catch((err) => {
-            errorLogger.info(
-              `System: ${req.ip} | ${req.method} | ${
-                req.originalUrl
-              } >> ${err.toString()}`
-            );
-            res.status(500).json({
-              message: "Something went wrong",
-              // error: err.toString(),
-            });
+        })
+        .catch((err) => {
+          errorLogger.info(
+            `System: ${req.ip} | ${req.method} | ${
+              req.originalUrl
+            } >> ${err.toString()}`
+          );
+          res.status(401).json({
+            message: "Auth failed",
           });
-      } else {
-        res.status(401).json({
-          message: "Auth failed",
         });
-      }
     })
     .catch((err) => {
       errorLogger.info(
