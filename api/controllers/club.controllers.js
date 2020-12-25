@@ -604,6 +604,7 @@ const updateProfile = async (req, res, next) => {
                     req.originalUrl
                   } >> ${err.toString()}`
                 );
+                console.log(err.toString());
                 res.status(500).json({
                   message: "Something went wrong",
                   // error: err.toString(),
@@ -621,6 +622,7 @@ const updateProfile = async (req, res, next) => {
               req.originalUrl
             } >> ${err.toString()}`
           );
+          console.log(err.toString());
           res.status(401).json({
             message: "Auth failed",
           });
@@ -632,6 +634,7 @@ const updateProfile = async (req, res, next) => {
           req.originalUrl
         } >> ${err.toString()}`
       );
+      console.log(err.toString());
       res.status(500).json({
         message: "Something went wrong",
       });
