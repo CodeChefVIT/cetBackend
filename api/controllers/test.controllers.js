@@ -596,7 +596,13 @@ const addStudents = async (req, res, next) => {
       message: "1 or more parameter(s) missing from req.body",
     });
   }
+  const test = await Test.findById(testId)
 
+  if(test.clubId != req.user.userId){
+    return res.status(402).json({
+      message: "This is not your club!"
+    })
+  }
   let studentsIdArray = [];
   const appliedOn = Date.now();
 
@@ -657,6 +663,13 @@ const publish = async (req, res, next) => {
     return res.status(400).json({
       message: "1 or more parameter(s) missing from req.query",
     });
+  }
+  const test = await Test.findById(testId)
+
+  if(test.clubId != req.user.userId){
+    return res.status(402).json({
+      message: "This is not your club!"
+    })
   }
   await Test.findOneAndUpdate({ _id: testId }, { published: true })
     .then(async (test) => {
@@ -774,6 +787,12 @@ const updateTest = async (req, res, next) => {
 
   await Test.findById(testId)
     .then(async (test) => {
+
+      if(test.clubId != req.user.userId){
+        return res.status(402).json({
+          message: "This is not your club!"
+        })
+      }
       if (test.scheduledForDate <= Date.now()) {
         return res.status(409).json({
           message: "You can't update the test since it has already started",
@@ -829,7 +848,13 @@ const updateTest = async (req, res, next) => {
 // @route DELETE /api/test/delete
 const deleteTest = async (req, res, next) => {
   const { testId } = req.body;
+  const test = await Test.findById(testId)
 
+  if(test.clubId != req.user.userId){
+    return res.status(402).json({
+      message: "This is not your club!"
+    })
+  }
   await Question.deleteMany({ testId })
     .then(async () => {
       await Domain.deleteMany({ testId })

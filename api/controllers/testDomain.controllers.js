@@ -29,9 +29,13 @@ const addDomain = async (req, res, next) => {
       message: "1 or more parameter(s) missing from req.body",
     });
   }
-
+  
   const clubId = req.user.userId;
-
+  if(clubId != req.user.userId){
+    return res.status(402).json({
+      message: "This is not your club!"
+    })
+  }
   const domain = new Domain({
     _id: new mongoose.Types.ObjectId(),
     testId,
@@ -147,7 +151,12 @@ const finalizeDomain = async (req, res, next) => {
       message: "1 or more parameter(s) missing from req.query",
     });
   }
-
+  const domain = await Domain.findById(domainId)
+  if(domain.clubId != req.user.userId){
+    return res.status(402).json({
+      message: "This is not your club!"
+    })
+  }
   await Domain.updateOne({ _id: domainId }, { published: true })
     .then(async () => {
       res.status(200).json({
@@ -576,11 +585,11 @@ const getAllSubmissionsOfADomain = async (req, res, next) => {
       },
     })
     .then(async (domain) => {
-      // if(domain.clubId != req.user.userId){
-      //   return res.status(402).json({
-      //     message: "This is not your club!"
-      //   })
-      // }
+      if(domain.clubId != req.user.userId){
+        return res.status(402).json({
+          message: "This is not your club!"
+        })
+      }
       res.status(200).json({
         clubDetails: domain.clubId,
         testDetails: domain.testId,
@@ -671,6 +680,11 @@ const shortlistStudent = async (req, res, next) => {
 
   await Domain.findById(domainId)
     .then(async (domain) => {
+      if(domain.clubId != req.user.userId){
+        return res.status(402).json({
+          message: "This is not your club!"
+        })
+      }
       for (student of domain.shortlisedInDomain) {
         if (student.studentId.equals(studentId)) {
           student.remark = remark;
@@ -722,7 +736,12 @@ const shortlistStudent = async (req, res, next) => {
 // @route PATCH /api/test/domain/shortlist/removeStudent
 const removeShortlistedStudent = async (req, res, next) => {
   const { domainId, studentId } = req.body;
-
+  const domain = await Domain.findById(domainId)
+  if(domain.clubId != req.user.userId){
+    return res.status(402).json({
+      message: "This is not your club!"
+    })
+  }
   await Domain.updateOne(
     { _id: domainId },
     { $pull: { shortlisedInDomain: { studentId } } }
@@ -748,6 +767,11 @@ const removeShortlistedStudent = async (req, res, next) => {
 const publishShortlisted = async (req, res, next) => {
   const { domainId, testId } = req.body;
   const domain = await Domain.findById(domainId);
+  if(domain.clubId != req.user.userId){
+    return res.status(402).json({
+      message: "This is not your club!"
+    })
+  }
   if (!domain) {
     res.status(500).json({
       message: "Something went wrong",
@@ -801,7 +825,13 @@ const updateDomainDetails = async (req, res, next) => {
     domainInstructions,
     domainDuration,
   } = req.body;
+  const domain = await Domain.findById(domainId);
 
+  if(domain.clubId != req.user.userId){
+    return res.status(402).json({
+      message: "This is not your club!"
+    })
+  }
   await Test.findById(testId)
     .then(async (test) => {
       if (test.scheduledForDate <= Date.now()) {
@@ -855,7 +885,13 @@ const updateDomainDetails = async (req, res, next) => {
 // @route DELETE /api/test/domain/delete
 const deleteDomain = async (req, res, next) => {
   const { testId, domainId } = req.body;
+  const domain = await Domain.findById(domainId);
 
+  if(domain.clubId != req.user.userId){
+    return res.status(402).json({
+      message: "This is not your club!"
+    })
+  }
   await Question.deleteMany({ domainId })
     .then(async () => {
       await Student.updateOne(
