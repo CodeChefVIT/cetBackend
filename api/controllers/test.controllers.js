@@ -736,6 +736,11 @@ const getAllPublishedTestsOfAClub = async (req, res, next) => {
 
   await Test.find({ clubId, published: true })
     .then(async (tests) => {
+      for (let i = 0; i < tests.length; i++) {
+        if (Date.now() >= tests[i].scheduledEndDate) {
+          tests.splice(i, 1);
+        }
+      }
       res.status(200).json({
         tests,
       });
