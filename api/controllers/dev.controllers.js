@@ -659,7 +659,16 @@ const removeUsersFinished = async (req, res, next) => {
   })
 }
 
-const findUserByEmail = async  
+const findUserByEmail = async  (req,res ,next )=>{
+  const student = await Student.findOne({email: req.body.email})
+  if(!student){
+    return res.status(404).json({
+      message: "Student not found"
+    })
+  }else{
+     return res.status(200).json({student})
+  }
+}
 
 module.exports = {
   getAllClubs,
