@@ -247,7 +247,7 @@ const attemptDomain = async (req, res, next) => {
               submitCount += 1;
             }
           }
-          if (startCount >= 2 || submitCount >= 1) {
+          if (startCount >= 1 || submitCount >= 1) {
             return res.status(409).json({
               message: "You have already attempted this domain",
             });
