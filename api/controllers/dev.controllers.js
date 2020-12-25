@@ -651,9 +651,9 @@ const removeUsersFinished = async ( ) => {
       // $pull: { usersStarted: { studentId } },
     }
   ).then((result)=> {
-    res.status(200).json({message: "done"})
+    return res.status(200).json({message: "done"})
   }).catch((err)=>{
-    res.status(500).json({
+    return .status(500).json({
       err: err.toString()
     })
   })
