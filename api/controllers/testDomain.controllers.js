@@ -22,7 +22,6 @@ const addDomain = async (req, res, next) => {
     domainDescription,
     domainInstructions,
     domainDuration,
-    clubId,
   } = req.body;
 
   if (!testId || !domainName || !domainDuration) {
@@ -30,13 +29,33 @@ const addDomain = async (req, res, next) => {
       message: "1 or more parameter(s) missing from req.body",
     });
   }
-  
-  // const clubId = req.user.userId;
-  if(clubId != req.user.userId){
-    return res.status(402).json({
-      message: "This is not your club!"
+
+  let flag = 0;
+
+  await Test.findById(testId)
+    .then(async (test) => {
+      if (test.clubId != req.user.userId) {
+        flag = 1;
+      }
     })
+    .catch((err) => {
+      errorLogger.info(
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
+        } >> ${err.toString()}`
+      );
+      res.status(500).json({
+        message: "Something went wrong",
+        // error: err.toString(),
+      });
+    });
+
+  if (flag == 1) {
+    return res.status(403).json({
+      message: "This is not your club!",
+    });
   }
+  let clubId = req.user.userId;
   const domain = new Domain({
     _id: new mongoose.Types.ObjectId(),
     testId,
@@ -57,7 +76,8 @@ const addDomain = async (req, res, next) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -87,7 +107,8 @@ const getAllDomainsOfATest = async (req, res, next) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -132,7 +153,8 @@ const getDetailsOfDomain = async (req, res, next) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -152,11 +174,11 @@ const finalizeDomain = async (req, res, next) => {
       message: "1 or more parameter(s) missing from req.query",
     });
   }
-  const domain = await Domain.findById(domainId)
-  if(domain.clubId != req.user.userId){
+  const domain = await Domain.findById(domainId);
+  if (domain.clubId != req.user.userId) {
     return res.status(402).json({
-      message: "This is not your club!"
-    })
+      message: "This is not your club!",
+    });
   }
   await Domain.updateOne({ _id: domainId }, { published: true })
     .then(async () => {
@@ -166,7 +188,8 @@ const finalizeDomain = async (req, res, next) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -293,7 +316,8 @@ const attemptDomain = async (req, res, next) => {
                       console.log(err.toString());
 
                       errorLogger.info(
-                        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+                        `System: ${req.ip} | ${req.method} | ${
+                          req.originalUrl
                         } >> ${err.toString()}`
                       );
 
@@ -307,7 +331,8 @@ const attemptDomain = async (req, res, next) => {
                   console.log(err.toString());
 
                   errorLogger.info(
-                    `System: ${req.ip} | ${req.method} | ${req.originalUrl
+                    `System: ${req.ip} | ${req.method} | ${
+                      req.originalUrl
                     } >> ${err.toString()}`
                   );
                   res.status(500).json({
@@ -320,7 +345,8 @@ const attemptDomain = async (req, res, next) => {
               console.log(err.toString());
 
               errorLogger.info(
-                `System: ${req.ip} | ${req.method} | ${req.originalUrl
+                `System: ${req.ip} | ${req.method} | ${
+                  req.originalUrl
                 } >> ${err.toString()}`
               );
               res.status(500).json({
@@ -334,7 +360,8 @@ const attemptDomain = async (req, res, next) => {
           console.log(err.toString());
 
           errorLogger.info(
-            `System: ${req.ip} | ${req.method} | ${req.originalUrl
+            `System: ${req.ip} | ${req.method} | ${
+              req.originalUrl
             } >> ${err.toString()}`
           );
           res.status(500).json({
@@ -347,7 +374,8 @@ const attemptDomain = async (req, res, next) => {
       console.log(err.toString());
 
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -389,7 +417,8 @@ const submitDomain = async (req, res, next) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -536,7 +565,8 @@ const submitDomain = async (req, res, next) => {
         })
         .catch((err) => {
           errorLogger.info(
-            `System: ${req.ip} | ${req.method} | ${req.originalUrl
+            `System: ${req.ip} | ${req.method} | ${
+              req.originalUrl
             } >> ${err.toString()}`
           );
           res.status(500).json({
@@ -547,7 +577,8 @@ const submitDomain = async (req, res, next) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -586,10 +617,10 @@ const getAllSubmissionsOfADomain = async (req, res, next) => {
       },
     })
     .then(async (domain) => {
-      if(domain.clubId != req.user.userId){
-        return res.status(402).json({
-          message: "This is not your club!"
-        })
+      if (domain.clubId._id != req.user.userId) {
+        return res.status(403).json({
+          message: "This is not your club!",
+        });
       }
       res.status(200).json({
         clubDetails: domain.clubId,
@@ -608,7 +639,8 @@ const getAllSubmissionsOfADomain = async (req, res, next) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -642,6 +674,11 @@ const getStudentDomainSubmission = async (req, res, next) => {
       },
     })
     .then(async (domain) => {
+      if (domain.clubId._id != req.user.userId) {
+        return res.status(403).json({
+          message: "This is not your club!",
+        });
+      }
       for (i in domain.usersFinished) {
         if (domain.usersFinished[i].studentId._id.equals(studentId)) {
           submission = domain.usersFinished[i].responses;
@@ -663,7 +700,8 @@ const getStudentDomainSubmission = async (req, res, next) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -678,13 +716,12 @@ const getStudentDomainSubmission = async (req, res, next) => {
 const shortlistStudent = async (req, res, next) => {
   const { domainId, studentId, remark } = req.body;
   let flag = 0;
+  let clubFlag = 0;
 
   await Domain.findById(domainId)
     .then(async (domain) => {
-      if(domain.clubId != req.user.userId){
-        return res.status(402).json({
-          message: "This is not your club!"
-        })
+      if (domain.clubId != req.user.userId) {
+        clubFlag = 1;
       }
       for (student of domain.shortlisedInDomain) {
         if (student.studentId.equals(studentId)) {
@@ -697,7 +734,8 @@ const shortlistStudent = async (req, res, next) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -706,29 +744,37 @@ const shortlistStudent = async (req, res, next) => {
       });
     });
 
-  if (flag == 0) {
-    await Domain.updateOne(
-      { _id: domainId },
-      { $push: { shortlisedInDomain: { studentId, remark } } }
-    )
-      .then(async () => {
-        res.status(200).json({
-          message: "Shortlisted",
+  if (clubFlag == 0) {
+    if (flag == 0) {
+      console.log("f");
+      await Domain.updateOne(
+        { _id: domainId },
+        { $push: { shortlisedInDomain: { studentId, remark } } }
+      )
+        .then(async () => {
+          res.status(200).json({
+            message: "Shortlisted",
+          });
+        })
+        .catch((err) => {
+          errorLogger.info(
+            `System: ${req.ip} | ${req.method} | ${
+              req.originalUrl
+            } >> ${err.toString()}`
+          );
+          res.status(500).json({
+            message: "Something went wrong",
+            // error: err.toString(),
+          });
         });
-      })
-      .catch((err) => {
-        errorLogger.info(
-          `System: ${req.ip} | ${req.method} | ${req.originalUrl
-          } >> ${err.toString()}`
-        );
-        res.status(500).json({
-          message: "Something went wrong",
-          // error: err.toString(),
-        });
+    } else {
+      res.status(200).json({
+        message: "Shortlisted",
       });
+    }
   } else {
-    res.status(200).json({
-      message: "Shortlisted",
+    return res.status(403).json({
+      message: "This is not your club!",
     });
   }
 };
@@ -737,11 +783,11 @@ const shortlistStudent = async (req, res, next) => {
 // @route PATCH /api/test/domain/shortlist/removeStudent
 const removeShortlistedStudent = async (req, res, next) => {
   const { domainId, studentId } = req.body;
-  const domain = await Domain.findById(domainId)
-  if(domain.clubId != req.user.userId){
-    return res.status(402).json({
-      message: "This is not your club!"
-    })
+  const domain = await Domain.findById(domainId);
+  if (domain.clubId != req.user.userId) {
+    return res.status(403).json({
+      message: "This is not your club!",
+    });
   }
   await Domain.updateOne(
     { _id: domainId },
@@ -754,7 +800,8 @@ const removeShortlistedStudent = async (req, res, next) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -768,10 +815,10 @@ const removeShortlistedStudent = async (req, res, next) => {
 const publishShortlisted = async (req, res, next) => {
   const { domainId, testId } = req.body;
   const domain = await Domain.findById(domainId);
-  if(domain.clubId != req.user.userId){
+  if (domain.clubId != req.user.userId) {
     return res.status(402).json({
-      message: "This is not your club!"
-    })
+      message: "This is not your club!",
+    });
   }
   if (!domain) {
     res.status(500).json({
@@ -828,50 +875,52 @@ const updateDomainDetails = async (req, res, next) => {
   } = req.body;
   const domain = await Domain.findById(domainId);
 
-  if(domain.clubId != req.user.userId){
-    return res.status(402).json({
-      message: "This is not your club!"
-    })
+  if (domain.clubId != req.user.userId) {
+    return res.status(403).json({
+      message: "This is not your club!",
+    });
   }
   await Test.findById(testId)
     .then(async (test) => {
-      if (test.scheduledForDate <= Date.now()) {
-        return res.status(409).json({
-          message: "You can't update the domain since it has already started",
-        });
-      } else {
-        await Domain.updateOne(
-          { _id: domainId },
-          {
-            $set: {
-              domainName,
-              domainDescription,
-              domainInstructions,
-              domainDuration,
-            },
-          }
-        )
-          .then(async () => {
-            res.status(200).json({
-              message: "Domain details updated",
-            });
-          })
-          .catch((err) => {
-            errorLogger.info(
-              `System: ${req.ip} | ${req.method} | ${req.originalUrl
-              } >> ${err.toString()}`
-            );
-
-            return res.status(500).json({
-              message: "Something went wrong",
-              // error: err.toString(),
-            });
+      // if (test.scheduledForDate <= Date.now()) {
+      //   return res.status(409).json({
+      //     message: "You can't update the domain since it has already started",
+      //   });
+      // } else {
+      await Domain.updateOne(
+        { _id: domainId },
+        {
+          $set: {
+            domainName,
+            domainDescription,
+            domainInstructions,
+            domainDuration,
+          },
+        }
+      )
+        .then(async () => {
+          res.status(200).json({
+            message: "Domain details updated",
           });
-      }
+        })
+        .catch((err) => {
+          errorLogger.info(
+            `System: ${req.ip} | ${req.method} | ${
+              req.originalUrl
+            } >> ${err.toString()}`
+          );
+
+          return res.status(500).json({
+            message: "Something went wrong",
+            // error: err.toString(),
+          });
+        });
+      // }
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
 
@@ -888,64 +937,68 @@ const deleteDomain = async (req, res, next) => {
   const { testId, domainId } = req.body;
   const domain = await Domain.findById(domainId);
 
-  if(domain.clubId != req.user.userId){
-    return res.status(402).json({
-      message: "This is not your club!"
-    })
-  }
-  await Question.deleteMany({ domainId })
-    .then(async () => {
-      await Student.updateOne(
-        // {},
-        // {
-        //   $pull: { "tests.$[].domains": { domainId } },
-        // },
-        {},
-        { $pull: { "tests.$[].domains": { domainId } } },
-        { multi: true }
-      )
-        .then(async () => {
-          await Domain.deleteOne({ _id: domainId })
-            .then(async () => {
-              res.status(200).json({
-                message: "Domain deleted successfully",
-              });
-            })
-            .catch((err) => {
-              errorLogger.info(
-                `System: ${req.ip} | ${req.method} | ${req.originalUrl
-                } >> ${err.toString()}`
-              );
-
-              return res.status(500).json({
-                message: "Something went wrong",
-                error: err.toString(),
-              });
-            });
-        })
-        .catch((err) => {
-          errorLogger.info(
-            `System: ${req.ip} | ${req.method} | ${req.originalUrl
-            } >> ${err.toString()}`
-          );
-
-          return res.status(500).json({
-            message: "Something went wrong",
-            error: err.toString(),
-          });
-        });
-    })
-    .catch((err) => {
-      errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
-        } >> ${err.toString()}`
-      );
-
-      return res.status(500).json({
-        message: "Something went wrong",
-        // error: err.toString(),
-      });
+  if (domain.clubId != req.user.userId) {
+    return res.status(403).json({
+      message: "This is not your club!",
     });
+  } else {
+    await Question.deleteMany({ domainId })
+      .then(async () => {
+        await Student.updateOne(
+          // {},
+          // {
+          //   $pull: { "tests.$[].domains": { domainId } },
+          // },
+          {},
+          { $pull: { "tests.$[].domains": { domainId } } },
+          { multi: true }
+        )
+          .then(async () => {
+            await Domain.deleteOne({ _id: domainId })
+              .then(async () => {
+                res.status(200).json({
+                  message: "Domain deleted successfully",
+                });
+              })
+              .catch((err) => {
+                errorLogger.info(
+                  `System: ${req.ip} | ${req.method} | ${
+                    req.originalUrl
+                  } >> ${err.toString()}`
+                );
+
+                return res.status(500).json({
+                  message: "Something went wrong",
+                  error: err.toString(),
+                });
+              });
+          })
+          .catch((err) => {
+            errorLogger.info(
+              `System: ${req.ip} | ${req.method} | ${
+                req.originalUrl
+              } >> ${err.toString()}`
+            );
+
+            return res.status(500).json({
+              message: "Something went wrong",
+              error: err.toString(),
+            });
+          });
+      })
+      .catch((err) => {
+        errorLogger.info(
+          `System: ${req.ip} | ${req.method} | ${
+            req.originalUrl
+          } >> ${err.toString()}`
+        );
+
+        return res.status(500).json({
+          message: "Something went wrong",
+          // error: err.toString(),
+        });
+      });
+  }
 };
 
 module.exports = {

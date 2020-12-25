@@ -37,10 +37,10 @@ const create = async (req, res, next) => {
       message: "1 or more parameter(s) missing from req.body",
     });
   }
-  if(clubId != req.user.userId){
-    return res.status(402).json({
-      message: "This is not your club!"
-    })
+  if (clubId != req.user.userId) {
+    return res.status(403).json({
+      message: "This is not your club!",
+    });
   }
   // const clubId = req.user.userId;
 
@@ -601,62 +601,63 @@ const addStudents = async (req, res, next) => {
       message: "1 or more parameter(s) missing from req.body",
     });
   }
-  const test = await Test.findById(testId)
+  const test = await Test.findById(testId);
 
-  if(test.clubId != req.user.userId){
-    return res.status(402).json({
-      message: "This is not your club!"
-    })
-  }
-  let studentsIdArray = [];
-  const appliedOn = Date.now();
-
-  for (let studentEmail of studentsArray) {
-    let student = await Student.findOneAndUpdate(
-      {
-        email: studentEmail,
-      },
-      {
-        $push: {
-          tests: {
-            testId,
-            clubId,
-            appliedOn,
-            status: "Added/Promoted",
-          },
-        },
-      }
-    );
-    if (student) {
-      let object = {
-        studentId: student.id,
-        marks: 0,
-        corrected: false,
-        responses: [],
-      };
-      studentsIdArray = [...studentsIdArray, object];
-    }
-  }
-  await Test.findOneAndUpdate(
-    { _id: testId },
-    { $addToSet: { users: studentsIdArray } }
-  )
-    .then((result) => {
-      return res.status(200).json({
-        message: "Student array added",
-      });
-    })
-    .catch((err) => {
-      errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${
-          req.originalUrl
-        } >> ${err.toString()}`
-      );
-      return res.status(500).json({
-        message: "Something went wrong",
-        // error: err.toString(),
-      });
+  if (test.clubId != req.user.userId) {
+    return res.status(403).json({
+      message: "This is not your club!",
     });
+  } else {
+    let studentsIdArray = [];
+    const appliedOn = Date.now();
+
+    for (let studentEmail of studentsArray) {
+      let student = await Student.findOneAndUpdate(
+        {
+          email: studentEmail,
+        },
+        {
+          $push: {
+            tests: {
+              testId,
+              clubId,
+              appliedOn,
+              status: "Added/Promoted",
+            },
+          },
+        }
+      );
+      if (student) {
+        let object = {
+          studentId: student.id,
+          marks: 0,
+          corrected: false,
+          responses: [],
+        };
+        studentsIdArray = [...studentsIdArray, object];
+      }
+    }
+    await Test.findOneAndUpdate(
+      { _id: testId },
+      { $addToSet: { users: studentsIdArray } }
+    )
+      .then((result) => {
+        return res.status(200).json({
+          message: "Student array added",
+        });
+      })
+      .catch((err) => {
+        errorLogger.info(
+          `System: ${req.ip} | ${req.method} | ${
+            req.originalUrl
+          } >> ${err.toString()}`
+        );
+        return res.status(500).json({
+          message: "Something went wrong",
+          // error: err.toString(),
+        });
+      });
+  }
 };
 
 // @desc Publish a test
@@ -669,12 +670,12 @@ const publish = async (req, res, next) => {
       message: "1 or more parameter(s) missing from req.query",
     });
   }
-  const test = await Test.findById(testId)
+  const test = await Test.findById(testId);
 
-  if(test.clubId != req.user.userId){
-    return res.status(402).json({
-      message: "This is not your club!"
-    })
+  if (test.clubId != req.user.userId) {
+    return res.status(403).json({
+      message: "This is not your club!",
+    });
   }
   await Test.findOneAndUpdate({ _id: testId }, { published: true })
     .then(async (test) => {
@@ -723,6 +724,11 @@ const getAllTestOfAClub = async (req, res, next) => {
   await Test.find({ clubId })
     .select("-usersFinished -usersStarted -users")
     .then(async (tests) => {
+      // if (tests[0].clubId != req.user.userId) {
+      //   return res.status(403).json({
+      //     message: "This is not your club!",
+      //   });
+      // }
       res.status(200).json({
         tests,
       });
@@ -792,11 +798,10 @@ const updateTest = async (req, res, next) => {
 
   await Test.findById(testId)
     .then(async (test) => {
-
-      if(test.clubId != req.user.userId){
-        return res.status(402).json({
-          message: "This is not your club!"
-        })
+      if (test.clubId != req.user.userId) {
+        return res.status(403).json({
+          message: "This is not your club!",
+        });
       }
       if (test.scheduledForDate <= Date.now()) {
         return res.status(409).json({
@@ -853,12 +858,12 @@ const updateTest = async (req, res, next) => {
 // @route DELETE /api/test/delete
 const deleteTest = async (req, res, next) => {
   const { testId } = req.body;
-  const test = await Test.findById(testId)
+  const test = await Test.findById(testId);
 
-  if(test.clubId != req.user.userId){
-    return res.status(402).json({
-      message: "This is not your club!"
-    })
+  if (test.clubId != req.user.userId) {
+    return res.status(403).json({
+      message: "This is not your club!",
+    });
   }
   await Question.deleteMany({ testId })
     .then(async () => {

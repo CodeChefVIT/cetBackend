@@ -69,7 +69,8 @@ const getAllFeaturedClubs = async (req, res) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -113,7 +114,8 @@ const getAllPublishedTestsOfAClub = async (req, res, next) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
 
@@ -242,7 +244,8 @@ const studentTestDashboard = async (req, res, next) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -263,7 +266,8 @@ const getDetailsOfMultipleStudents = async (req, res) => {
       })
       .catch((err) => {
         errorLogger.info(
-          `System: ${req.ip} | ${req.method} | ${req.originalUrl
+          `System: ${req.ip} | ${req.method} | ${
+            req.originalUrl
           } >> ${err.toString()}`
         );
         res.status(500).json({
@@ -566,9 +570,9 @@ const getAllSubmissionsOfDomain = async (req, res) => {
 const exportSubmissionsOfAllDomains = async (req, res) => {
   const { testId } = req.query;
 
-  await Domain.findById({ testId })
+  await Domain.find({ testId })
     .populate({
-      path: "usersFinished",
+      path: "usersFinished testId",
       select: "responses",
       populate: {
         path: "studentId responses",
@@ -578,13 +582,19 @@ const exportSubmissionsOfAllDomains = async (req, res) => {
       },
     })
     .then(async (domains) => {
+      // console.log(domains);
+      // console.log(domains[0].testId);
       // for (domain of domains) {
-      //   jsonexport(domain.usersFinished, function (err, csv) {
-      //     if (err) return console.error(err);
-      //     // console.log(csv);
-      //     fs.writeFileSync(`${domain.name}.csv`, csv);
-      //   });
+      //   console.log(domain.domainName, domain.usersFinished.length);
       // }
+
+      for (domain of domains) {
+        jsonexport(domain.usersFinished, async function (err, csv) {
+          if (err) return console.error(err);
+          // console.log(csv);
+          await fs.writeFileSync(`${domain.domainName}.csv`, csv);
+        });
+      }
       // for (i in domains) {
       //   if (i == 0) {
       //     console.log("domains[0].usersFinished");

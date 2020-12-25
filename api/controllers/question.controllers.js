@@ -26,11 +26,11 @@ const addQuestion = async (req, res, next) => {
     options,
   } = req.body;
 
-  const domain = await Domain.findById(domainId)
-  if(domain.clubId != req.user.userId){
-    return res.status(402).json({
-      message: "This is not your club!"
-    })
+  const domain = await Domain.findById(domainId);
+  if (domain.clubId != req.user.userId) {
+    return res.status(403).json({
+      message: "This is not your club!",
+    });
   }
   if (options) {
     options = JSON.parse(options);
@@ -73,7 +73,6 @@ const addQuestion = async (req, res, next) => {
         });
       });
   } else {
-    
     const url = req.file.location;
     const mimetype = req.file.mimetype;
     const mediaType = mimetype.split("/")[0];
@@ -130,11 +129,11 @@ const addMultipleQuestions = async (req, res, next) => {
       message: "1 or more parameter(s) missing from req.query",
     });
   }
-  const domain = await Domain.findById(domainId)
-  if(domain.clubId != req.user.userId){
-    return res.status(402).json({
-      message: "This is not your club!"
-    })
+  const domain = await Domain.findById(domainId);
+  if (domain.clubId != req.user.userId) {
+    return res.status(403).json({
+      message: "This is not your club!",
+    });
   }
   //find domain => make domainMarks+=marks
 
@@ -206,6 +205,11 @@ const getAllQuestions = async (req, res, next) => {
       "name email type roundNumber roundType instructions scheduledForDate scheduledEndDate graded"
     )
     .then(async (domain) => {
+      if (domain.clubId._id != req.user.userId) {
+        return res.status(403).json({
+          message: "This is not your club!",
+        });
+      }
       await Question.find({ testId, domainId })
         .then(async (questions) => {
           res.status(200).json({
@@ -252,8 +256,6 @@ const getAllQuestions = async (req, res, next) => {
 const updateMarks = async (req, res, next) => {
   const { studentId, questionId, marks, domainId } = req.body;
 
-  let flag = 0;
-
   let domain = await Domain.findOne({ _id: domainId });
 
   if (!domain) {
@@ -261,65 +263,42 @@ const updateMarks = async (req, res, next) => {
       message: "Invalid parameters",
     });
   }
-  // const domain = await Domain.findById(domainId)
-  if(domain.clubId != req.user.userId){
-    return res.status(402).json({
-      message: "This is not your club!"
-    })
-  }
-  for (student of domain.usersFinished) {
-    if (student.studentId.equals(studentId)) {
-      for (sub of student.responses) {
-        if (sub.questionId.equals(questionId)) {
-          sub.scoredQuestionMarks = marks;
-          sub.corrected = true;
-          await domain
-            .save()
-            .then(async (result) => {
-              await Domain.updateOne({ _id: domainId }, result)
-                .then(() => {
-                  flag = 1;
-                })
-                .catch((err) => {
-                  errorLogger.info(
-                    `System: ${req.ip} | ${req.method} | ${
-                      req.originalUrl
-                    } >> ${err.toString()}`
-                  );
-                  res.status(500).json({
-                    message: "Something went wrong",
-                    // error: err.toString(),
-                  });
-                });
-            })
-            .catch((err) => {
-              errorLogger.info(
-                `System: ${req.ip} | ${req.method} | ${
-                  req.originalUrl
-                } >> ${err.toString()}`
-              );
-              return res.status(500).json({
-                message: "Something went wrong",
-                // error: err.toString(),
-              });
-            });
 
-          break;
-        }
-      }
-      if (flag == 1) break;
+  if (domain.clubId != req.user.userId) {
+    return res.status(403).json({
+      message: "This is not your club!",
+    });
+  }
+
+  await Domain.updateOne(
+    { _id: domainId },
+    {
+      $set: { "usersFinished.$[i].responses.$[j].scoredQuestionMarks": marks },
+    },
+    {
+      arrayFilters: [
+        { "i.studentId": studentId },
+        { "j.questionId": questionId },
+      ],
     }
-  }
-
-  if (flag == 1) {
-    return res.status(200).json({
-      message: "Updated",
+  )
+    .then(() => {
+      return res.status(200).json({
+        message: "Updated",
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+      errorLogger.info(
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
+        } >> ${err.toString()}`
+      );
+      return res.status(500).json({
+        message: "Something went wrong",
+        error: err.toString(),
+      });
     });
-  } else {
-    return res.status(418).json({
-      message: "Invalid parameters",
-    });
-  }
 };
 
 // @desc Add marks for a question for a student -- not in use
@@ -363,29 +342,35 @@ const deleteQuestion = async (req, res, next) => {
 
   await Test.findById(testId)
     .then(async (test) => {
-      if (test.scheduledForDate <= Date.now()) {
-        return res.status(409).json({
-          message:
-            "You can't delete the question since the test has already started",
+      if (test.clubId != req.user.userId) {
+        return res.status(403).json({
+          message: "This is not your club!",
         });
       } else {
-        await Question.deleteOne({ _id: questionId })
-          .then(async () => {
-            res.status(200).json({
-              message: "Question successfully deleted",
-            });
-          })
-          .catch((err) => {
-            errorLogger.info(
-              `System: ${req.ip} | ${req.method} | ${
-                req.originalUrl
-              } >> ${err.toString()}`
-            );
-            res.status(500).json({
-              message: "Something went wrong",
-              // error: err.toString(),
-            });
+        if (test.scheduledForDate <= Date.now()) {
+          return res.status(409).json({
+            message:
+              "You can't delete the question since the test has already started",
           });
+        } else {
+          await Question.deleteOne({ _id: questionId })
+            .then(async () => {
+              res.status(200).json({
+                message: "Question successfully deleted",
+              });
+            })
+            .catch((err) => {
+              errorLogger.info(
+                `System: ${req.ip} | ${req.method} | ${
+                  req.originalUrl
+                } >> ${err.toString()}`
+              );
+              res.status(500).json({
+                message: "Something went wrong",
+                // error: err.toString(),
+              });
+            });
+        }
       }
     })
     .catch((err) => {
