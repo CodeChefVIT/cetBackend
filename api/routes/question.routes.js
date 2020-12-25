@@ -18,7 +18,7 @@ const router = express.Router();
 //Add a question to a test
 router.post(
   "/add",
-  checkAuthClub, 
+  checkAuthClub,
   uploadQuestionMedia.single("media"),
   questionControllers.addQuestion
 );
@@ -27,7 +27,7 @@ router.post(
 router.post(
   "/addMultiple",
   checkAuthClub,
-  recaptcha, 
+
   questionControllers.addMultipleQuestions
 );
 
@@ -35,10 +35,10 @@ router.post(
 router.get("/all", checkAuthClub, questionControllers.getAllQuestions);
 
 //Add marks
-router.post("/marks", checkAuthClub, recaptcha,  questionControllers.updateMarks);
+router.post("/marks", checkAuthClub, questionControllers.updateMarks);
 
 //Delete a question
-router.delete("/delete", checkAuthClub, recaptcha, questionControllers.deleteQuestion);
+router.delete("/delete", checkAuthClub, questionControllers.deleteQuestion);
 const Question = require("../models/question.model");
 
 // router.patch("/changes", async (req, res) => {

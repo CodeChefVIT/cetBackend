@@ -15,19 +15,19 @@ const { submit } = require("../controllers/test.controllers");
 const router = express.Router();
 
 //Create a test
-router.post("/create", recaptcha,checkAuthClub, testControllers.create);
+router.post("/create", checkAuthClub, testControllers.create);
 
 //Get details of a test by testId
 router.get("/details", checkAuth, testControllers.getTestDetails);
 
 //Apply for a test
-router.post("/apply", checkAuthStudent,recaptcha, testControllers.apply);
+router.post("/apply", checkAuthStudent, testControllers.apply);
 
 //Attemt a test
-router.post("/attempt", checkAuthStudent,recaptcha, testControllers.attempt);
+router.post("/attempt", checkAuthStudent, testControllers.attempt);
 
 //Submit test
-router.post("/submit", checkAuthStudent, recaptcha, testControllers.submit);
+router.post("/submit", checkAuthStudent, testControllers.submit);
 
 //Get all applied tests
 router.get("/allApplied", checkAuthStudent, testControllers.allApplied);
@@ -36,10 +36,10 @@ router.get("/allApplied", checkAuthStudent, testControllers.allApplied);
 router.get("/allSubmitted", checkAuthStudent, testControllers.allSubmitted);
 
 //Add users to a test
-router.post("/addStudents", checkAuthClub, recaptcha, testControllers.addStudents);
+router.post("/addStudents", checkAuthClub, testControllers.addStudents);
 
 //Publish a test
-router.patch("/publish", checkAuthClub, recaptcha, testControllers.publish);
+router.patch("/publish", checkAuthClub, testControllers.publish);
 
 //Get all tests of a club -- admin only
 router.get(
@@ -55,7 +55,7 @@ router.get(
 );
 
 //Update test details
-router.patch("/details", checkAuthClub, recaptcha, testControllers.updateTest);
+router.patch("/details", checkAuthClub, testControllers.updateTest);
 
 //Delete a test
 router.delete("/delete", checkAuthClub, testControllers.deleteTest);
