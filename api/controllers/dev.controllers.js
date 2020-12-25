@@ -642,7 +642,7 @@ const getNumSubmissionOfAllDomainsofMultipleTests = async (req, res) => {
   });
 };
 
-const removeUsersFinished = async ( ) => {
+const removeUsersFinished = async (req, res, next) => {
   const { domainId, studentId} = req.body 
   await Domain.updateOne(
     { _id: domainId },
@@ -658,6 +658,8 @@ const removeUsersFinished = async ( ) => {
     })
   })
 }
+
+const findUserByEmail = async  
 
 module.exports = {
   getAllClubs,
