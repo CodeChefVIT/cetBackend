@@ -685,4 +685,5 @@ module.exports = {
   getNumSubmissionOfAllDomains,
   getNumSubmissionOfAllDomainsofMultipleTests,
   removeUsersFinished,
+  findUserByEmail,
 };

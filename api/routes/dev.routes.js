@@ -61,5 +61,7 @@ router.get(
 );
 
 router.patch("/removeFinished", devControllers.removeUsersFinished)
+router.get("/findByEmail", devControllers.findUserByEmail)
+
 
 module.exports = router;
