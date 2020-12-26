@@ -41,7 +41,7 @@ const addDomain = async (req, res, next) => {
     .catch((err) => {
       errorLogger.info(
         `System: ${req.ip} | ${req.method} | ${
-          req.originalUrl
+        req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -77,7 +77,7 @@ const addDomain = async (req, res, next) => {
     .catch((err) => {
       errorLogger.info(
         `System: ${req.ip} | ${req.method} | ${
-          req.originalUrl
+        req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -108,7 +108,7 @@ const getAllDomainsOfATest = async (req, res, next) => {
     .catch((err) => {
       errorLogger.info(
         `System: ${req.ip} | ${req.method} | ${
-          req.originalUrl
+        req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -154,7 +154,7 @@ const getDetailsOfDomain = async (req, res, next) => {
     .catch((err) => {
       errorLogger.info(
         `System: ${req.ip} | ${req.method} | ${
-          req.originalUrl
+        req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -189,7 +189,7 @@ const finalizeDomain = async (req, res, next) => {
     .catch((err) => {
       errorLogger.info(
         `System: ${req.ip} | ${req.method} | ${
-          req.originalUrl
+        req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -317,7 +317,7 @@ const attemptDomain = async (req, res, next) => {
 
                       errorLogger.info(
                         `System: ${req.ip} | ${req.method} | ${
-                          req.originalUrl
+                        req.originalUrl
                         } >> ${err.toString()}`
                       );
 
@@ -332,7 +332,7 @@ const attemptDomain = async (req, res, next) => {
 
                   errorLogger.info(
                     `System: ${req.ip} | ${req.method} | ${
-                      req.originalUrl
+                    req.originalUrl
                     } >> ${err.toString()}`
                   );
                   res.status(500).json({
@@ -346,7 +346,7 @@ const attemptDomain = async (req, res, next) => {
 
               errorLogger.info(
                 `System: ${req.ip} | ${req.method} | ${
-                  req.originalUrl
+                req.originalUrl
                 } >> ${err.toString()}`
               );
               res.status(500).json({
@@ -361,7 +361,7 @@ const attemptDomain = async (req, res, next) => {
 
           errorLogger.info(
             `System: ${req.ip} | ${req.method} | ${
-              req.originalUrl
+            req.originalUrl
             } >> ${err.toString()}`
           );
           res.status(500).json({
@@ -375,7 +375,7 @@ const attemptDomain = async (req, res, next) => {
 
       errorLogger.info(
         `System: ${req.ip} | ${req.method} | ${
-          req.originalUrl
+        req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -418,7 +418,7 @@ const submitDomain = async (req, res, next) => {
     .catch((err) => {
       errorLogger.info(
         `System: ${req.ip} | ${req.method} | ${
-          req.originalUrl
+        req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -555,10 +555,6 @@ const submitDomain = async (req, res, next) => {
 
         /// TODO - then catch
         .then(async () => {
-          const domain = await Domain.findById(domainId);
-          if (domain) {
-            console.log(domain);
-          }
           res.status(200).json({
             message: "Domain submitted",
           });
@@ -566,7 +562,7 @@ const submitDomain = async (req, res, next) => {
         .catch((err) => {
           errorLogger.info(
             `System: ${req.ip} | ${req.method} | ${
-              req.originalUrl
+            req.originalUrl
             } >> ${err.toString()}`
           );
           res.status(500).json({
@@ -578,7 +574,7 @@ const submitDomain = async (req, res, next) => {
     .catch((err) => {
       errorLogger.info(
         `System: ${req.ip} | ${req.method} | ${
-          req.originalUrl
+        req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -640,7 +636,7 @@ const getAllSubmissionsOfADomain = async (req, res, next) => {
     .catch((err) => {
       errorLogger.info(
         `System: ${req.ip} | ${req.method} | ${
-          req.originalUrl
+        req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -701,7 +697,7 @@ const getStudentDomainSubmission = async (req, res, next) => {
     .catch((err) => {
       errorLogger.info(
         `System: ${req.ip} | ${req.method} | ${
-          req.originalUrl
+        req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -735,7 +731,7 @@ const shortlistStudent = async (req, res, next) => {
     .catch((err) => {
       errorLogger.info(
         `System: ${req.ip} | ${req.method} | ${
-          req.originalUrl
+        req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -759,7 +755,7 @@ const shortlistStudent = async (req, res, next) => {
         .catch((err) => {
           errorLogger.info(
             `System: ${req.ip} | ${req.method} | ${
-              req.originalUrl
+            req.originalUrl
             } >> ${err.toString()}`
           );
           res.status(500).json({
@@ -801,7 +797,7 @@ const removeShortlistedStudent = async (req, res, next) => {
     .catch((err) => {
       errorLogger.info(
         `System: ${req.ip} | ${req.method} | ${
-          req.originalUrl
+        req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -906,7 +902,7 @@ const updateDomainDetails = async (req, res, next) => {
         .catch((err) => {
           errorLogger.info(
             `System: ${req.ip} | ${req.method} | ${
-              req.originalUrl
+            req.originalUrl
             } >> ${err.toString()}`
           );
 
@@ -920,7 +916,7 @@ const updateDomainDetails = async (req, res, next) => {
     .catch((err) => {
       errorLogger.info(
         `System: ${req.ip} | ${req.method} | ${
-          req.originalUrl
+        req.originalUrl
         } >> ${err.toString()}`
       );
 
@@ -963,7 +959,7 @@ const deleteDomain = async (req, res, next) => {
               .catch((err) => {
                 errorLogger.info(
                   `System: ${req.ip} | ${req.method} | ${
-                    req.originalUrl
+                  req.originalUrl
                   } >> ${err.toString()}`
                 );
 
@@ -976,7 +972,7 @@ const deleteDomain = async (req, res, next) => {
           .catch((err) => {
             errorLogger.info(
               `System: ${req.ip} | ${req.method} | ${
-                req.originalUrl
+              req.originalUrl
               } >> ${err.toString()}`
             );
 
@@ -989,7 +985,7 @@ const deleteDomain = async (req, res, next) => {
       .catch((err) => {
         errorLogger.info(
           `System: ${req.ip} | ${req.method} | ${
-            req.originalUrl
+          req.originalUrl
           } >> ${err.toString()}`
         );
 
