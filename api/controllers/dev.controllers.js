@@ -165,7 +165,7 @@ const clearEntriesFromDomainByStudentID = async (req, res) => {
     await Test.updateOne(
       { _id: testId },
       {
-        // $pull: { usersFinished: { studentId } },
+        $pull: { usersFinished: { studentId } },
         $pull: { usersStarted: { studentId } },
       }
     )
