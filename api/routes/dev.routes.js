@@ -64,6 +64,8 @@ router.patch("/removeFinished", devControllers.removeUsersFinished);
 
 router.get("/findByEmail", devControllers.findUserByEmail);
 
+router.get("/getTotalUsersStarted", devControllers.getTotalUsersStarted);
+
 const Club = require("../models/club.model");
 // router.patch("/changepass", async (req, res) => {
 //   await bcrypt.hash(password, 10).then(async (hash) => {
@@ -83,5 +85,10 @@ const Club = require("../models/club.model");
 //       });
 //   });
 // });
+
+router.get(
+  "/getShortlistedStudentsOfADomain",
+  devControllers.getShortlistedStudentsOfADomain
+);
 
 module.exports = router;

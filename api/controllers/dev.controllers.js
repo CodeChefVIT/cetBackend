@@ -548,7 +548,7 @@ const getAllSubmissionsOfDomain = async (req, res) => {
 
   await Domain.findById(domainId)
     .populate({
-      path: "clubId testId usersFinished",
+      path: "clubId testId usersFinished shortlisedInDomain",
       select:
         "name email type roundNumber roundType instructions scheduledForDate scheduledEndDate graded responses",
       populate: {
@@ -682,6 +682,65 @@ const findUserByEmail = async (req, res, next) => {
   }
 };
 
+const getTotalUsersStarted = async (req, res) => {
+  const { testIdArr } = req.body;
+  let studentIdsArr = [];
+
+  console.log("-----------------------------");
+  for (testId of testIdArr) {
+    await Domain.find({ testId })
+      .populate("testId", "roundType")
+      .then(async (domains) => {
+        console.log(domains[0].testId.roundType);
+        for (i in domains) {
+          console.log(domains[i].domainName, domains[i].usersStarted.length);
+          for (j in domains[i].usersStarted) {
+            studentIdsArr.push(domains[i].usersStarted[j].studentId);
+          }
+        }
+        console.log("-----------------------------");
+        uniqueArr = [...new Set(studentIdsArr)];
+      })
+      .catch((err) => {
+        // res.status(500).json({
+        //   error: err.toString(),
+        // });
+        console.log(err.toString);
+      });
+  }
+  res.status(200).json({
+    message: "Done",
+    studentIdsArr,
+    uniqueArr,
+  });
+};
+
+const getShortlistedStudentsOfADomain = async (req, res) => {
+  const { domainId } = req.query;
+
+  await Domain.findById(domainId)
+    .populate(
+      "shortlisedInDomain.studentId testId",
+      "name registrationNumber email mobileNumber roundType"
+    )
+    // .populate({
+    //   path: ""
+    // })
+    .then(async (domain) => {
+      // console.log(domain.testId);
+      res.status(200).json({
+        testName: domain.testId.roundType,
+        domainName: domain.domainName,
+        shortlistedInDomain: domain.shortlisedInDomain,
+      });
+    })
+    .catch((err) => {
+      res.status(500).json({
+        error: err.toString(),
+      });
+    });
+};
+
 module.exports = {
   getAllClubs,
   getAllFeaturedClubs,
@@ -698,4 +757,6 @@ module.exports = {
   getNumSubmissionOfAllDomainsofMultipleTests,
   removeUsersFinished,
   findUserByEmail,
+  getTotalUsersStarted,
+  getShortlistedStudentsOfADomain,
 };
