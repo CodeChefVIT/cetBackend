@@ -66,6 +66,11 @@ router.get("/findByEmail", devControllers.findUserByEmail);
 
 router.get("/getTotalUsersStarted", devControllers.getTotalUsersStarted);
 
+router.get(
+  "/getAllShortlistedStudentsOfClub",
+  devControllers.getAllShortlistedStudentsOfClub
+);
+
 const Club = require("../models/club.model");
 // router.patch("/changepass", async (req, res) => {
 //   await bcrypt.hash(password, 10).then(async (hash) => {

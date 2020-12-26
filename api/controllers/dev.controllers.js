@@ -741,6 +741,60 @@ const getShortlistedStudentsOfADomain = async (req, res) => {
     });
 };
 
+const getAllShortlistedStudentsOfClub = async (req, res) => {
+  const { clubId } = req.query;
+
+  let studentArr = [];
+
+  await Test.find({ clubId })
+    .then(async (tests) => {
+      for (test of tests) {
+        await Domain.find({ testId: test._id })
+          .populate(
+            "shortlisedInDomain.studentId testId",
+            "name registrationNumber email mobileNumber roundType"
+          )
+          .then(async (domains) => {
+            for (let domain of domains) {
+              // if (domain.shortlisedInDomain) {
+              // console.log("adasd");
+              for (let student of domain.shortlisedInDomain) {
+                // console.log(student);
+                // console.log(domain.shortlisedInDomain);
+                let studentObj = {};
+                studentObj.studentId = student.studentId._id;
+                studentObj.name = student.studentId.name;
+                studentObj.email = student.studentId.email;
+                studentObj.registrationNumber =
+                  student.studentId.registrationNumber;
+                studentObj.mobileNumber = student.studentId.mobileNumber;
+                studentObj.domainName = domain.domainName;
+                studentObj.testName = domain.testId.roundType;
+                studentObj.testRemark = student.remark;
+
+                // console.log(studentObj);
+                studentArr.push(studentObj);
+              }
+              // }
+            }
+            // console.log(domain);
+          })
+          .catch((err) => {
+            console.log(err.toString());
+            // res.status(500).json({
+            //   error: err.toString(),
+            // });
+          });
+      }
+      res.status(200).json(studentArr);
+    })
+    .catch((err) => {
+      res.status(500).json({
+        error: err.toString(),
+      });
+    });
+};
+
 module.exports = {
   getAllClubs,
   getAllFeaturedClubs,
@@ -759,4 +813,5 @@ module.exports = {
   findUserByEmail,
   getTotalUsersStarted,
   getShortlistedStudentsOfADomain,
+  getAllShortlistedStudentsOfClub,
 };
