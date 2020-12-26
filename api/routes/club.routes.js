@@ -5,6 +5,8 @@ const bcrypt = require("bcrypt");
 
 const clubControllers = require("../controllers/club.controllers");
 
+const recaptcha = require("../middleware/recaptcha");
+
 const checkAuthClub = require("../middleware/checkAuthClub");
 
 const {
@@ -21,7 +23,7 @@ router.post("/create", clubControllers.create);
 router.post("/sendWelcomeEmail", clubControllers.sendWelcomeEmail);
 
 //Club signup
-router.post("/signup", clubControllers.signup);
+// router.post("/signup", clubControllers.signup);
 
 //Club email verification
 router.post("/email/verify", clubControllers.verifyEmail);
@@ -54,6 +56,7 @@ router.get("/allFeatured", clubControllers.getAllFeaturedClubs);
 router.put(
   "/avatar",
   checkAuthClub,
+
   uploadClubAvatar.single("avatar"),
   clubControllers.uploadProfilePicture
 );
@@ -62,6 +65,7 @@ router.put(
 router.put(
   "/banner",
   checkAuthClub,
+
   uploadClubBanner.single("banner"),
   clubControllers.uploadBanner
 );

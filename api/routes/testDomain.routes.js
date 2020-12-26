@@ -3,6 +3,9 @@ const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
+
+const recaptcha = require("../middleware/recaptcha");
+
 const checkAuth = require("../middleware/checkAuth");
 const checkAuthClub = require("../middleware/checkAuthClub");
 const checkAuthStudent = require("../middleware/checkAuthStudent");
@@ -47,6 +50,13 @@ router.patch(
   testDomainControllers.shortlistStudent
 );
 
+//Remove a shortlisted student
+router.patch(
+  "/removeShortlistedStudent",
+  checkAuthClub,
+  testDomainControllers.removeShortlistedStudent
+);
+
 //Publish Shortlisted result
 router.patch(
   "/publishShortlist",
@@ -60,6 +70,9 @@ router.patch(
   checkAuthClub,
   testDomainControllers.updateDomainDetails
 );
+
+//Delete a domain
+router.delete("/delete", checkAuthClub, testDomainControllers.deleteDomain);
 
 router.use("/question", require("./question.routes"));
 

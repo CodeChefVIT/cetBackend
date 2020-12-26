@@ -3,6 +3,8 @@ const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
+const recaptcha = require("../middleware/recaptcha");
+
 const checkAuth = require("../middleware/checkAuth");
 const checkAuthClub = require("../middleware/checkAuthClub");
 const checkAuthStudent = require("../middleware/checkAuthStudent");
@@ -54,6 +56,9 @@ router.get(
 
 //Update test details
 router.patch("/details", checkAuthClub, testControllers.updateTest);
+
+//Delete a test
+router.delete("/delete", checkAuthClub, testControllers.deleteTest);
 
 router.use("/domain", require("./testDomain.routes"));
 

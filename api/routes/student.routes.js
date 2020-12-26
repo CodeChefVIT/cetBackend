@@ -5,6 +5,9 @@ const bcrypt = require("bcrypt");
 
 const studentControllers = require("../controllers/student.controllers");
 
+const recaptcha = require("../middleware/recaptcha");
+
+
 const checkAuth = require("../middleware/checkAuth");
 const checkAuthClub = require("../middleware/checkAuthClub");
 const checkAuthStudent = require("../middleware/checkAuthStudent");
@@ -26,6 +29,7 @@ router.post("/login", studentControllers.login);
 //Forgot password - Send OTP
 router.post(
   "/forgotPassword/sendEmail",
+
   studentControllers.sendForgotPasswordEmail
 );
 

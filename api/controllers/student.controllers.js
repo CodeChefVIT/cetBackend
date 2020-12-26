@@ -68,15 +68,15 @@ const signup = async (req, res) => {
               //   port: 465,
 
               //   auth: {
-              //     user: process.env.NODEMAILER_EMAIL,
-              //     pass: process.env.NODEMAILER_PASSWORD,
+              //     user: global.env.NODEMAILER_EMAIL,
+              //     pass: global.env.NODEMAILER_PASSWORD,
               //   },
               // });
 
               // let mailOptions = {
               //   subject: `Common Entry Test - Email Verification`,
               //   to: email,
-              //   from: `CodeChef-VIT <${process.env.NODEMAILER_EMAIL}>`,
+              //   from: `CodeChef-VIT <${global.env.NODEMAILER_EMAIL}>`,
               //   html: sendVerificationOTP(emailVerificationCode),
               // };
 
@@ -102,7 +102,7 @@ const signup = async (req, res) => {
               // const msg = {
               //   to: email,
               //   from: {
-              //     email: process.env.SENDGRID_EMAIL,
+              //     email: global.env.SENDGRID_EMAIL,
               //     name: "CodeChef-VIT",
               //   },
               //   subject: `Common Entry Test - Email Verification`,
@@ -130,8 +130,7 @@ const signup = async (req, res) => {
             })
             .catch((err) => {
               errorLogger.info(
-                `System: ${req.ip} | ${req.method} | ${
-                  req.originalUrl
+                `System: ${req.ip} | ${req.method} | ${req.originalUrl
                 } >> ${err.toString()}`
               );
               res.status(500).json({
@@ -142,8 +141,7 @@ const signup = async (req, res) => {
         })
         .catch((err) => {
           errorLogger.info(
-            `System: ${req.ip} | ${req.method} | ${
-              req.originalUrl
+            `System: ${req.ip} | ${req.method} | ${req.originalUrl
             } >> ${err.toString()}`
           );
           res.status(500).json({
@@ -154,8 +152,7 @@ const signup = async (req, res) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${
-          req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -199,15 +196,15 @@ const resendOTP = async (req, res) => {
           //   port: 465,
 
           //   auth: {
-          //     user: process.env.NODEMAILER_EMAIL,
-          //     pass: process.env.NODEMAILER_PASSWORD,
+          //     user: global.env.NODEMAILER_EMAIL,
+          //     pass: global.env.NODEMAILER_PASSWORD,
           //   },
           // });
 
           // let mailOptions = {
           //   subject: `Common Entry Test - Email Verification`,
           //   to: email,
-          //   from: `CodeChef-VIT <${process.env.NODEMAILER_EMAIL}>`,
+          //   from: `CodeChef-VIT <${global.env.NODEMAILER_EMAIL}>`,
           //   html: sendVerificationOTP(student.emailVerificationCode),
           // };
 
@@ -232,7 +229,7 @@ const resendOTP = async (req, res) => {
           // const msg = {
           //   to: email,
           //   from: {
-          //     email: process.env.SENDGRID_EMAIL,
+          //     email: global.env.SENDGRID_EMAIL,
           //     name: "CodeChef-VIT",
           //   },
           //   subject: `Common Entry Test - Email Verification`,
@@ -263,8 +260,7 @@ const resendOTP = async (req, res) => {
         })
         .catch((err) => {
           errorLogger.info(
-            `System: ${req.ip} | ${req.method} | ${
-              req.originalUrl
+            `System: ${req.ip} | ${req.method} | ${req.originalUrl
             } >> ${err.toString()}`
           );
           res.status(500).json({
@@ -275,8 +271,7 @@ const resendOTP = async (req, res) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${
-          req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -314,8 +309,7 @@ const verifyEmail = async (req, res) => {
               })
               .catch((err) => {
                 errorLogger.info(
-                  `System: ${req.ip} | ${req.method} | ${
-                    req.originalUrl
+                  `System: ${req.ip} | ${req.method} | ${req.originalUrl
                   } >> ${err.toString()}`
                 );
                 res.status(500).json({
@@ -341,8 +335,7 @@ const verifyEmail = async (req, res) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${
-          req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -387,7 +380,7 @@ const login = async (req, res) => {
                 email: student[0].email,
                 name: student[0].name,
               },
-              process.env.JWT_SECRET,
+              global.env.JWT_SECRET,
               {
                 expiresIn: "30d",
               }
@@ -407,8 +400,7 @@ const login = async (req, res) => {
         })
         .catch((err) => {
           errorLogger.info(
-            `System: ${req.ip} | ${req.method} | ${
-              req.originalUrl
+            `System: ${req.ip} | ${req.method} | ${req.originalUrl
             } >> ${err.toString()}`
           );
           res.status(500).json({
@@ -419,8 +411,7 @@ const login = async (req, res) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${
-          req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -464,15 +455,15 @@ const sendForgotPasswordEmail = async (req, res) => {
           //   port: 465,
 
           //   auth: {
-          //     user: process.env.NODEMAILER_EMAIL,
-          //     pass: process.env.NODEMAILER_PASSWORD,
+          //     user: global.env.NODEMAILER_EMAIL,
+          //     pass: global.env.NODEMAILER_PASSWORD,
           //   },
           // });
 
           // let mailOptions = {
           //   subject: `Common Entry Test - Forgot Password`,
           //   to: email,
-          //   from: `CodeChef-VIT <${process.env.NODEMAILER_EMAIL}>`,
+          //   from: `CodeChef-VIT <${global.env.NODEMAILER_EMAIL}>`,
           //   html: sendForgotPasswordMail(student.forgotPasswordCode),
           // };
 
@@ -495,7 +486,7 @@ const sendForgotPasswordEmail = async (req, res) => {
           // const msg = {
           //   to: email,
           //   from: {
-          //     email: process.env.SENDGRID_EMAIL,
+          //     email: global.env.SENDGRID_EMAIL,
           //     name: "CodeChef-VIT",
           //   },
           //   subject: `Common Entry Test - Forgot Password`,
@@ -522,8 +513,7 @@ const sendForgotPasswordEmail = async (req, res) => {
         })
         .catch((err) => {
           errorLogger.info(
-            `System: ${req.ip} | ${req.method} | ${
-              req.originalUrl
+            `System: ${req.ip} | ${req.method} | ${req.originalUrl
             } >> ${err.toString()}`
           );
           res.status(500).json({
@@ -534,8 +524,7 @@ const sendForgotPasswordEmail = async (req, res) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${
-          req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -577,8 +566,7 @@ const resetPassword = async (req, res) => {
                   })
                   .catch((err) => {
                     errorLogger.info(
-                      `System: ${req.ip} | ${req.method} | ${
-                        req.originalUrl
+                      `System: ${req.ip} | ${req.method} | ${req.originalUrl
                       } >> ${err.toString()}`
                     );
                     res.status(500).json({
@@ -589,8 +577,7 @@ const resetPassword = async (req, res) => {
               })
               .catch((err) => {
                 errorLogger.info(
-                  `System: ${req.ip} | ${req.method} | ${
-                    req.originalUrl
+                  `System: ${req.ip} | ${req.method} | ${req.originalUrl
                   } >> ${err.toString()}`
                 );
                 res.status(500).json({
@@ -616,8 +603,7 @@ const resetPassword = async (req, res) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${
-          req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -644,8 +630,7 @@ const updateProfile = async (req, res, next) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${
-          req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -669,8 +654,7 @@ const getProfile = async (req, res, next) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${
-          req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -700,8 +684,7 @@ const getStudentDetails = async (req, res, next) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${
-          req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -749,8 +732,7 @@ const dashboard = async (req, res, next) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${
-          req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -762,8 +744,8 @@ const dashboard = async (req, res, next) => {
 
 const sendSesOtp = (mailto, code) => {
   const SES_CONFIG = {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    accessKeyId: global.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: global.env.AWS_SECRET_ACCESS_KEY,
     region: "ap-south-1",
   };
 
@@ -800,8 +782,8 @@ const sendSesOtp = (mailto, code) => {
 
 const sendSesForgotPassword = (mailto, code) => {
   const SES_CONFIG = {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    accessKeyId: global.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: global.env.AWS_SECRET_ACCESS_KEY,
     region: "ap-south-1",
   };
 

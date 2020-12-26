@@ -5,6 +5,8 @@ const bcrypt = require("bcrypt");
 
 const questionControllers = require("../controllers/question.controllers");
 
+const recaptcha = require("../middleware/recaptcha");
+
 const checkAuth = require("../middleware/checkAuth");
 const checkAuthClub = require("../middleware/checkAuthClub");
 const checkAuthStudent = require("../middleware/checkAuthStudent");
@@ -25,6 +27,7 @@ router.post(
 router.post(
   "/addMultiple",
   checkAuthClub,
+
   questionControllers.addMultipleQuestions
 );
 

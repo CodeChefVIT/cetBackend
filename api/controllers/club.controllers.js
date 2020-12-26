@@ -9,7 +9,7 @@ const AWS = require("aws-sdk");
 
 require("dotenv").config();
 
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+sgMail.setApiKey(global.env.SENDGRID_API_KEY);
 
 const { errorLogger } = require("../utils/logger");
 
@@ -33,7 +33,7 @@ const create = async (req, res) => {
   await Club.find({ email })
     .then(async (clubs) => {
       if (clubs.length >= 1) {
-        return res.status(402).json({
+        return res.status(409).json({
           message: "Email already exists",
           club: clubs[0],
         });
@@ -80,22 +80,22 @@ const create = async (req, res) => {
 // @desc Send welcome emails
 // @route POST /api/club/sendWelcomeEmail
 const sendWelcomeEmail = async (req, res) => {
-  if (process.env.NODE_ENV == "development") {
+  if (global.env.NODE_ENV == "development") {
     const { email } = req.body;
     let transporter = nodemailer.createTransport({
       service: "gmail",
       port: 465,
 
       auth: {
-        user: process.env.NODEMAILER_EMAIL,
-        pass: process.env.NODEMAILER_PASSWORD,
+        user: global.env.NODEMAILER_EMAIL,
+        pass: global.env.NODEMAILER_PASSWORD,
       },
     });
 
     let mailOptions = {
       subject: `Common Entry Test - Email Whitelisted`,
       to: email,
-      from: `CodeChef-VIT <${process.env.NODEMAILER_EMAIL}>`,
+      from: `CodeChef-VIT <${global.env.NODEMAILER_EMAIL}>`,
       html: sendWelcomeMail(),
     };
 
@@ -137,7 +137,7 @@ const signup = async (req, res) => {
     .then(async (clubs) => {
       if (clubs.length < 1) {
         return res.status(401).json({
-          message: "Email not in database",
+          message: "Auth failed!",
         });
       }
 
@@ -171,22 +171,22 @@ const signup = async (req, res) => {
               //   port: 465,
 
               //   auth: {
-              //     user: process.env.NODEMAILER_EMAIL,
-              //     pass: process.env.NODEMAILER_PASSWORD,
+              //     user: global.env.NODEMAILER_EMAIL,
+              //     pass: global.env.NODEMAILER_PASSWORD,
               //   },
               // });
 
               // let mailOptions = {
               //   subject: `Common Entry Test - Email Verification`,
               //   to: email,
-              //   from: `CodeChef-VIT <${process.env.NODEMAILER_EMAIL}>`,
+              //   from: `CodeChef-VIT <${global.env.NODEMAILER_EMAIL}>`,
               //   html: sendVerificationOTP(club.emailVerificationCode),
               // };
 
               // const msg = {
               //   to: email,
               // from: {
-              // email: process.env.SENDGRID_EMAIL,
+              // email: global.env.SENDGRID_EMAIL,
               // name: "CodeChef-VIT",
               // },
               //   subject: `Common Entry Test - Email Verification`,
@@ -317,15 +317,15 @@ const resendOTP = async (req, res) => {
           //   port: 465,
 
           //   auth: {
-          //     user: process.env.NODEMAILER_EMAIL,
-          //     pass: process.env.NODEMAILER_PASSWORD,
+          //     user: global.env.NODEMAILER_EMAIL,
+          //     pass: global.env.NODEMAILER_PASSWORD,
           //   },
           // });
 
           // let mailOptions = {
           //   subject: `Common Entry Test - Email Verification`,
           //   to: email,
-          //   from: `CodeChef-VIT <${process.env.NODEMAILER_EMAIL}>`,
+          //   from: `CodeChef-VIT <${global.env.NODEMAILER_EMAIL}>`,
           //   html: sendVerificationOTP(club.emailVerificationCode),
           // };
 
@@ -349,7 +349,7 @@ const resendOTP = async (req, res) => {
           // const msg = {
           //   to: email,
           //   from: {
-          //     email: process.env.SENDGRID_EMAIL,
+          //     email: global.env.SENDGRID_EMAIL,
           //     name: "CodeChef-VIT",
           //   },
           //   subject: `Common Entry Test - Email Verification`,
@@ -488,7 +488,7 @@ const login = async (req, res) => {
     .then(async (club) => {
       if (club.length < 1) {
         return res.status(401).json({
-          message: "Auth failed: Email not found",
+          message: "Auth failed!",
         });
       }
 
@@ -510,7 +510,7 @@ const login = async (req, res) => {
                 name: club[0].name,
                 username: club[0].username,
               },
-              process.env.JWT_SECRET,
+              global.env.JWT_SECRET,
               {
                 expiresIn: "30d",
               }
@@ -527,7 +527,7 @@ const login = async (req, res) => {
             });
           }
           return res.status(401).json({
-            message: "Auth failed: Invalid password",
+            message: "Auth failed!!",
           });
         })
         .catch((err) => {
@@ -567,30 +567,66 @@ const updateProfile = async (req, res, next) => {
     mobileNumber,
     username,
     redirectURL,
+    password,
   } = req.body;
+
   const clubId = req.user.userId;
 
-  await Club.updateOne(
-    {
-      _id: clubId,
-    },
-    {
-      $set: {
-        name,
-        type,
-        bio,
-        website,
-        socialMediaLinks,
-        mobileNumber,
-        username,
-        redirectURL,
-      },
-    }
-  )
-    .then(async () => {
-      res.status(200).json({
-        message: "Updated",
-      });
+  await Club.findById(clubId)
+    .then(async (club) => {
+      await bcrypt
+        .compare(password, club.password)
+        .then(async (result) => {
+          if (result) {
+            await Club.updateOne(
+              { _id: clubId },
+              {
+                $set: {
+                  name,
+                  type,
+                  bio,
+                  website,
+                  socialMediaLinks,
+                  mobileNumber,
+                  username,
+                  redirectURL,
+                },
+              }
+            )
+              .then(async () => {
+                res.status(200).json({
+                  message: "Updated",
+                });
+              })
+              .catch((err) => {
+                errorLogger.info(
+                  `System: ${req.ip} | ${req.method} | ${
+                    req.originalUrl
+                  } >> ${err.toString()}`
+                );
+                console.log(err.toString());
+                res.status(500).json({
+                  message: "Something went wrong",
+                  // error: err.toString(),
+                });
+              });
+          } else {
+            res.status(401).json({
+              message: "Auth failed",
+            });
+          }
+        })
+        .catch((err) => {
+          errorLogger.info(
+            `System: ${req.ip} | ${req.method} | ${
+              req.originalUrl
+            } >> ${err.toString()}`
+          );
+          console.log(err.toString());
+          res.status(401).json({
+            message: "Auth failed",
+          });
+        });
     })
     .catch((err) => {
       errorLogger.info(
@@ -598,9 +634,9 @@ const updateProfile = async (req, res, next) => {
           req.originalUrl
         } >> ${err.toString()}`
       );
+      console.log(err.toString());
       res.status(500).json({
         message: "Something went wrong",
-        // error: err.toString(),
       });
     });
 };
@@ -871,8 +907,8 @@ const uploadImages = async (req, res, next) => {
 
 const sendSesOtp = (mailto, code) => {
   const SES_CONFIG = {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    accessKeyId: global.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: global.env.AWS_SECRET_ACCESS_KEY,
     region: "ap-south-1",
   };
 

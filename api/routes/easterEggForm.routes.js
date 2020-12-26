@@ -4,6 +4,9 @@ const express = require("express");
 
 // const recaptcha = require("../middleware/recaptcha");
 
+const recaptcha = require("../middleware/recaptcha");
+
+
 const easterEggFormControllers = require("../controllers/easterEggForm.controllers");
 
 const router = express.Router();

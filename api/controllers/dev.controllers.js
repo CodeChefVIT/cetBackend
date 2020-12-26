@@ -4,6 +4,8 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const multer = require("multer");
 const AWS = require("aws-sdk");
+const jsonexport = require("jsonexport");
+const fs = require("fs");
 
 require("dotenv").config();
 
@@ -16,8 +18,8 @@ const Domain = require("../models/testDomain.model");
 const { errorLogger } = require("../utils/logger");
 
 const SES_CONFIG = {
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  accessKeyId: global.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: global.env.AWS_SECRET_ACCESS_KEY,
   region: "ap-south-1",
 };
 
@@ -27,6 +29,7 @@ const {
   sendVerificationOTP,
   sendWelcomeMail,
 } = require("../utils/emailTemplates");
+const { domain } = require("process");
 
 const getAllClubs = async (req, res, next) => {
   await Club.find()
@@ -395,8 +398,8 @@ const sendSESMailCubeStudents = async (req, res) => {
     },
   ];
   const SES_CONFIG = {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    accessKeyId: global.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: global.env.AWS_SECRET_ACCESS_KEY,
     region: "ap-south-1",
   };
 
@@ -438,8 +441,8 @@ const sendWelcomeEmail = async (req, res) => {
   const { emailArray } = req.body;
 
   const SES_CONFIG = {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    accessKeyId: global.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: global.env.AWS_SECRET_ACCESS_KEY,
     region: "ap-south-1",
   };
 
@@ -565,6 +568,120 @@ const getAllSubmissionsOfDomain = async (req, res) => {
     });
 };
 
+const getNumSubmissionOfAllDomains = async (req, res) => {
+  const { testId } = req.query;
+
+  await Domain.find({ testId })
+    // .populate({
+    //   path: "usersFinished testId",
+    //   select: "responses",
+    //   populate: {
+    //     path: "studentId responses",
+    //     select:
+    //       "name email mobileNumber timeTaken submittedOn answers questionType questionMarks corrected scoredQuestionMarks",
+    //     populate: { path: "questionId", select: "description options" },
+    //   },
+    // })
+    .populate("testId", "roundType")
+    .then(async (domains) => {
+      // console.log(domains);
+      // console.log(domains);
+      console.log(domains[0].testId.roundType);
+      for (i in domains) {
+        console.log(domains[i].domainName, domains[i].usersFinished.length);
+      }
+
+      // for (domain of domains) {
+      //   jsonexport(domain.usersFinished, async function (err, csv) {
+      //     if (err) return console.error(err);
+      //     // console.log(csv);
+      //     await fs.writeFileSync(`${domain.domainName}.csv`, csv);
+      //   });
+      // }
+      // for (i in domains) {
+      //   if (i == 0) {
+      //     console.log("domains[0].usersFinished");
+      //     jsonexport(domains[0].usersFinished, function (err, csv) {
+      //       if (err) return console.error(err);
+      //       // console.log(csv);
+      //       fs.writeFileSync(`${domains[0].name}.csv`, csv);
+      //     });
+      //   }
+      // }
+      res.status(200).json({
+        message: "Done",
+      });
+    })
+    .catch((err) => {
+      res.status(500).json({
+        error: err.toString(),
+      });
+    });
+};
+
+const getNumSubmissionOfAllDomainsofMultipleTests = async (req, res) => {
+  const { testIdArr } = req.body;
+  let studentIdsArr = [];
+  let uniqueArr = [];
+  console.log("-----------------------------");
+  for (testId of testIdArr) {
+    await Domain.find({ testId })
+      .populate("testId", "roundType")
+      .then(async (domains) => {
+        console.log(domains[0].testId.roundType);
+        for (i in domains) {
+          console.log(domains[i].domainName, domains[i].usersFinished.length);
+          for (j in domains[i].usersFinished) {
+            studentIdsArr.push(domains[i].usersFinished[j].studentId);
+          }
+        }
+        console.log("-----------------------------");
+        uniqueArr = [...new Set(studentIdsArr)];
+      })
+      .catch((err) => {
+        res.status(500).json({
+          error: err.toString(),
+        });
+      });
+  }
+  res.status(200).json({
+    message: "Done",
+    studentIdsArr,
+    uniqueArr,
+  });
+};
+
+const removeUsersFinished = async (req, res, next) => {
+  const { domainId, studentId } = req.body;
+  await Domain.updateOne(
+    { _id: domainId },
+    {
+      $pull: { usersFinished: { studentId } },
+      $pull: { usersStarted: { studentId } },
+    }
+  )
+    .then((result) => {
+      console.log(result);
+      return res.status(200).json({ message: "done" });
+    })
+    .catch((err) => {
+      return res.status(500).json({
+        err: err.toString(),
+      });
+    });
+};
+
+const findUserByEmail = async (req, res, next) => {
+  const student = await Student.findOne({ email: req.body.email });
+  if (!student) {
+    return res.status(404).json({
+      message: "Student not found",
+    });
+  } else {
+    return res.status(200).json({ student });
+  }
+};
+
 module.exports = {
   getAllClubs,
   getAllFeaturedClubs,
@@ -577,4 +694,8 @@ module.exports = {
   getDetailsOfMultipleStudents,
   whitelistEmails,
   getAllSubmissionsOfDomain,
+  getNumSubmissionOfAllDomains,
+  getNumSubmissionOfAllDomainsofMultipleTests,
+  removeUsersFinished,
+  findUserByEmail,
 };

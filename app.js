@@ -4,16 +4,34 @@ const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const helmet = require("helmet");
 const cors = require("cors");
-const useragent = require("express-useragent");
+const rateLimit = require("express-rate-limit");
 require("dotenv").config();
 
+const secureEnv = require('secure-env');
+
+
+
+global.env = secureEnv({ secret: "enimasinobhaniyo" });
+const useragent = require("express-useragent");
+
+
+
+
 const app = express();
+app.set('trust proxy', 1);
+var limiter = new rateLimit({
+  windowMs: 1 * 60 * 1000,
+  max: 60,
+  message:
+    "Too many requests created from this IP, please try again after an hour",
+});
+app.use(limiter)
 
 const passport_config = require("./api/config/studentGoogleAuth");
 const { errorLogger } = require("./api/utils/logger");
 
 //Require Atlas database URI from environment variables
-const DBURI = process.env.DBURI;
+const DBURI = global.env.DBURI;
 
 //Connect to MongoDB client using mongoose
 mongoose
@@ -62,7 +80,7 @@ app.use(cors());
 
 app.use(useragent.express());
 
-if (process.env.NODE_ENV == "production") {
+if (global.env.NODE_ENV == "production") {
   app.use((req, res, next) => {
     if (req.useragent["isBot"] == false) {
       next();
@@ -87,7 +105,7 @@ app.get("/checkServer", (req, res) => {
   });
 });
 
-if (process.env.NODE_ENV == "development") {
+if (global.env.NODE_ENV == "development") {
   app.use("/dev", require("./api/routes/dev.routes"));
 }
 
@@ -113,5 +131,7 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Listening on port ${PORT}`);
 });
+
+
 
 module.exports = app;
