@@ -28,6 +28,8 @@ const AWS_SES = new AWS.SES(SES_CONFIG);
 const {
   sendVerificationOTP,
   sendWelcomeMail,
+  shortlistedMgmt,
+  shortlistedCC,
 } = require("../utils/emailTemplates");
 const { domain } = require("process");
 
@@ -283,120 +285,9 @@ const getDetailsOfMultipleStudents = async (req, res) => {
   });
 };
 
-const sendSESMailCubeStudents = async (req, res) => {
-  // let studentsArr = [
-  //   {
-  //     _id: "5fdf12435ded065d81796695",
-  //     name: "GANESH R",
-  //     email: "ganesh.r2020@vitstudent.ac.in",
-  //     "domains missed": "Speed-Cuber",
-  //   },
-  //   {
-  //     _id: "5fdf07225ded065d8179667a",
-  //     name: "SOMA MANTHIRAVEL",
-  //     email: "soma.manthiravel2020@vitstudent.ac.in",
-  //     "domains missed": "Speed-Cuber",
-  //   },
-  //   {
-  //     _id: "5fdf32b7743a0965f6a160b1",
-  //     name: "ANMOL GUPTA",
-  //     email: "anmol.gupta2020@vitstudent.ac.in",
-  //     "domains missed": "Speed-Cuber, Management, Cubing Enthusiast",
-  //   },
-  //   {
-  //     _id: "5fdf3dd2743a0965f6a160dd",
-  //     name: "SIDHARTH PIDAPARTY",
-  //     email: "sidharth.pidaparty2020@vitstudent.ac.in",
-  //     "domains missed": "Speed-Cuber, Management",
-  //   },
-  //   {
-  //     _id: "5fdf41e9743a0965f6a160ec",
-  //     name: "VARAD RAUT",
-  //     email: "varadraut.j2020@vitstudent.ac.in",
-  //     "domains missed": "Speed-Cuber, Management, Cubing Enthusiast, Design",
-  //   },
-  //   {
-  //     _id: "5fdf45c5743a0965f6a1610e",
-  //     name: "PRADEEP SUDAKAR",
-  //     email: "pradeep.sudakar2020@vitstudent.ac.in",
-  //     "domains missed": "Speed-Cuber",
-  //   },
-  //   {
-  //     _id: "5fdf01565ded065d81796664",
-  //     name: "SASWATA GHOSH",
-  //     email: "saswata.ghosh2020@vitstudent.ac.in",
-  //     "domains missed": "Speed-Cuber, Management",
-  //   },
-  //   {
-  //     _id: "5fdf4eed743a0965f6a16154",
-  //     name: "ARUN K",
-  //     email: "arun.k2020@vitstudent.ac.in",
-  //     "domains missed": "Speed-Cuber, Management, Cubing Enthusiast",
-  //   },
-  //   {
-  //     _id: "5fdf56d1743a0965f6a16174",
-  //     name: "TEJAS SHAH",
-  //     email: "tejas.shah2020@vitstudent.ac.in",
-  //     "domains missed": "Speed-Cuber, Management, Cubing Enthusiast",
-  //   },
-  //   {
-  //     _id: "5fdeee7849613f4c0eb50d70",
-  //     name: "Vaida Jai Raghuram Karthik 18BCE0413",
-  //     email: "jai.raghuramkarthik2018@vitstudent.ac.in",
-  //     "domains missed": "Management",
-  //   },
-  //   {
-  //     _id: "5fdf263af0e4af641e7aca6c",
-  //     name: "VENKAT SATHWIK",
-  //     email: "venkat.sathwik2019@vitstudent.ac.in",
-  //     "domains missed": "Management, Cubing Enthusiast",
-  //   },
-  //   {
-  //     _id: "5fdef47b49613f4c0eb50d78",
-  //     name: "DRUMIL HASMUKH PANCHAL 20BEE0128",
-  //     email: "drumilhasmukh.panchal2020@vitstudent.ac.in",
-  //     "domains missed": "Cubing Enthusiast",
-  //   },
-  //   {
-  //     _id: "5fdf4857743a0965f6a16121",
-  //     name: "ARHIT BOSE",
-  //     email: "arhitbose.tagore2020@vitstudent.ac.in",
-  //     "domains missed": "Cubing Enthusiast",
-  //   },
-  //   {
-  //     _id: "5fdf4e26743a0965f6a1614d",
-  //     name: "JOHANN KYLE",
-  //     email: "johannkyle.pinto2020@vitstudent.ac.in",
-  //     "domains missed": "Cubing Enthusiast",
-  //   },
-  // {
-  //   _id: "5fdf543b743a0965f6a16173",
-  //   name: "JIYA GARG",
-  //   email: "jiya.garg2020@vitstudent.ac.in",
-  //   "domains missed": "Cubing Enthusiast",
-  // },
-  // ];
+const sendShortlistEmail = async (req, res) => {
+  const { studentsArr } = req.body;
 
-  let testStudentsArr = [
-    {
-      _id: "5fdf543b743a0965f6a16173",
-      name: "Rajat Sablok",
-      email: "rajat.main06@gmail.com",
-      "domains missed": "Cubing Enthusiast",
-    },
-    {
-      _id: "5fdf543b743a0965f6a16173",
-      name: "Shivam Mehta",
-      email: "nousernameidea@gmail.com",
-      "domains missed": "Speed-Cuber",
-    },
-    {
-      _id: "5fdf543b743a0965f6a16173",
-      name: "Rajat",
-      email: "rajat.sablok2018@vitstudent.ac.in",
-      "domains missed": "Speed-Cuber, Management",
-    },
-  ];
   const SES_CONFIG = {
     accessKeyId: global.env.AWS_ACCESS_KEY_ID,
     secretAccessKey: global.env.AWS_SECRET_ACCESS_KEY,
@@ -405,36 +296,40 @@ const sendSESMailCubeStudents = async (req, res) => {
 
   const AWS_SES = new AWS.SES(SES_CONFIG);
 
-  for (student of testStudentsArr) {
+  for (student of studentsArr) {
+    // console.log(student.studentId.email);
     let params = {
       Source: "contact@codechefvit.com",
       Destination: {
-        ToAddresses: [student.email],
+        ToAddresses: [student.studentId.email],
       },
       ReplyToAddresses: [],
       Message: {
         Body: {
           Html: {
             Charset: "UTF-8",
-            Data: sendVerificationOTP(domainsMissed),
+            Data: shortlistedCC(),
           },
         },
         Subject: {
           Charset: "UTF-8",
-          Data: `Updates for C.U.B.E. VIT's Recruitments`,
+          Data: `Shortlisted for Round 2 - CodeChef-VIT Recruitments`,
         },
       },
     };
 
-    AWS_SES.sendEmail(params)
-      .promise()
-      .then(() => {
-        return true;
-      })
-      .catch(() => {
-        return false;
-      });
+    // AWS_SES.sendEmail(params)
+    //   .promise()
+    //   .then(() => {
+    //     console.log(`Mail sent:  ${params.Destination.ToAddresses}`);
+    //     // return true;
+    //   })
+    //   .catch(() => {
+    //     console.log(`Mail not sent:  ${params.Destination.ToAddresses}`);
+    //     // return false;
+    //   });
   }
+  res.status(200).json({ message: "Done" });
 };
 
 const sendWelcomeEmail = async (req, res) => {
@@ -814,4 +709,5 @@ module.exports = {
   getTotalUsersStarted,
   getShortlistedStudentsOfADomain,
   getAllShortlistedStudentsOfClub,
+  sendShortlistEmail,
 };

@@ -71,6 +71,8 @@ router.get(
   devControllers.getAllShortlistedStudentsOfClub
 );
 
+router.post("/sendShortlistEmail", devControllers.sendShortlistEmail);
+
 const Club = require("../models/club.model");
 // router.patch("/changepass", async (req, res) => {
 //   await bcrypt.hash(password, 10).then(async (hash) => {
