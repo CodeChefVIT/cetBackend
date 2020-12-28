@@ -23,7 +23,7 @@ router.post("/create", clubControllers.create);
 router.post("/sendWelcomeEmail", clubControllers.sendWelcomeEmail);
 
 //Club signup
-// router.post("/signup", clubControllers.signup);
+router.post("/signup", clubControllers.signup);
 
 //Club email verification
 router.post("/email/verify", clubControllers.verifyEmail);

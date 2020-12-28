@@ -30,6 +30,11 @@ const {
   sendWelcomeMail,
   shortlistedMgmt,
   shortlistedCC,
+  shortlistedFrontend,
+  shortlistedApp,
+  shortlistedBackend,
+  shortlistedML,
+  shortlistedCloud,
 } = require("../utils/emailTemplates");
 const { domain } = require("process");
 
@@ -301,14 +306,14 @@ const sendShortlistEmail = async (req, res) => {
     let params = {
       Source: "contact@codechefvit.com",
       Destination: {
-        ToAddresses: [student.studentId.email],
+        ToAddresses: [student.email],
       },
       ReplyToAddresses: [],
       Message: {
         Body: {
           Html: {
             Charset: "UTF-8",
-            Data: shortlistedCC(),
+            Data: shortlistedCloud(),
           },
         },
         Subject: {
@@ -318,16 +323,16 @@ const sendShortlistEmail = async (req, res) => {
       },
     };
 
-    // AWS_SES.sendEmail(params)
-    //   .promise()
-    //   .then(() => {
-    //     console.log(`Mail sent:  ${params.Destination.ToAddresses}`);
-    //     // return true;
-    //   })
-    //   .catch(() => {
-    //     console.log(`Mail not sent:  ${params.Destination.ToAddresses}`);
-    //     // return false;
-    //   });
+    AWS_SES.sendEmail(params)
+      .promise()
+      .then(() => {
+        console.log(`Mail sent:  ${params.Destination.ToAddresses}`);
+        // return true;
+      })
+      .catch(() => {
+        console.log(`Mail not sent:  ${params.Destination.ToAddresses}`);
+        // return false;
+      });
   }
   res.status(200).json({ message: "Done" });
 };
@@ -690,6 +695,45 @@ const getAllShortlistedStudentsOfClub = async (req, res) => {
     });
 };
 
+const getShortlistedStudentsMultipleDomains = async (req, res) => {
+  const { domainIdsArr } = req.body;
+  let studentArr = [];
+  for (let domain of domainIdsArr) {
+    // console.log(domain);
+
+    await Domain.findById(domain)
+      .populate(
+        "shortlisedInDomain.studentId testId",
+        "name registrationNumber email mobileNumber roundType"
+      )
+      .then(async (domain) => {
+        // console.log(domain);
+        // for (let domain of domains) {
+        for (let student of domain.shortlisedInDomain) {
+          let studentObj = {};
+          studentObj.studentId = student.studentId._id;
+          studentObj.name = student.studentId.name;
+          studentObj.email = student.studentId.email;
+          studentObj.registrationNumber = student.studentId.registrationNumber;
+          studentObj.mobileNumber = student.studentId.mobileNumber;
+          studentObj.domainName = domain.domainName;
+          studentObj.testName = domain.testId.roundType;
+          studentObj.testRemark = student.remark;
+
+          studentArr.push(studentObj);
+        }
+        // }
+      })
+      .catch((err) => {
+        console.log(err.toString());
+        // res.status(500).json({
+        //   error: err.toString(),
+        // });
+      });
+  }
+  res.status(200).json(studentArr);
+};
+
 module.exports = {
   getAllClubs,
   getAllFeaturedClubs,
@@ -710,4 +754,5 @@ module.exports = {
   getShortlistedStudentsOfADomain,
   getAllShortlistedStudentsOfClub,
   sendShortlistEmail,
+  getShortlistedStudentsMultipleDomains,
 };

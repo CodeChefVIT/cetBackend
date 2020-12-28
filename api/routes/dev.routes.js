@@ -98,4 +98,9 @@ router.get(
   devControllers.getShortlistedStudentsOfADomain
 );
 
+router.get(
+  "/getShortlistedStudentsMultipleDomains",
+  devControllers.getShortlistedStudentsMultipleDomains
+);
+
 module.exports = router;
