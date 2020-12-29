@@ -35,6 +35,11 @@ const {
   shortlistedBackend,
   shortlistedML,
   shortlistedCloud,
+  shortlistedCCD3,
+  shortlistedEditorialD3,
+  shortlistedDesignD3,
+  shortlistedMgmtD3,
+  shortlistedEasterEgg,
 } = require("../utils/emailTemplates");
 const { domain } = require("process");
 
@@ -291,7 +296,7 @@ const getDetailsOfMultipleStudents = async (req, res) => {
 };
 
 const sendShortlistEmail = async (req, res) => {
-  const { studentsArr } = req.body;
+  const { emails } = req.body;
 
   const SES_CONFIG = {
     accessKeyId: global.env.AWS_ACCESS_KEY_ID,
@@ -301,19 +306,19 @@ const sendShortlistEmail = async (req, res) => {
 
   const AWS_SES = new AWS.SES(SES_CONFIG);
 
-  for (student of studentsArr) {
+  for (email of emails) {
     // console.log(student.studentId.email);
     let params = {
       Source: "contact@codechefvit.com",
       Destination: {
-        ToAddresses: [student.email],
+        ToAddresses: [email],
       },
       ReplyToAddresses: [],
       Message: {
         Body: {
           Html: {
             Charset: "UTF-8",
-            Data: shortlistedCloud(),
+            Data: shortlistedEasterEgg(),
           },
         },
         Subject: {
@@ -323,16 +328,16 @@ const sendShortlistEmail = async (req, res) => {
       },
     };
 
-    AWS_SES.sendEmail(params)
-      .promise()
-      .then(() => {
-        console.log(`Mail sent:  ${params.Destination.ToAddresses}`);
-        // return true;
-      })
-      .catch(() => {
-        console.log(`Mail not sent:  ${params.Destination.ToAddresses}`);
-        // return false;
-      });
+    // AWS_SES.sendEmail(params)
+    //   .promise()
+    //   .then(() => {
+    //     console.log(`Mail sent:  ${params.Destination.ToAddresses}`);
+    //     // return true;
+    //   })
+    //   .catch(() => {
+    //     console.log(`Mail not sent:  ${params.Destination.ToAddresses}`);
+    //     // return false;
+    //   });
   }
   res.status(200).json({ message: "Done" });
 };
