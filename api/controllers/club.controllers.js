@@ -175,7 +175,7 @@ const signup = async (req, res) => {
                 emailVerificationCode,
                 emailVerificationCodeExpires,
               },
-              $unset: { inviteCode },
+              // $unset: { inviteCode },
             }
           )
             .then(async () => {
@@ -231,9 +231,7 @@ const resendOTP = async (req, res) => {
     });
   }
 
-  await Club.findOne({
-    email,
-  })
+  await Club.findOne({ email })
     .then(async (club) => {
       if (!club) {
         return res.status(404).json({
@@ -248,67 +246,10 @@ const resendOTP = async (req, res) => {
         .save()
         .then(async () => {
           const emailSent = sendSesOtp(email, club.emailVerificationCode);
-          // let transporter = nodemailer.createTransport({
-          //   service: "gmail",
-          //   port: 465,
 
-          //   auth: {
-          //     user: global.env.NODEMAILER_EMAIL,
-          //     pass: global.env.NODEMAILER_PASSWORD,
-          //   },
-          // });
-
-          // let mailOptions = {
-          //   subject: `Common Entry Test - Email Verification`,
-          //   to: email,
-          //   from: `CodeChef-VIT <${global.env.NODEMAILER_EMAIL}>`,
-          //   html: sendVerificationOTP(club.emailVerificationCode),
-          // };
-
-          // transporter.sendMail(mailOptions, (error, response) => {
-          //   if (error) {
-          //     errorLogger.info(
-          //       `System: ${req.ip} | ${req.method} | ${req.originalUrl
-          //       } >> ${error.toString()} >> "Email not sent: ${mailOptions.to}`
-          //     );
-          //     return res.status(500).json({
-          //       message: "Something went wrong",
-          //       error: error.toString(),
-          //     });
-          //   } else {
-          //     res.status(201).json({
-          //       message: "Email verification OTP Sent",
-          //     });
-          //   }
-          // });
-
-          // const msg = {
-          //   to: email,
-          //   from: {
-          //     email: global.env.SENDGRID_EMAIL,
-          //     name: "CodeChef-VIT",
-          //   },
-          //   subject: `Common Entry Test - Email Verification`,
-          //   text: `Use the following code to verify your email: ${club.emailVerificationCode}`,
-          //   // html: EmailTemplates.tracker(
-          //   //   users[i].name,
-          //   //   companyArr[k].companyName,
-          //   //   status
-          //   // ),
-          // };
-          // await sgMail
-          //   .send(msg)
-          //   .then(async () => {
           res.status(200).json({
             message: "Email verification OTP Sent",
           });
-          //   })
-          //   .catch((err) => {
-          //     res.status(500).json({
-          //       message: "Something went wrong",
-          //       error: err.toString(),
-          //     });
-          //   });
         })
         .catch((err) => {
           errorLogger.info(
@@ -330,7 +271,7 @@ const resendOTP = async (req, res) => {
       );
       res.status(500).json({
         message: "Something went wrong",
-        error: err.toString(),
+        // error: err.toString(),
       });
     });
 };
@@ -355,11 +296,14 @@ const verifyEmail = async (req, res) => {
         if (club.emailVerificationCode == emailVerificationCode) {
           if (club.emailVerificationCodeExpires > now) {
             await Club.updateOne(
+              { _id: club._id },
               {
-                _id: club._id,
-              },
-              {
-                isEmailVerified: true,
+                $set: { isEmailVerified: true },
+                $unset: {
+                  emailVerificationCode,
+                  emailVerificationCodeExpires,
+                  inviteCode,
+                },
               }
             )
               .then(async () => {
@@ -375,7 +319,7 @@ const verifyEmail = async (req, res) => {
                 );
                 res.status(500).json({
                   message: "Something went wrong",
-                  error: err.toString(),
+                  // error: err.toString(),
                 });
               });
           } else {
@@ -418,9 +362,7 @@ const login = async (req, res) => {
     });
   }
 
-  await Club.find({
-    email,
-  })
+  await Club.find({ email })
     .then(async (club) => {
       if (club.length < 1) {
         return res.status(401).json({
@@ -463,7 +405,7 @@ const login = async (req, res) => {
             });
           }
           return res.status(401).json({
-            message: "Auth failed!!",
+            message: "Auth failed!",
           });
         })
         .catch((err) => {

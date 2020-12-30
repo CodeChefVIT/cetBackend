@@ -301,40 +301,6 @@ const updateMarks = async (req, res, next) => {
     });
 };
 
-// @desc Add marks for a question for a student -- not in use
-// @route POST /api/test/domain/question/marks
-const addMarks = async (req, res, next) => {
-  const { studentId, questionId, marks, domainId } = req.body;
-
-  // await Domain.updateOne(
-  //   {
-  //     _id: domainId,
-  //     // "usersFinished.studentId": studentId,
-  //   },
-  //   {
-  //     $set: { "usersFinished.$[i].responses.$[j].scoredQuestionMarks": marks },
-  //   },
-  //   {
-  //     arrayFilters: [
-  //       { "i.studentId": studentId },
-  //       { "j.questionId": questionId },
-  //     ],
-  //   }
-  // )
-  //   .then(async (check) => {
-  //     res.status(200).json({
-  //       check,
-  //       message: "Marks added",
-  //     });
-  //   })
-  //   .catch((err) => {
-  //     res.status(500).json({
-  //       message: "Something went wrong",
-  //       error: err.toString(),
-  //     });
-  //   });
-};
-
 // @desc Delete a question
 // @route DELETE /api/test/domain/question/delete
 const deleteQuestion = async (req, res, next) => {
