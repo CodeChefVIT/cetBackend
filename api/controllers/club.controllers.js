@@ -125,9 +125,9 @@ const sendWelcomeEmail = async (req, res) => {
 // @desc Signup for clubs
 // @route POST /api/club/signup
 const signup = async (req, res) => {
-  const { name, email, password, type, username } = req.body;
+  const { name, email, password, type, username, inviteCode } = req.body;
 
-  if (!name || !email || !password || !type || !username) {
+  if (!name || !email || !password || !type || !username || !inviteCode) {
     return res.status(400).json({
       message: "1 or more parameter(s) missing from req.body",
     });
@@ -141,111 +141,47 @@ const signup = async (req, res) => {
         });
       }
 
+      if (clubs[0].inviteCode != inviteCode) {
+        return res.status(401).json({
+          message: "Auth failed!",
+        });
+      }
+
+      if (clubs[0].isEmailVerified) {
+        return res.status(409).json({
+          message: "This email has already been verified!",
+        });
+      }
+
       await bcrypt
         .hash(password, 10)
         .then(async (hash) => {
-          await Club.findOneAndUpdate(
-            {
-              _id: clubs[0]._id,
-            },
+          let emailVerificationCode = Math.floor(
+            100000 + Math.random() * 900000
+          );
+
+          let emailVerificationCodeExpires =
+            new Date().getTime() + 20 * 60 * 1000;
+          const emailSent = sendSesOtp(email, emailVerificationCode);
+
+          await Club.updateOne(
+            { _id: clubs[0]._id },
             {
               $set: {
                 name,
                 password: hash,
                 type,
                 username,
+                emailVerificationCode,
+                emailVerificationCodeExpires,
               },
+              $unset: { inviteCode },
             }
           )
-            .then(async (club) => {
-              club.emailVerificationCode = Math.floor(
-                100000 + Math.random() * 900000
-              );
-              club.emailVerificationCodeExpires =
-                new Date().getTime() + 20 * 60 * 1000;
-              const emailSent = sendSesOtp(email, club.emailVerificationCode);
-              // let transporter = nodemailer.createTransport({
-              //   service: "gmail",
-
-              //   host: 'smtp.gmail.com',
-              //   port: 465,
-
-              //   auth: {
-              //     user: global.env.NODEMAILER_EMAIL,
-              //     pass: global.env.NODEMAILER_PASSWORD,
-              //   },
-              // });
-
-              // let mailOptions = {
-              //   subject: `Common Entry Test - Email Verification`,
-              //   to: email,
-              //   from: `CodeChef-VIT <${global.env.NODEMAILER_EMAIL}>`,
-              //   html: sendVerificationOTP(club.emailVerificationCode),
-              // };
-
-              // const msg = {
-              //   to: email,
-              // from: {
-              // email: global.env.SENDGRID_EMAIL,
-              // name: "CodeChef-VIT",
-              // },
-              //   subject: `Common Entry Test - Email Verification`,
-              //   text: `Use the following code to verify your email: ${club.emailVerificationCode}`,
-              //   // html: EmailTemplates.tracker(
-              //   //   users[i].name,
-              //   //   companyArr[k].companyName,
-              //   //   status
-              //   // ),
-              // };
-              // transporter.sendMail(mailOptions, (error, response) => {
-              //   if (error) {
-              //     errorLogger.info(
-              //       `System: ${req.ip} | ${req.method} | ${req.originalUrl
-              //       } >> ${error.toString()} >> "Email not sent: ${mailOptions.to
-              //       }`
-              //     );
-              //     return res.status(500).json({
-              //       message: "Something went wrong",
-              //       error: error.toString(),
-              //     });
-              //   } else {
-              //     console.log("Email sent: ", mailOptions.to);
-              //     res.status(201).json({
-              //       message: "Signup successful",
-              //     });
-              //   }
-              // });
-
-              // await sgMail
-              //   .send(msg)
-              //   .then(async () => {
-
-              await club
-                .save()
-                .then(async (result) => {
-                  res.status(201).json({
-                    message: "Signup successful",
-                  });
-                })
-                .catch((err) => {
-                  errorLogger.info(
-                    `System: ${req.ip} | ${req.method} | ${
-                      req.originalUrl
-                    } >> ${err.toString()}`
-                  );
-                  res.status(500).json({
-                    message: "Something went wrong",
-                    error: err.toString(),
-                  });
-                });
-
-              //   })
-              //   .catch((err) => {
-              //     res.status(500).json({
-              //       message: "Something went wrong",
-              //       error: err.toString(),
-              //     });
-              //   });
+            .then(async () => {
+              res.status(201).json({
+                message: "Signup successful",
+              });
             })
             .catch((err) => {
               errorLogger.info(

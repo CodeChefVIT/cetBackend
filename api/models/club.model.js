@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const clubSchema = mongoose.Schema({
   _id: mongoose.Schema.Types.ObjectId,
   userType: { type: String, default: "Club" },
+  inviteCode: { type: Number },
   featured: { type: Boolean, default: false },
 
   name: { type: String },
