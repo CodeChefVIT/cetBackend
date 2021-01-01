@@ -7,7 +7,7 @@
 > One stop solution to make club and chapter recruitments in VIT simpler and hassle free.
 
 ---
-[![UI ](https://img.shields.io/badge/API%20Docs-View%20Here-orange?style=flat-square&logo=appveyor)](https://documenter.getpostman.com/view/12931122/TVmPAxAf)
+[![API Docs ](https://img.shields.io/badge/API%20Docs-View%20Here-orange?style=flat-square&logo=appveyor)](https://documenter.getpostman.com/view/12931122/TVmPAxAf)
 
 <p align="center">
 <img src="https://i.ibb.co/VppxmWZ/cet.png" alt="Common-Entry-Test" width="250px"/>
