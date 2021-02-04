@@ -34,6 +34,7 @@ Common Entry Test is an assistive technology that helps make applying to clubs a
 - [CET Landing Page](https://cet.codechefvit.com)
 - [CET Frontend Repo](https://github.com/CodeChefVIT/cetFrontend)
 - [CET Backend Repo](https://github.com/CodeChefVIT/cetBackend)
+- [CET Typescript Backend Repo](https://github.com/CodeChefVIT/CET-Backend-Typescript)
 - [CET Frontend](https://cet-portal.codechefvit.com) 
 
 ## Instructions to Run 🛠️
