@@ -4,9 +4,9 @@ const multerS3 = require("multer-s3");
 require("dotenv").config();
 
 const s3 = new aws.S3({
-  accessKeyId: global.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: global.env.AWS_SECRET_ACCESS_KEY,
-  region: global.env.AWS_DEFAULT_REGION,
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  region: process.env.AWS_DEFAULT_REGION,
 });
 
 const upload = multer({
@@ -15,7 +15,7 @@ const upload = multer({
   },
   storage: multerS3({
     s3: s3,
-    bucket: global.env.AWS_S3_BUCKET,
+    bucket: process.env.AWS_S3_BUCKET,
     contentType: multerS3.AUTO_CONTENT_TYPE,
     acl: "public-read",
     metadata: (req, file, cb) => {
@@ -36,7 +36,7 @@ const uploadClubAvatar = multer({
   },
   storage: multerS3({
     s3: s3,
-    bucket: global.env.AWS_S3_BUCKET,
+    bucket: process.env.AWS_S3_BUCKET,
     contentType: multerS3.AUTO_CONTENT_TYPE,
     acl: "public-read",
     metadata: (req, file, cb) => {
@@ -57,7 +57,7 @@ const uploadClubBanner = multer({
   },
   storage: multerS3({
     s3: s3,
-    bucket: global.env.AWS_S3_BUCKET,
+    bucket: process.env.AWS_S3_BUCKET,
     contentType: multerS3.AUTO_CONTENT_TYPE,
     acl: "public-read",
     metadata: (req, file, cb) => {
@@ -78,7 +78,7 @@ const uploadClubImages = multer({
   },
   storage: multerS3({
     s3: s3,
-    bucket: global.env.AWS_S3_BUCKET,
+    bucket: process.env.AWS_S3_BUCKET,
     contentType: multerS3.AUTO_CONTENT_TYPE,
     acl: "public-read",
     metadata: (req, file, cb) => {
@@ -99,7 +99,7 @@ const uploadQuestionMedia = multer({
   },
   storage: multerS3({
     s3: s3,
-    bucket: global.env.AWS_S3_BUCKET,
+    bucket: process.env.AWS_S3_BUCKET,
     contentType: multerS3.AUTO_CONTENT_TYPE,
     acl: "public-read",
     metadata: (req, file, cb) => {
@@ -120,7 +120,7 @@ const uploadAnswerMedia = multer({
   },
   storage: multerS3({
     s3: s3,
-    bucket: global.env.AWS_S3_BUCKET,
+    bucket: process.env.AWS_S3_BUCKET,
     contentType: multerS3.AUTO_CONTENT_TYPE,
     acl: "public-read",
     metadata: (req, file, cb) => {

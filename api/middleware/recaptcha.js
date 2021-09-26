@@ -12,7 +12,7 @@ module.exports = (req, res, next) => {
     url: 'https://www.google.com/recaptcha/api/siteverify',
     method: 'POST',
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: `secret=${global.env.RECAPTCHA_SECRET_KEY}&response=${req.body.captcha}`
+    body: `secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${req.body.captcha}`
   },
     (err, response, body) => {
       body = JSON.parse(body);

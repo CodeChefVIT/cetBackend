@@ -26,8 +26,8 @@ passport.deserializeUser((id, done) => {
 passport.use(
   new GoogleStrategy(
     {
-      clientID: global.env.CLIENT_ID,
-      clientSecret: global.env.CLIENT_SECRET,
+      clientID: process.env.CLIENT_ID,
+      clientSecret: process.env.CLIENT_SECRET,
       callbackURL: "/api/auth/google/redirect",
     },
     async (accessToken, refreshToken, profile, done) => {
@@ -52,7 +52,7 @@ passport.use(
                   email: currentUser.email,
                   name: currentUser.name,
                 },
-                global.env.JWT_SECRET,
+                process.env.JWT_SECRET,
                 {
                   expiresIn: "1d",
                 }
@@ -100,15 +100,15 @@ passport.use(
                   //   port: 465,
 
                   //   auth: {
-                  //     user: global.env.NODEMAILER_EMAIL,
-                  //     pass: global.env.NODEMAILER_PASSWORD,
+                  //     user: process.env.NODEMAILER_EMAIL,
+                  //     pass: process.env.NODEMAILER_PASSWORD,
                   //   },
                   // });
 
                   // let mailOptions = {
                   //   subject: `Common Entry Test - Email Verification`,
                   //   to: profile.emails[0].value,
-                  //   from: `CodeChef-VIT <${global.env.NODEMAILER_EMAIL}>`,
+                  //   from: `CodeChef-VIT <${process.env.NODEMAILER_EMAIL}>`,
                   //   html: sendVerificationOTP(emailVerificationCode),
                   // };
                   // transporter.sendMail(mailOptions, (error, response) => {
@@ -128,7 +128,7 @@ passport.use(
                       email: newUser.email,
                       name: newUser.name,
                     },
-                    global.env.JWT_SECRET,
+                    process.env.JWT_SECRET,
                     {
                       expiresIn: "1d",
                     }
@@ -164,8 +164,8 @@ passport.use(
 
 // const sendSesOtp = (mailto, code) => {
   // const SES_CONFIG = {
-  //   accessKeyId: global.env.AWS_ACCESS_KEY_ID,
-  //   secretAccessKey: global.env.AWS_SECRET_ACCESS_KEY,
+  //   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  //   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   //   region: 'ap-south-1',
   // };
 

@@ -1,5 +1,5 @@
 module.exports = async (req, res, next) => {
-  if (global.env.NODE_ENV == "production") {
+  if (process.env.NODE_ENV == "production") {
     if (req.useragent["isBot"] == false) {
       next();
     } else {
