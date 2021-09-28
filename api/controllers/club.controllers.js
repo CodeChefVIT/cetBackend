@@ -135,7 +135,7 @@ const signup = async (req, res) => {
 
   await Club.find({ email })
     .then(async (clubs) => {
-      if (clubs.length < 1) {
+      if (clubs.length <= 1) {
         return res.status(401).json({
           message: "Auth failed!",
         });
