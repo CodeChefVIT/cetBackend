@@ -7,10 +7,6 @@ const cors = require("cors");
 const rateLimit = require("express-rate-limit");
 require("dotenv").config();
 
-// const secureEnv = require('secure-env');
-
-
-
 // process.env = secureEnv({ secret: "enimasinobhaniyo" });
 const useragent = require("express-useragent");
 

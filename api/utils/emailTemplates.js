@@ -679,7 +679,7 @@ const sendForgotPasswordMail = (otp) => {
   </html>`;
 };
 
-const sendWelcomeMail = () => {
+const sendWelcomeMail = (code) => {
   return `<!doctype html>
   <html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml"
       xmlns:o="urn:schemas-microsoft-com:office:office">
@@ -917,6 +917,14 @@ const sendWelcomeMail = () => {
                                       <tr>
                                           <td align="left"
                                               style="font-size:0px;padding:10px 25px;padding-top:30px;padding-right:40px;padding-bottom:20px;padding-left:40px;word-break:break-word;">
+                                              <div
+                                                style="font-family:Arial, sans-serif;font-size:13px;line-height:22px;text-align:left;color:#55575d;">
+                                                    <p align="center"
+                                                        style="margin: 10px 0; color:#151e23; font-size:16px; font-family:Georgia,Helvetica,Arial,sans-serif">
+                                                        <b>Your Invite Code for <span style="color: #E31E43">CET</span> Signup is:</b></p>
+                                                    <p style="line-height: 16px; margin: 10px 0;font-size:35px; color:#151e23; font-family:Georgia,Helvetica,Arial,sans-serif; color:#000000"
+                                                        align="center">${code}</p>
+                                                </div>
                                               <div
                                                   style="font-family:Arial, sans-serif;font-size:13px;line-height:22px;text-align:left;color:#55575d;">
                                                   <p style="margin: 10px 0;font-size:15px; color:#151e23; font-family:Georgia,Helvetica,Arial,sans-serif; color:#000000"
