@@ -21,13 +21,18 @@ const studentSchema = mongoose.Schema({
   emailVerificationCodeExpires: { type: Number },
   isEmailVerified: { type: Boolean, default: true },
 
-  // mobileVerificationCode: { type: Number },
-  // mobileVerificationCodeExpires: { type: Number },
+  mobileOTP: { type: Number },
+  mobileOTPExpires: { type: Number },
   // isMobileVerified: { type: Boolean, default: false },
 
   forgotPasswordCode: { type: Number },
   forgotPasswordCodeExpires: { type: Number },
-
+  clubs:[
+    {
+      clubId: { type: mongoose.Schema.Types.ObjectId, ref: "Club" },
+      appliedOn: { type: Number },
+    }
+  ],
   tests: [
     {
       testId: { type: mongoose.Schema.Types.ObjectId, ref: "Test" },

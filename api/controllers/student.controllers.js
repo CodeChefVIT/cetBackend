@@ -429,6 +429,87 @@ const login = async (req, res) => {
     });
 };
 
+const mobileLogin = async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({
+      message: "Email missing from req.body",
+    });
+  }
+
+  const student = await Student.find({ email })
+    .then(async (student) => {
+      if (student.length < 1) {
+        return res.status(401).json({
+          message: "Auth failed: Email not found",
+        });
+      }
+
+      if(student.googleId == null && student.googleId == null){
+        return res.status(400).json({
+          message: "Auth failed: Not logged in by google (Not phone auth)",
+        });
+      }
+
+      // if (!student[0].isEmailVerified) {
+      //   return res.status(403).json({
+      //     message: "Email not verified",
+      //   });
+      // }
+
+      await bcrypt
+        .compare(password, student[0].password)
+        .then((result) => {
+          if (result) {
+            const token = jwt.sign(
+              {
+                userId: student[0]._id,
+                userType: student[0].userType,
+                email: student[0].email,
+                name: student[0].name,
+              },
+              process.env.JWT_SECRET,
+              {
+                expiresIn: "30d",
+              }
+            );
+            return res.status(200).json({
+              studentDetails: {
+                _id: student[0]._id,
+                name: student[0].name,
+                email: student[0].email,
+              },
+              token,
+            });
+          }
+          return res.status(401).json({
+            message: "Auth failed: Invalid password",
+          });
+        })
+        .catch((err) => {
+          errorLogger.info(
+            `System: ${req.ip} | ${req.method} | ${req.originalUrl
+            } >> ${err.toString()}`
+          );
+          res.status(500).json({
+            message: "Something went wrong",
+            // error: err.toString(),
+          });
+        });
+    })
+    .catch((err) => {
+      errorLogger.info(
+        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        } >> ${err.toString()}`
+      );
+      res.status(500).json({
+        message: "Something went wrong",
+        // error: err.toString(),
+      });
+    });
+};
+
 // @desc Forgot password - Send OTP
 // @route POST /api/student/forgotPassword/sendEmail
 const sendForgotPasswordEmail = async (req, res) => {
@@ -750,6 +831,61 @@ const dashboard = async (req, res, next) => {
     });
 };
 
+const applyClub = async (req, res, next) => {
+  const studentId = req.user.userId;
+  const {clubId} = req.body;
+  const appliedOn = Date.now();
+
+  try{
+    let student = await Student.findById(studentId);
+    student.clubs.forEach((club)=>{
+      if(club.clubId == clubId){
+        res.status(400).send({"message":"Club Already Applied"})
+      }
+    })
+    student.clubs.push({clubId, appliedOn})
+    await student.save();
+    console.log(student);
+    res.status(200).send({"message":"Club Applied"})
+  }
+  catch(err) {
+    errorLogger.info(
+      `System: ${req.ip} | ${req.method} | ${req.originalUrl
+      } >> ${err.toString()}`
+    );
+    res.status(500).json({
+      message: "Something went wrong",
+    });
+  };
+}
+
+const getAppliedClubs = async (req, res, next) => {
+  const studentId = req.user.userId;
+  let detailedClubs = []
+  try{
+    await Student.findById(studentId)
+      .then(async (student) => {
+        let appliedClubs = student.clubs;
+        appliedClubs.forEach(async(club) => {
+          let appliedClub = await Club.findById(club.clubId)
+          console.log(appliedClub)
+          detailedClubs.push(appliedClub);
+          return res.status(200).send(detailedClubs);
+        });
+      })
+  }
+  catch(err){
+      errorLogger.info(
+        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        } >> ${err.toString()}`
+      );
+      res.status(500).json({
+        message: "Something went wrong",
+        // error: err.toString(),
+      });
+    };
+};
+
 const sendSesOtp = (mailto, code) => {
   const SES_CONFIG = {
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -837,4 +973,6 @@ module.exports = {
   getProfile,
   getStudentDetails,
   dashboard,
+  applyClub,
+  getAppliedClubs
 };

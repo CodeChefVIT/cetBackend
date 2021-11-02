@@ -42,6 +42,12 @@ router.patch("/profile", checkAuthStudent, studentControllers.updateProfile);
 //Get a student's profile
 router.get("/profile", checkAuthStudent, studentControllers.getProfile);
 
+router.post("/apply", checkAuthStudent, studentControllers.applyClub);
+
+router.get("/applied", checkAuthStudent, studentControllers.getAppliedClubs);
+
+router.get("/profile", checkAuthStudent, studentControllers.getProfile);
+
 //Get a student's details
 router.get("/details", studentControllers.getStudentDetails);
 
