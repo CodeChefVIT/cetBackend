@@ -17,9 +17,9 @@ const studentSchema = mongoose.Schema({
   branch: { type: String },
   loginCount: { type: Number, default: 0 },
 
-  // emailVerificationCode: { type: Number },
-  // emailVerificationCodeExpires: { type: Number },
-  // isEmailVerified: { type: Boolean, default: true },
+  emailVerificationCode: { type: Number },
+  emailVerificationCodeExpires: { type: Number },
+  isEmailVerified: { type: Boolean, default: true },
 
   // mobileVerificationCode: { type: Number },
   // mobileVerificationCodeExpires: { type: Number },

@@ -181,16 +181,24 @@ const resendOTP = async (req, res) => {
         });
       }
 
-      student.emailVerificationCode = Math.floor(
+      emailVerificationCode = Math.floor(
         100000 + Math.random() * 900000
       );
-      student.emailVerificationCodeExpires =
+      emailVerificationCodeExpires =
         new Date().getTime() + 20 * 60 * 1000;
 
-      await student
-        .save()
+
+      await Student.updateOne(
+        { '_id': student._id },
+        {
+          $set: {
+            emailVerificationCode,
+            emailVerificationCodeExpires
+          },
+        }
+      )
         .then(async () => {
-          const emailSent = sendSesOtp(email, student.emailVerificationCode);
+          const emailSent = sendSesOtp(email, emailVerificationCode);
           // let transporter = nodemailer.createTransport({
           //   service: "gmail",
           //   port: 465,
