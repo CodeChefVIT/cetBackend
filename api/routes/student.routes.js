@@ -26,6 +26,12 @@ router.post("/email/verify", studentControllers.verifyEmail);
 //Student login
 router.post("/login", studentControllers.login);
 
+//Student send email mobile otp
+router.post("/mobile/OTP", studentControllers.sendEmailForMobileLogin);
+
+//Student mobile login
+router.post("/mobile/login", studentControllers.verifyMobileOTP);
+
 //Forgot password - Send OTP
 router.post(
   "/forgotPassword/sendEmail",

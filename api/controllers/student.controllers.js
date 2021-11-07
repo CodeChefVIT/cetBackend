@@ -18,6 +18,7 @@ const { errorLogger } = require("../utils/logger");
 const {
   sendVerificationOTP,
   sendForgotPasswordMail,
+  sendMobileOTP
 } = require("../utils/emailTemplates");
 
 // @desc Student signup
@@ -429,7 +430,7 @@ const login = async (req, res) => {
     });
 };
 
-const mobileLogin = async (req, res) => {
+const sendEmailForMobileLogin = async (req, res) => {
   const { email } = req.body;
 
   if (!email) {
@@ -446,57 +447,94 @@ const mobileLogin = async (req, res) => {
         });
       }
 
-      if(student.googleId == null && student.googleId == null){
-        return res.status(400).json({
-          message: "Auth failed: Not logged in by google (Not phone auth)",
+      if (!student[0].isEmailVerified) {
+        return res.status(403).json({
+          message: "Email not verified",
         });
       }
 
-      // if (!student[0].isEmailVerified) {
-      //   return res.status(403).json({
-      //     message: "Email not verified",
-      //   });
-      // }
+      mobileOTP = Math.floor(
+        100000 + Math.random() * 900000
+      );
+      mobileOTPExpires =
+        new Date().getTime() + 20 * 60 * 1000;
 
-      await bcrypt
-        .compare(password, student[0].password)
-        .then((result) => {
-          if (result) {
-            const token = jwt.sign(
-              {
-                userId: student[0]._id,
-                userType: student[0].userType,
-                email: student[0].email,
-                name: student[0].name,
-              },
-              process.env.JWT_SECRET,
-              {
-                expiresIn: "30d",
-              }
-            );
-            return res.status(200).json({
-              studentDetails: {
-                _id: student[0]._id,
-                name: student[0].name,
-                email: student[0].email,
-              },
-              token,
-            });
-          }
-          return res.status(401).json({
-            message: "Auth failed: Invalid password",
+      student[0].mobileOTP = mobileOTP;
+      student[0].mobileOTPExpires = mobileOTPExpires;
+
+      console.log(student[0])
+      await student[0].save()
+        .then(async () => {
+          await sendSesMobileOtp(email, mobileOTP)
+
+          res.status(200).json({
+            message: "Email OTP for Mobile Login Sent",
           });
         })
-        .catch((err) => {
-          errorLogger.info(
-            `System: ${req.ip} | ${req.method} | ${req.originalUrl
-            } >> ${err.toString()}`
-          );
-          res.status(500).json({
-            message: "Something went wrong",
-            // error: err.toString(),
+    })
+    .catch((err) => {
+      errorLogger.info(
+        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        } >> ${err.toString()}`
+      );
+      res.status(500).json({
+        message: "Something went wrong",
+        // error: err.toString(),
+      });
+    });
+};
+
+const verifyMobileOTP = async (req, res) => {
+  const { email, mobileOTP } = req.body;
+  const now = Date.now();
+
+  if (!email || !mobileOTP) {
+    return res.status(400).json({
+      message: "1 or more parameter(s) missing from req.body",
+    });
+  }
+
+  await Student.findOne({ email })
+    .then(async (student) => {
+      if (student) {
+        if (student.mobileOTP == mobileOTP) {
+          if (student.mobileOTPExpires > now) {
+
+                  const token = jwt.sign(
+                    {
+                      userId: student._id,
+                      userType: student.userType,
+                      email: student.email,
+                      name: student.name,
+                    },
+                    process.env.JWT_SECRET,
+                    {
+                      expiresIn: "30d",
+                    }
+                  );
+                  return res.status(200).json({
+                    studentDetails: {
+                      _id: student._id,
+                      name: student.name,
+                      email: student.email,
+                    },
+                    token,
+                  });
+          } else {
+            return res.status(401).json({
+              message: "Verification code expired",
+            });
+          }
+        } else {
+          return res.status(403).json({
+            message: "Invalid verification code",
           });
+        }
+      } else {
+        return res.status(404).json({
+          message: "Invalid email",
         });
+      }
     })
     .catch((err) => {
       errorLogger.info(
@@ -914,6 +952,48 @@ const sendSesOtp = (mailto, code) => {
     },
   };
 
+  
+
+  AWS_SES.sendEmail(params)
+    .promise()
+    .then(() => {
+      return true;
+    })
+    .catch(() => {
+      return false;
+    });
+};
+
+const sendSesMobileOtp = (mailto, code) => {
+  const SES_CONFIG = {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    region: "ap-south-1",
+  };
+
+  const AWS_SES = new AWS.SES(SES_CONFIG);
+  let params = {
+    Source: "contact@codechefvit.com",
+    Destination: {
+      ToAddresses: [mailto],
+    },
+    ReplyToAddresses: [],
+    Message: {
+      Body: {
+        Html: {
+          Charset: "UTF-8",
+          Data: sendMobileOTP(code),
+        },
+      },
+      Subject: {
+        Charset: "UTF-8",
+        Data: `Hello!`,
+      },
+    },
+  };
+
+  
+
   AWS_SES.sendEmail(params)
     .promise()
     .then(() => {
@@ -974,5 +1054,7 @@ module.exports = {
   getStudentDetails,
   dashboard,
   applyClub,
-  getAppliedClubs
+  getAppliedClubs,
+  sendEmailForMobileLogin,
+  verifyMobileOTP
 };

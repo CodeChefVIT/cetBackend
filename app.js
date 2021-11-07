@@ -6,6 +6,10 @@ const helmet = require("helmet");
 const cors = require("cors");
 const rateLimit = require("express-rate-limit");
 require("dotenv").config();
+const Club = require("./api/models/club.model");
+const Student = require("./api/models/student.model");
+const Test = require("./api/models/test.model");
+const Question = require("./api/models/question.model");
 
 // process.env = secureEnv({ secret: "enimasinobhaniyo" });
 const useragent = require("express-useragent");
@@ -37,7 +41,13 @@ mongoose
     useUnifiedTopology: true,
     useFindAndModify: false,
   })
-  .then(() => console.log("Database Connected"))
+  .then(() => {
+    console.log("Database Connected")
+    Club.init();
+    Student.init();
+    Test.init();
+    Question.init();
+  })
   .catch((err) => {
     errorLogger.error(`System: NIL >> ${err.toString()}`);
   });
