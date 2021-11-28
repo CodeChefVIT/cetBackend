@@ -9,7 +9,7 @@ const AWS = require("aws-sdk");
 
 require("dotenv").config();
 
-sgMail.setApiKey(global.env.SENDGRID_API_KEY);
+// sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 const { errorLogger } = require("../utils/logger");
 
@@ -80,22 +80,22 @@ const create = async (req, res) => {
 // @desc Send welcome emails
 // @route POST /api/club/sendWelcomeEmail
 const sendWelcomeEmail = async (req, res) => {
-  if (global.env.NODE_ENV == "development") {
+  if (process.env.NODE_ENV == "development") {
     const { email } = req.body;
     let transporter = nodemailer.createTransport({
       service: "gmail",
       port: 465,
 
       auth: {
-        user: global.env.NODEMAILER_EMAIL,
-        pass: global.env.NODEMAILER_PASSWORD,
+        user: process.env.NODEMAILER_EMAIL,
+        pass: process.env.NODEMAILER_PASSWORD,
       },
     });
 
     let mailOptions = {
       subject: `Common Entry Test - Email Whitelisted`,
       to: email,
-      from: `CodeChef-VIT <${global.env.NODEMAILER_EMAIL}>`,
+      from: `CodeChef-VIT <${process.env.NODEMAILER_EMAIL}>`,
       html: sendWelcomeMail(),
     };
 
@@ -388,7 +388,7 @@ const login = async (req, res) => {
                 name: club[0].name,
                 username: club[0].username,
               },
-              global.env.JWT_SECRET,
+              process.env.JWT_SECRET,
               {
                 expiresIn: "30d",
               }
@@ -785,8 +785,8 @@ const uploadImages = async (req, res, next) => {
 
 const sendSesOtp = (mailto, code) => {
   const SES_CONFIG = {
-    accessKeyId: global.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: global.env.AWS_SECRET_ACCESS_KEY,
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
     region: "ap-south-1",
   };
 

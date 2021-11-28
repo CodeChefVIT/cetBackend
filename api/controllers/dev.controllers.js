@@ -18,8 +18,8 @@ const Domain = require("../models/testDomain.model");
 const { errorLogger } = require("../utils/logger");
 
 const SES_CONFIG = {
-  accessKeyId: global.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: global.env.AWS_SECRET_ACCESS_KEY,
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   region: "ap-south-1",
 };
 
@@ -299,8 +299,8 @@ const sendShortlistEmail = async (req, res) => {
   const { emails } = req.body;
 
   const SES_CONFIG = {
-    accessKeyId: global.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: global.env.AWS_SECRET_ACCESS_KEY,
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
     region: "ap-south-1",
   };
 
@@ -346,8 +346,8 @@ const sendWelcomeEmail = async (req, res) => {
   const { emailArray } = req.body;
 
   const SES_CONFIG = {
-    accessKeyId: global.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: global.env.AWS_SECRET_ACCESS_KEY,
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
     region: "ap-south-1",
   };
 

@@ -27,8 +27,8 @@ router.get(
     res.redirect(
       303,
       // "https://cet-dev.netlify.app/student/oauth/" + token + "/" + req.user.loginCount + '/'
-      "http://cet-portal.codechefvit.com/student/oauth/" + token + "/" + req.user.loginCount + '/'
-      // "http://localhost:3000/student/oauth/" + token + "/"
+      // "http://cet-portal.codechefvit.com/student/oauth/" + token + "/" + req.user.loginCount + '/'
+      "http://localhost:3000/student/oauth/" +  token + "/" + req.user.loginCount + '/'
     );
   }
 );

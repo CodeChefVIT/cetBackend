@@ -7,11 +7,11 @@ const cors = require("cors");
 const rateLimit = require("express-rate-limit");
 require("dotenv").config();
 
-const secureEnv = require('secure-env');
+// const secureEnv = require('secure-env');
 
 
 
-global.env = secureEnv({ secret: "enimasinobhaniyo" });
+// process.env = secureEnv({ secret: "enimasinobhaniyo" });
 const useragent = require("express-useragent");
 
 
@@ -31,7 +31,7 @@ const passport_config = require("./api/config/studentGoogleAuth");
 const { errorLogger } = require("./api/utils/logger");
 
 //Require Atlas database URI from environment variables
-const DBURI = global.env.DBURI;
+const DBURI = process.env.DBURI;
 
 //Connect to MongoDB client using mongoose
 mongoose
@@ -80,7 +80,7 @@ app.use(cors());
 
 app.use(useragent.express());
 
-if (global.env.NODE_ENV == "production") {
+if (process.env.NODE_ENV == "production") {
   app.use((req, res, next) => {
     if (req.useragent["isBot"] == false) {
       next();
@@ -105,7 +105,7 @@ app.get("/checkServer", (req, res) => {
   });
 });
 
-if (global.env.NODE_ENV == "development") {
+if (process.env.NODE_ENV == "development") {
   app.use("/dev", require("./api/routes/dev.routes"));
 }
 
