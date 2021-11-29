@@ -713,6 +713,13 @@ const shortlistStudent = async (req, res, next) => {
   const { domainId, studentId, remark } = req.body;
   let flag = 0;
   let clubFlag = 0;
+  let studentFlag = 0;
+
+  await Student.findById(studentId).then((student)=>{
+    if(student==null || student==undefined){
+      return res.status(404).send({"message":"No user with that id exists"});
+    }
+  })
 
   await Domain.findById(domainId)
     .then(async (domain) => {

@@ -8,8 +8,8 @@ const testSchhema = mongoose.Schema({
   roundType: { type: String },
   instructions: { type: String },
   duration: { type: Number },
-  scheduledForDate: { type: Number },
-  scheduledEndDate: { type: Number },
+  scheduledForDate: { type: String },
+  scheduledEndDate: { type: String },
   graded: { type: Boolean },
 
   finalized: { type: Boolean, default: false },
@@ -39,7 +39,7 @@ const testSchhema = mongoose.Schema({
       marks: { type: Number, default: 0 },
       timeTaken: { type: Number },
       corrected: { type: Boolean },
-      submittedOn: { type: Number },
+      submittedOn: { type: String },
     },
   ],
 });
