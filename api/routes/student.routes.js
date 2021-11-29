@@ -60,4 +60,10 @@ router.get("/details", studentControllers.getStudentDetails);
 //Get student's dashboard
 router.get("/dashboard", checkAuthStudent, studentControllers.dashboard);
 
+// App route : Get Registered Timeline
+router.get("/timeline/registered", checkAuthStudent, studentControllers.getRegisteredTimeline);
+
+// App route : Get All Clubs Timeline
+router.get("/timeline/all", checkAuthStudent, studentControllers.getTimeline);
+
 module.exports = router;

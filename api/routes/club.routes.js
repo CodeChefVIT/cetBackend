@@ -9,6 +9,8 @@ const recaptcha = require("../middleware/recaptcha");
 
 const checkAuthClub = require("../middleware/checkAuthClub");
 
+const checkAdmin = require("../middleware/checkAuthAdmin");
+
 const {
   uploadClubAvatar,
   uploadClubBanner,
@@ -17,10 +19,10 @@ const {
 const router = express.Router();
 
 //Create Club
-router.post("/create", clubControllers.create);
+router.post("/create", checkAdmin, clubControllers.create);
 
 //Send welcome email
-router.post("/sendWelcomeEmail", clubControllers.sendWelcomeEmail);
+router.post("/sendWelcomeEmail", checkAdmin, clubControllers.sendWelcomeEmail);
 
 //Club signup
 router.post("/signup", clubControllers.signup);

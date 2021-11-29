@@ -869,22 +869,106 @@ const dashboard = async (req, res, next) => {
     });
 };
 
+const getRegisteredTimeline = async (req, res, next) => {
+  const studentId = req.user.userId;
+  try{
+    const student = await Student.findById(studentId)
+    let appliedClubs = student.clubs;
+    if(appliedClubs.length == 0){
+      return res.status(400).send({
+        "message":"Not Registered for any clubs"
+      })
+    }
+    let timeline = [];
+    appliedClubs.forEach(async(club) => {
+      console.log(club);
+      let clubId = club.clubId;
+      let appliedClub = await Club.findById(clubId)
+      const clubName = appliedClub.name;
+      await Test.find({ clubId, published: true })
+      .then(async (tests) => {
+        timeline.push({clubName : clubName, tests: tests});
+      })
+    });
+    return res.status(200).send(timeline)
+  }
+  catch(err){
+    errorLogger.info(
+      `System: ${req.ip} | ${req.method} | ${req.originalUrl
+      } >> ${err.toString()}`
+    );
+    res.status(500).json({
+      message: "Something went wrong",
+      // error: err.toString(),
+    });
+  };
+}
+
+const getTimeline = async (req, res, next) => {
+  const studentId = req.user.userId;
+  try{
+    let timeline = [];
+
+    let clubs = await Club.find({
+      featured: true,
+    })
+
+    let megaResult = clubs.filter((club) => club.typeOfPartner == "Mega");
+    let nanoResult = clubs.filter((club) => club.typeOfPartner == "Nano");
+    let microResult = clubs.filter((club) => club.typeOfPartner == "Micro");
+    let gigaResult = clubs.filter((club) => club.typeOfPartner == "Giga");
+
+    let typeSortedClubs = gigaResult.concat(
+      megaResult,
+      microResult,
+      nanoResult
+    );
+        
+    for(let i=0; i<typeSortedClubs.length; i++){
+      let clubId = typeSortedClubs[i]._id;
+      console.log(clubId)
+      await Test.find({ clubId, published: true })
+      .then(async (tests) => {
+        const clubName = typeSortedClubs[i].name;
+        timeline.push({clubName : clubName, tests: tests});
+      })
+    }
+    return res.status(200).send(timeline)
+  }
+  catch(err){
+    errorLogger.info(
+      `System: ${req.ip} | ${req.method} | ${req.originalUrl
+      } >> ${err.toString()}`
+    );
+    res.status(500).json({
+      message: "Something went wrong",
+      // error: err.toString(),
+    });
+  };
+}
+
 const applyClub = async (req, res, next) => {
   const studentId = req.user.userId;
   const {clubId} = req.body;
   const appliedOn = Date.now();
+  let flag=0;
 
   try{
     let student = await Student.findById(studentId);
-    student.clubs.forEach((club)=>{
-      if(club.clubId == clubId){
-        res.status(400).send({"message":"Club Already Applied"})
+    let appliedClubs = student.clubs;
+    appliedClubs.forEach((club)=>{
+      let id = club.clubId;
+      if(id == clubId){
+        flag = 1;
       }
     })
-    student.clubs.push({clubId, appliedOn})
-    await student.save();
-    console.log(student);
-    res.status(200).send({"message":"Club Applied"})
+    if(flag==0){
+      student.clubs.push({clubId, appliedOn})
+      await student.save();
+      res.status(200).send({"message":"Club Applied"})
+    } else{
+      res.status(400).send({"message":"Club Already Applied"})
+    }
   }
   catch(err) {
     errorLogger.info(
@@ -906,7 +990,6 @@ const getAppliedClubs = async (req, res, next) => {
         let appliedClubs = student.clubs;
         appliedClubs.forEach(async(club) => {
           let appliedClub = await Club.findById(club.clubId)
-          console.log(appliedClub)
           detailedClubs.push(appliedClub);
           return res.status(200).send(detailedClubs);
         });
@@ -1056,5 +1139,7 @@ module.exports = {
   applyClub,
   getAppliedClubs,
   sendEmailForMobileLogin,
-  verifyMobileOTP
+  verifyMobileOTP,
+  getRegisteredTimeline,
+  getTimeline
 };

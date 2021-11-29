@@ -110,6 +110,26 @@ app.get("/checkServer", (req, res) => {
     message: "Server is up and running",
   });
 });
+app.post("/admin", (req,res) => {
+  let {pass} = req.body;
+  if(pass==process.env.CHECKER){
+    const token = jwt.sign(
+      {
+        payload: process.env.JWT_PAYLOAD_SECRET
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "1d",
+      }
+    );
+    res.status(200).send({
+      token
+    })
+  }
+  res.status(401).send({
+    "message":"Could Not Authenticate: Invalid Pass"
+  })
+})
 
 if (process.env.NODE_ENV == "development") {
   app.use("/dev", require("./api/routes/dev.routes"));
