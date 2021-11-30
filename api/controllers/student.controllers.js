@@ -835,7 +835,7 @@ const dashboard = async (req, res, next) => {
       populate: {
         path: "testId clubId domains",
         select:
-          "roundNumber roundType instructions scheduledForDate scheduledEndDate graded bio email name type clubAvatar clubBanner clubImages socialMediaLinks redirectURL",
+          "roundNumber roundType instructions scheduledForDate scheduledEndDate graded bio email name type clubAvatar clubBanner clubImages socialMediaLink redirectURL",
         populate: {
           path: "domainId",
           select:

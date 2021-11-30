@@ -63,7 +63,7 @@ const getAllFeaturedClubs = async (req, res) => {
     featured: true,
   })
     .select(
-      "name email type bio featured website username clubAvatar clubBanner clubImages socialMediaLinks mobileNumber typeOfPartner redirectURL numOfTestsPublished"
+      "name email type bio featured website username clubAvatar clubBanner clubImages socialMediaLink mobileNumber typeOfPartner redirectURL numOfTestsPublished"
     )
     .then(async (clubs) => {
       let megaResult = clubs.filter((club) => club.typeOfPartner == "Mega");
@@ -233,7 +233,7 @@ const studentTestDashboard = async (req, res, next) => {
       populate: {
         path: "testId clubId domains",
         select:
-          "roundNumber roundType instructions scheduledForDate scheduledEndDate graded bio email name type clubAvatar clubBanner clubImages socialMediaLinks redirectURL",
+          "roundNumber roundType instructions scheduledForDate scheduledEndDate graded bio email name type clubAvatar clubBanner clubImages socialMediaLink redirectURL",
         populate: {
           path: "domainId",
           select:

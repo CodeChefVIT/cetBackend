@@ -9,7 +9,8 @@ const AWS = require("aws-sdk");
 
 require("dotenv").config();
 
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+// sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
 
 const { errorLogger } = require("../utils/logger");
 
@@ -87,6 +88,7 @@ const create = async (req, res) => {
 
 // @desc Send welcome emails
 // @route POST /api/club/sendWelcomeEmail
+
 const sesWelcomeEmail =  async(mailto, code) => {
   let sent = false;
   const SES_CONFIG = {
@@ -107,6 +109,7 @@ const sesWelcomeEmail =  async(mailto, code) => {
           Charset: "UTF-8",
           Data: sendWelcomeMail(code),
         },
+
       },
       Subject: {
         Charset: "UTF-8",
@@ -124,6 +127,7 @@ const sesWelcomeEmail =  async(mailto, code) => {
     })
     .catch((err) => {
       sent = false;
+
     });
 
   return sent;
@@ -467,7 +471,7 @@ const updateProfile = async (req, res, next) => {
     type,
     bio,
     website,
-    socialMediaLinks,
+    socialMediaLink,
     mobileNumber,
     username,
     redirectURL,
@@ -491,7 +495,7 @@ const updateProfile = async (req, res, next) => {
                   type,
                   bio,
                   website,
-                  socialMediaLinks,
+                  socialMediaLink,
                   mobileNumber,
                   username,
                   redirectURL,
@@ -553,7 +557,7 @@ const getSelfProfile = async (req, res, next) => {
   console.log(clubId)
   await Club.findById(clubId)
     .select(
-      "name email type bio featured website username clubAvatar clubBanner clubImages socialMediaLinks mobileNumber typeOfPartner redirectURL"
+      "name email type bio featured website username clubAvatar clubBanner clubImages socialMediaLink mobileNumber typeOfPartner redirectURL"
     )
     .then((club) => {
       res.status(200).json({
@@ -586,7 +590,7 @@ const getClubDetails = async (req, res, next) => {
 
   await Club.findById(clubId)
     .select(
-      "name email type bio featured website username clubAvatar clubBanner clubImages socialMediaLinks mobileNumber typeOfPartner redirectURL"
+      "name email type bio featured website username clubAvatar clubBanner clubImages socialMediaLink mobileNumber typeOfPartner redirectURL"
     )
     .then(async (club) => {
       res.status(200).json({
@@ -619,7 +623,7 @@ const getClubDetailsUsername = async (req, res, next) => {
 
   await Club.findOne({ username })
     .select(
-      "name email type bio featured website username clubAvatar clubBanner clubImages socialMediaLinks mobileNumber typeOfPartner redirectURL"
+      "name email type bio featured website username clubAvatar clubBanner clubImages socialMediaLink mobileNumber typeOfPartner redirectURL"
     )
     .then(async (club) => {
       res.status(200).json({
@@ -680,7 +684,7 @@ const getAllFeaturedClubs = async (req, res) => {
     featured: true,
   })
     .select(
-      "name email type bio featured website username clubAvatar clubBanner clubImages socialMediaLinks mobileNumber typeOfPartner redirectURL numOfTestsPublished"
+      "name email type bio featured website username clubAvatar clubBanner clubImages socialMediaLink mobileNumber typeOfPartner redirectURL numOfTestsPublished"
     )
     .then(async (clubs) => {
       let megaResult = clubs.filter((club) => club.typeOfPartner == "Mega");
