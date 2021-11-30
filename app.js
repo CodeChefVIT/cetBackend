@@ -6,9 +6,10 @@ const helmet = require("helmet");
 const cors = require("cors");
 const rateLimit = require("express-rate-limit");
 require("dotenv").config();
-
-// const secureEnv = require('secure-env');
-
+const Club = require("./api/models/club.model");
+const Student = require("./api/models/student.model");
+const Test = require("./api/models/test.model");
+const Question = require("./api/models/question.model");
 
 
 // process.env = secureEnv({ secret: "enimasinobhaniyo" });
@@ -41,7 +42,13 @@ mongoose
     useUnifiedTopology: true,
     useFindAndModify: false,
   })
-  .then(() => console.log("Database Connected"))
+  .then(() => {
+    console.log("Database Connected")
+    Club.init();
+    Student.init();
+    Test.init();
+    Question.init();
+  })
   .catch((err) => {
     errorLogger.error(`System: NIL >> ${err.toString()}`);
   });
@@ -104,6 +111,26 @@ app.get("/checkServer", (req, res) => {
     message: "Server is up and running",
   });
 });
+app.post("/admin", (req,res) => {
+  let {pass} = req.body;
+  if(pass==process.env.CHECKER){
+    const token = jwt.sign(
+      {
+        payload: process.env.JWT_PAYLOAD_SECRET
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "1d",
+      }
+    );
+    res.status(200).send({
+      token
+    })
+  }
+  res.status(401).send({
+    "message":"Could Not Authenticate: Invalid Pass"
+  })
+})
 
 if (process.env.NODE_ENV == "development") {
   app.use("/dev", require("./api/routes/dev.routes"));

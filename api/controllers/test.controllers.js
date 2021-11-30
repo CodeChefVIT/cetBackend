@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const multer = require("multer");
+var moment = require('moment');  
 
 require("dotenv").config();
 
@@ -13,6 +14,7 @@ const Question = require("../models/question.model");
 const Domain = require("../models/testDomain.model");
 
 const { errorLogger } = require("../utils/logger");
+const { debug } = require("request");
 
 // @desc Create a test
 // @route POST /api/test/create
@@ -50,8 +52,8 @@ const create = async (req, res, next) => {
     roundNumber,
     roundType,
     instructions,
-    scheduledForDate,
-    scheduledEndDate,
+    scheduledForDate: moment(scheduledForDate).format(),
+    scheduledEndDate: moment(scheduledEndDate).format(),
   });
 
   await test
@@ -110,7 +112,7 @@ const getTestDetails = async (req, res, next) => {
 const apply = async (req, res, next) => {
   const { testId, clubId } = req.body;
   const studentId = req.user.userId;
-  const appliedOn = Date.now();
+  const appliedOn = moment(Date.now()).format();
   let flag = 0;
 
   if (!testId || !clubId) {
@@ -133,9 +135,10 @@ const apply = async (req, res, next) => {
           message: "You have already applied for the test",
         });
       }
-
+      console.log(test);
       //Check if a user has already given a test
       for (i in test.usersStarted) {
+        console.log(wth+"-------"+studentId);
         if (test.usersStarted[i].studentId == studentId) {
           flag = 2;
         }
@@ -226,10 +229,9 @@ const apply = async (req, res, next) => {
 const attempt = async (req, res, next) => {
   const { testId } = req.body;
   const studentId = req.user.userId;
-  const now = Date.now();
+  const now = moment(Date.now()).format();
   let flag = 0;
   let appliedFlag = 0;
-
   if (!testId) {
     return res.status(400).json({
       message: "1 or more parameter(s) missing from req.body",
@@ -247,13 +249,10 @@ const attempt = async (req, res, next) => {
       // }
       for (i in test.usersFinished) {
         if (test.usersFinished[i].studentId == studentId) {
-          flag = 1;
+          return res.status(409).json({
+            message: "You have already given the test",
+          });
         }
-      }
-      if (flag === 1) {
-        return res.status(409).json({
-          message: "You have already given the test",
-        });
       }
 
       //Check if a user didn't apply for a test
@@ -290,8 +289,8 @@ const attempt = async (req, res, next) => {
                 $push: {
                   tests: {
                     testId,
-                    clubId: test.clubId,
-                    appliedOn: now,
+                    clubId: test.clubId._id,
+                    appliedOn: moment(Date.now()).format(),
                     status: "Applied",
                   },
                 },
@@ -331,7 +330,7 @@ const attempt = async (req, res, next) => {
       }
 
       //Check if test hasn't started
-      if (test.scheduledForDate > now) {
+      if (moment(test.scheduledForDate).isBefore(moment(now).format())) {
         return res.status(418).json({
           message: "Test hasn't started yet",
         });
@@ -371,7 +370,7 @@ const attempt = async (req, res, next) => {
             {
               $set: {
                 "tests.$.status": "Started",
-                "tests.$.startedOn": now,
+                "tests.$.startedOn": moment(now).format(),
               },
               // $set: { startedOn: now },
             }
@@ -460,7 +459,8 @@ const attempt = async (req, res, next) => {
 const submit = async (req, res, next) => {
   const { testId } = req.body;
   const studentId = req.user.userId;
-  const now = Date.now();
+  console.log(testId);
+  const now = moment(Date.now()).format();
 
   if (!testId) {
     return res.status(400).json({
@@ -609,7 +609,7 @@ const addStudents = async (req, res, next) => {
     });
   } else {
     let studentsIdArray = [];
-    const appliedOn = Date.now();
+    const appliedOn = moment(Date.now()).format();
 
     for (let studentEmail of studentsArray) {
       let student = await Student.findOneAndUpdate(
@@ -803,7 +803,7 @@ const updateTest = async (req, res, next) => {
           message: "This is not your club!",
         });
       }
-      if (test.scheduledForDate <= Date.now()) {
+      if (moment(test.scheduledForDate).isBefore(moment()) || moment(test.scheduledForDate).isSame(moment())) {
         return res.status(409).json({
           message: "You can't update the test since it has already started",
         });

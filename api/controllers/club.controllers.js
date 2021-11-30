@@ -11,6 +11,7 @@ require("dotenv").config();
 
 // sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
+
 const { errorLogger } = require("../utils/logger");
 
 const Club = require("../models/club.model");
@@ -25,6 +26,7 @@ const {
 // @route POST /api/club/create
 const create = async (req, res) => {
   const { email } = req.body;
+  let sent = false;
   if (!email) {
     return res.status(400).json({
       message: "1 or more parameter(s) missing from req.body",
@@ -38,16 +40,23 @@ const create = async (req, res) => {
           club: clubs[0],
         });
       } else {
+        let inviteCode = Math.floor(
+          Math.random() * (99999 - 10000 + 1) + 10000)
         const club = new Club({
           _id: new mongoose.Types.ObjectId(),
           email,
+          inviteCode
         });
         await club
           .save()
-          .then((result) => {
-            console.log(result);
+          .then(async(result) => {
+            sent = await sesWelcomeEmail(email, inviteCode);
+
+            if(!sent){
+              return res.status(500).send({"message":"There was an error in sending the email"})
+            }
             return res.status(201).json({
-              message: "Club successfully created",
+              message: "Club successfully created and Welcome Email Sent",
               result,
             });
           })
@@ -79,42 +88,66 @@ const create = async (req, res) => {
 
 // @desc Send welcome emails
 // @route POST /api/club/sendWelcomeEmail
-const sendWelcomeEmail = async (req, res) => {
-  if (process.env.NODE_ENV == "development") {
-    const { email } = req.body;
-    let transporter = nodemailer.createTransport({
-      service: "gmail",
-      port: 465,
 
-      auth: {
-        user: process.env.NODEMAILER_EMAIL,
-        pass: process.env.NODEMAILER_PASSWORD,
+const sesWelcomeEmail =  async(mailto, code) => {
+  let sent = false;
+  const SES_CONFIG = {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    region: "ap-south-1",
+  };
+
+  let params = {
+    Source: "codechefvit@gmail.com",
+    Destination: {
+      ToAddresses: [mailto],
+    },
+    ReplyToAddresses: [],
+    Message: {
+      Body: {
+        Html: {
+          Charset: "UTF-8",
+          Data: sendWelcomeMail(code),
+        },
+
       },
+      Subject: {
+        Charset: "UTF-8",
+        Data: `Common Entry Test - Welcome`,
+      },
+    },
+  };
+
+  // const AWS_SES = ;
+
+  await new AWS.SES(SES_CONFIG).sendEmail(params)
+    .promise()
+    .then((res) => {
+      sent = true;
+    })
+    .catch((err) => {
+      sent = false;
+
     });
 
-    let mailOptions = {
-      subject: `Common Entry Test - Email Whitelisted`,
-      to: email,
-      from: `CodeChef-VIT <${process.env.NODEMAILER_EMAIL}>`,
-      html: sendWelcomeMail(),
-    };
+  return sent;
+};
 
-    transporter.sendMail(mailOptions, (error, response) => {
-      if (error) {
-        console.log("Email not sent: ", mailOptions.to);
-        console.log(error.toString());
-
-        return res.status(500).json({
-          message: "Something went wrong",
-          error: error.toString(),
-        });
-      } else {
-        console.log("Email sent: ", mailOptions.to);
-        res.status(200).json({
-          message: "Email sent",
-        });
-      }
-    });
+const sendWelcomeEmail = async (req, res) => {
+  if (true) {
+    const { email } = req.body;
+    let sent = false;
+    try{
+    sent = await sesWelcomeEmail(email, req, res);
+    console.log(sent)
+    if(sent){
+      return res.status(200).send({"message":"Welcome Email Sent"})
+    }else{
+      return res.status(500).send({"message":"There was an error in sending the email"})
+    }
+    }catch(err){
+      return res.status(500).send(err)
+    }
   } else {
     return res.status(401).json({
       message: "Cannot perform this action",
@@ -240,7 +273,7 @@ const resendOTP = async (req, res) => {
       }
 
       club.emailVerificationCode = Math.floor(100000 + Math.random() * 900000);
-      club.emailVerificationCodeExpires = new Date().getTime() + 20 * 60 * 1000;
+      club.emailVerificationCodeExpires = new Date().addDays(1).getTime() + 20 * 60 * 1000;
 
       await club
         .save()
@@ -281,7 +314,6 @@ const resendOTP = async (req, res) => {
 const verifyEmail = async (req, res) => {
   const { email, emailVerificationCode } = req.body;
   const now = Date.now();
-
   if (!email || !emailVerificationCode) {
     return res.status(400).json({
       message: "1 or more parameter(s) missing from req.body",
@@ -295,16 +327,14 @@ const verifyEmail = async (req, res) => {
       if (club) {
         if (club.emailVerificationCode == emailVerificationCode) {
           if (club.emailVerificationCodeExpires > now) {
-            await Club.updateOne(
-              { _id: club._id },
+            Club.updateOne(
+              {"_id": club._id},
               {
-                $set: { isEmailVerified: true },
-                $unset: {
-                  emailVerificationCode,
-                  emailVerificationCodeExpires,
-                  inviteCode,
-                },
-              }
+                 isEmailVerified: true,
+                  emailVerificationCode: 0,
+                  emailVerificationCodeExpires: 0,
+                  inviteCode: 0,
+              },
             )
               .then(async () => {
                 res.status(200).json({
@@ -319,7 +349,7 @@ const verifyEmail = async (req, res) => {
                 );
                 res.status(500).json({
                   message: "Something went wrong",
-                  // error: err.toString(),
+                  error: err,
                 });
               });
           } else {
@@ -346,7 +376,7 @@ const verifyEmail = async (req, res) => {
       );
       res.status(500).json({
         message: "Something went wrong",
-        // error: err.toString(),
+        error: err,
       });
     });
 };
@@ -455,6 +485,7 @@ const updateProfile = async (req, res, next) => {
       await bcrypt
         .compare(password, club.password)
         .then(async (result) => {
+          console.log(result)
           if (result) {
             await Club.updateOne(
               { _id: clubId },
@@ -523,12 +554,12 @@ const updateProfile = async (req, res, next) => {
 // @route GET /api/club/profile
 const getSelfProfile = async (req, res, next) => {
   const clubId = req.user.userId;
-
+  console.log(clubId)
   await Club.findById(clubId)
     .select(
       "name email type bio featured website username clubAvatar clubBanner clubImages socialMediaLinks mobileNumber typeOfPartner redirectURL"
     )
-    .then(async (club) => {
+    .then((club) => {
       res.status(200).json({
         club,
       });
@@ -660,6 +691,7 @@ const getAllFeaturedClubs = async (req, res) => {
       let nanoResult = clubs.filter((club) => club.typeOfPartner == "Nano");
       let microResult = clubs.filter((club) => club.typeOfPartner == "Micro");
       let gigaResult = clubs.filter((club) => club.typeOfPartner == "Giga");
+      console.log(megaResult)
       let typeSortedClubs = gigaResult.concat(
         megaResult,
         microResult,

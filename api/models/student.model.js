@@ -17,17 +17,22 @@ const studentSchema = mongoose.Schema({
   branch: { type: String },
   loginCount: { type: Number, default: 0 },
 
-  // emailVerificationCode: { type: Number },
-  // emailVerificationCodeExpires: { type: Number },
-  // isEmailVerified: { type: Boolean, default: true },
+  emailVerificationCode: { type: Number },
+  emailVerificationCodeExpires: { type: Number },
+  isEmailVerified: { type: Boolean, default: true },
 
-  // mobileVerificationCode: { type: Number },
-  // mobileVerificationCodeExpires: { type: Number },
+  mobileOTP: { type: Number },
+  mobileOTPExpires: { type: Number },
   // isMobileVerified: { type: Boolean, default: false },
 
   forgotPasswordCode: { type: Number },
   forgotPasswordCodeExpires: { type: Number },
-
+  clubs:[
+    {
+      clubId: { type: mongoose.Schema.Types.ObjectId, ref: "Club" },
+      appliedOn: { type: Number },
+    }
+  ],
   tests: [
     {
       testId: { type: mongoose.Schema.Types.ObjectId, ref: "Test" },
@@ -40,9 +45,9 @@ const studentSchema = mongoose.Schema({
         },
       ],
       status: { type: String },
-      appliedOn: { type: Number },
-      startedOn: { type: Number },
-      submittedOn: { type: Number },
+      appliedOn: { type: String },
+      startedOn: { type: String },
+      submittedOn: { type: String },
       timeTaken: { type: Number },
       corrected: { type: Boolean },
     },

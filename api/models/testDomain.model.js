@@ -36,7 +36,7 @@ const testDomainSchema = mongoose.Schema({
       marks: { type: Number, default: 0 },
       timeTaken: { type: Number },
       corrected: { type: Boolean },
-      submittedOn: { type: Number },
+      submittedOn: { type: String },
     },
   ],
   shortlisedInDomain: [

@@ -18,6 +18,7 @@ const { errorLogger } = require("../utils/logger");
 const {
   sendVerificationOTP,
   sendForgotPasswordMail,
+  sendMobileOTP
 } = require("../utils/emailTemplates");
 
 // @desc Student signup
@@ -181,16 +182,24 @@ const resendOTP = async (req, res) => {
         });
       }
 
-      student.emailVerificationCode = Math.floor(
+      emailVerificationCode = Math.floor(
         100000 + Math.random() * 900000
       );
-      student.emailVerificationCodeExpires =
+      emailVerificationCodeExpires =
         new Date().getTime() + 20 * 60 * 1000;
 
-      await student
-        .save()
+
+      await Student.updateOne(
+        { '_id': student._id },
+        {
+          $set: {
+            emailVerificationCode,
+            emailVerificationCodeExpires
+          },
+        }
+      )
         .then(async () => {
-          const emailSent = sendSesOtp(email, student.emailVerificationCode);
+          const emailSent = sendSesOtp(email, emailVerificationCode);
           // let transporter = nodemailer.createTransport({
           //   service: "gmail",
           //   port: 465,
@@ -408,6 +417,124 @@ const login = async (req, res) => {
             // error: err.toString(),
           });
         });
+    })
+    .catch((err) => {
+      errorLogger.info(
+        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        } >> ${err.toString()}`
+      );
+      res.status(500).json({
+        message: "Something went wrong",
+        // error: err.toString(),
+      });
+    });
+};
+
+const sendEmailForMobileLogin = async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({
+      message: "Email missing from req.body",
+    });
+  }
+
+  const student = await Student.find({ email })
+    .then(async (student) => {
+      if (student.length < 1) {
+        return res.status(401).json({
+          message: "Auth failed: Email not found",
+        });
+      }
+
+      if (!student[0].isEmailVerified) {
+        return res.status(403).json({
+          message: "Email not verified",
+        });
+      }
+
+      mobileOTP = Math.floor(
+        100000 + Math.random() * 900000
+      );
+      mobileOTPExpires =
+        new Date().getTime() + 20 * 60 * 1000;
+
+      student[0].mobileOTP = mobileOTP;
+      student[0].mobileOTPExpires = mobileOTPExpires;
+
+      console.log(student[0])
+      await student[0].save()
+        .then(async () => {
+          await sendSesMobileOtp(email, mobileOTP)
+
+          res.status(200).json({
+            message: "Email OTP for Mobile Login Sent",
+          });
+        })
+    })
+    .catch((err) => {
+      errorLogger.info(
+        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        } >> ${err.toString()}`
+      );
+      res.status(500).json({
+        message: "Something went wrong",
+        // error: err.toString(),
+      });
+    });
+};
+
+const verifyMobileOTP = async (req, res) => {
+  const { email, mobileOTP } = req.body;
+  const now = Date.now();
+
+  if (!email || !mobileOTP) {
+    return res.status(400).json({
+      message: "1 or more parameter(s) missing from req.body",
+    });
+  }
+
+  await Student.findOne({ email })
+    .then(async (student) => {
+      if (student) {
+        if (student.mobileOTP == mobileOTP) {
+          if (student.mobileOTPExpires > now) {
+
+                  const token = jwt.sign(
+                    {
+                      userId: student._id,
+                      userType: student.userType,
+                      email: student.email,
+                      name: student.name,
+                    },
+                    process.env.JWT_SECRET,
+                    {
+                      expiresIn: "30d",
+                    }
+                  );
+                  return res.status(200).json({
+                    studentDetails: {
+                      _id: student._id,
+                      name: student.name,
+                      email: student.email,
+                    },
+                    token,
+                  });
+          } else {
+            return res.status(401).json({
+              message: "Verification code expired",
+            });
+          }
+        } else {
+          return res.status(403).json({
+            message: "Invalid verification code",
+          });
+        }
+      } else {
+        return res.status(404).json({
+          message: "Invalid email",
+        });
+      }
     })
     .catch((err) => {
       errorLogger.info(
@@ -742,6 +869,144 @@ const dashboard = async (req, res, next) => {
     });
 };
 
+const getRegisteredTimeline = async (req, res, next) => {
+  const studentId = req.user.userId;
+  try{
+    const student = await Student.findById(studentId)
+    let appliedClubs = student.clubs;
+    if(appliedClubs.length == 0){
+      return res.status(400).send({
+        "message":"Not Registered for any clubs"
+      })
+    }
+    let timeline = [];
+    appliedClubs.forEach(async(club) => {
+      console.log(club);
+      let clubId = club.clubId;
+      let appliedClub = await Club.findById(clubId)
+      const clubName = appliedClub.name;
+      await Test.find({ clubId, published: true })
+      .then(async (tests) => {
+        timeline.push({clubName : clubName, tests: tests});
+      })
+    });
+    return res.status(200).send(timeline)
+  }
+  catch(err){
+    errorLogger.info(
+      `System: ${req.ip} | ${req.method} | ${req.originalUrl
+      } >> ${err.toString()}`
+    );
+    res.status(500).json({
+      message: "Something went wrong",
+      // error: err.toString(),
+    });
+  };
+}
+
+const getTimeline = async (req, res, next) => {
+  const studentId = req.user.userId;
+  try{
+    let timeline = [];
+
+    let clubs = await Club.find({
+      featured: true,
+    })
+
+    let megaResult = clubs.filter((club) => club.typeOfPartner == "Mega");
+    let nanoResult = clubs.filter((club) => club.typeOfPartner == "Nano");
+    let microResult = clubs.filter((club) => club.typeOfPartner == "Micro");
+    let gigaResult = clubs.filter((club) => club.typeOfPartner == "Giga");
+
+    let typeSortedClubs = gigaResult.concat(
+      megaResult,
+      microResult,
+      nanoResult
+    );
+        
+    for(let i=0; i<typeSortedClubs.length; i++){
+      let clubId = typeSortedClubs[i]._id;
+      console.log(clubId)
+      await Test.find({ clubId, published: true })
+      .then(async (tests) => {
+        const clubName = typeSortedClubs[i].name;
+        timeline.push({clubName : clubName, tests: tests});
+      })
+    }
+    return res.status(200).send(timeline)
+  }
+  catch(err){
+    errorLogger.info(
+      `System: ${req.ip} | ${req.method} | ${req.originalUrl
+      } >> ${err.toString()}`
+    );
+    res.status(500).json({
+      message: "Something went wrong",
+      // error: err.toString(),
+    });
+  };
+}
+
+const applyClub = async (req, res, next) => {
+  const studentId = req.user.userId;
+  const {clubId} = req.body;
+  const appliedOn = Date.now();
+  let flag=0;
+
+  try{
+    let student = await Student.findById(studentId);
+    let appliedClubs = student.clubs;
+    appliedClubs.forEach((club)=>{
+      let id = club.clubId;
+      if(id == clubId){
+        flag = 1;
+      }
+    })
+    if(flag==0){
+      student.clubs.push({clubId, appliedOn})
+      await student.save();
+      res.status(200).send({"message":"Club Applied"})
+    } else{
+      res.status(400).send({"message":"Club Already Applied"})
+    }
+  }
+  catch(err) {
+    errorLogger.info(
+      `System: ${req.ip} | ${req.method} | ${req.originalUrl
+      } >> ${err.toString()}`
+    );
+    res.status(500).json({
+      message: "Something went wrong",
+    });
+  };
+}
+
+const getAppliedClubs = async (req, res, next) => {
+  const studentId = req.user.userId;
+  let detailedClubs = []
+  try{
+    await Student.findById(studentId)
+      .then(async (student) => {
+        let appliedClubs = student.clubs;
+        appliedClubs.forEach(async(club) => {
+          let appliedClub = await Club.findById(club.clubId)
+          detailedClubs.push(appliedClub);
+          return res.status(200).send(detailedClubs);
+        });
+      })
+  }
+  catch(err){
+      errorLogger.info(
+        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        } >> ${err.toString()}`
+      );
+      res.status(500).json({
+        message: "Something went wrong",
+        // error: err.toString(),
+      });
+    };
+};
+
 const sendSesOtp = (mailto, code) => {
   const SES_CONFIG = {
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -769,6 +1034,48 @@ const sendSesOtp = (mailto, code) => {
       },
     },
   };
+
+  
+
+  AWS_SES.sendEmail(params)
+    .promise()
+    .then(() => {
+      return true;
+    })
+    .catch(() => {
+      return false;
+    });
+};
+
+const sendSesMobileOtp = (mailto, code) => {
+  const SES_CONFIG = {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    region: "ap-south-1",
+  };
+
+  const AWS_SES = new AWS.SES(SES_CONFIG);
+  let params = {
+    Source: "contact@codechefvit.com",
+    Destination: {
+      ToAddresses: [mailto],
+    },
+    ReplyToAddresses: [],
+    Message: {
+      Body: {
+        Html: {
+          Charset: "UTF-8",
+          Data: sendMobileOTP(code),
+        },
+      },
+      Subject: {
+        Charset: "UTF-8",
+        Data: `Hello!`,
+      },
+    },
+  };
+
+  
 
   AWS_SES.sendEmail(params)
     .promise()
@@ -829,4 +1136,10 @@ module.exports = {
   getProfile,
   getStudentDetails,
   dashboard,
+  applyClub,
+  getAppliedClubs,
+  sendEmailForMobileLogin,
+  verifyMobileOTP,
+  getRegisteredTimeline,
+  getTimeline
 };

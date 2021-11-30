@@ -26,6 +26,12 @@ router.post("/email/verify", studentControllers.verifyEmail);
 //Student login
 router.post("/login", studentControllers.login);
 
+//Student send email mobile otp
+router.post("/mobile/OTP", studentControllers.sendEmailForMobileLogin);
+
+//Student mobile login
+router.post("/mobile/login", studentControllers.verifyMobileOTP);
+
 //Forgot password - Send OTP
 router.post(
   "/forgotPassword/sendEmail",
@@ -42,10 +48,22 @@ router.patch("/profile", checkAuthStudent, studentControllers.updateProfile);
 //Get a student's profile
 router.get("/profile", checkAuthStudent, studentControllers.getProfile);
 
+router.post("/apply", checkAuthStudent, studentControllers.applyClub);
+
+router.get("/applied", checkAuthStudent, studentControllers.getAppliedClubs);
+
+router.get("/profile", checkAuthStudent, studentControllers.getProfile);
+
 //Get a student's details
 router.get("/details", studentControllers.getStudentDetails);
 
 //Get student's dashboard
 router.get("/dashboard", checkAuthStudent, studentControllers.dashboard);
+
+// App route : Get Registered Timeline
+router.get("/timeline/registered", checkAuthStudent, studentControllers.getRegisteredTimeline);
+
+// App route : Get All Clubs Timeline
+router.get("/timeline/all", checkAuthStudent, studentControllers.getTimeline);
 
 module.exports = router;
