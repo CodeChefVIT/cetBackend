@@ -66,7 +66,7 @@ const addQuestion = async (req, res, next) => {
         );
         res.status(500).json({
           message: "Something went wrong",
-          // error: err.toString(),
+          error: err.toString(),
         });
       });
   } else {
