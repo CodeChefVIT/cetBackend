@@ -28,12 +28,7 @@ const clubSchema = mongoose.Schema({
       "https://drive.google.com/file/d/1mj7b1-CgB4VuFAVVd_NIP-pJxDvkUpRs/view?usp=sharing",
   },
   clubImages: [{ imageURL: { type: String } }],
-  socialMediaLinks: [
-    {
-      socialMediaName: { type: String },
-      socialMediaURL: { type: String },
-    },
-  ],
+  socialMediaLink: {type:String},
 
   numOfTestsPublished: { type: Number, default: 0 },
 
