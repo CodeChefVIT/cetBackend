@@ -20,6 +20,7 @@ const questionSchema = mongoose.Schema({
   options: [
     {
       option: {
+        _id:false,
         text: { type: String },
         isCorrect: { type: Boolean, default: false },
       },

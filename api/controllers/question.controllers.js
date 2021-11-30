@@ -25,7 +25,6 @@ const addQuestion = async (req, res, next) => {
     description,
     options,
   } = req.body;
-   options = new JSONArray(options); 
   const domain = await Domain.findById(domainId);
   if (domain.clubId != req.user.userId) {
     return res.status(403).json({
