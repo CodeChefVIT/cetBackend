@@ -25,7 +25,7 @@ const addQuestion = async (req, res, next) => {
     description,
     options,
   } = req.body;
-
+   options = new JSONArray(options); 
   const domain = await Domain.findById(domainId);
   if (domain.clubId != req.user.userId) {
     return res.status(403).json({
@@ -38,7 +38,6 @@ const addQuestion = async (req, res, next) => {
   const clubId = req.user.userId;
 
   console.log(req.body, req.file);
-
   if (!req.file) {
     const question = new Question({
       _id: new mongoose.Types.ObjectId(),
@@ -48,12 +47,13 @@ const addQuestion = async (req, res, next) => {
       type,
       questionMarks,
       description,
-      options,
+      options
     });
 
     await question
       .save()
       .then(async () => {
+
         res.status(201).json({
           message: "Question added",
         });
