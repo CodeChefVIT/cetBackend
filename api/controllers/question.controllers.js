@@ -32,6 +32,7 @@ const addQuestion = async (req, res, next) => {
     });
   }
   if (options) {
+    console.log(options)
     options = JSON.parse(options);
   }
   if (!questionMarks) {
