@@ -31,10 +31,10 @@ const addQuestion = async (req, res, next) => {
       message: "This is not your club!",
     });
   }
-  if (options) {
-    console.log(options)
-    options = JSON.parse(options);
-  }
+  // if (options) {
+  //   console.log(options)
+  //   options = JSON.parse(options);
+  // }
   if (!questionMarks) {
     questionMarks = 0;
   }
