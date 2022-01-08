@@ -10,6 +10,7 @@ const Club = require("./api/models/club.model");
 const Student = require("./api/models/student.model");
 const Test = require("./api/models/test.model");
 const Question = require("./api/models/question.model");
+const jwt = require("jsonwebtoken")
 
 
 // process.env = secureEnv({ secret: "enimasinobhaniyo" });
