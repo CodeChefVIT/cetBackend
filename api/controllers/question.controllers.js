@@ -31,7 +31,7 @@ const addQuestion = async (req, res, next) => {
       message: "This is not your club!",
     });
   }
-  if(options.length >= 1){
+  if(options && options.length >= 1){
     options = JSON.parse(options);
   }
   if (!questionMarks) {
