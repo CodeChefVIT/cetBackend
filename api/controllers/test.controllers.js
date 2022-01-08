@@ -330,7 +330,7 @@ const attempt = async (req, res, next) => {
       }
 
       //Check if test hasn't started
-      if (moment(test.scheduledForDate).isBefore(moment(now).format())) {
+      if (Date.now() < test.scheduledForDate) {
         return res.status(418).json({
           message: "Test hasn't started yet",
         });
