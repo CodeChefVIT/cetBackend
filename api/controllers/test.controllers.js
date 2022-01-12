@@ -337,7 +337,7 @@ const attempt = async (req, res, next) => {
       console.log(test.scheduledForDate)
       console.log(d)
       console.log(rn)
-      if (d < test.scheduledForDate) {
+      if (d.getTime() < test.scheduledForDate.getTime()) {
         return res.status(418).json({
           message: "Test hasn't started yet",
         });
