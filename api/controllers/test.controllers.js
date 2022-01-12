@@ -330,7 +330,10 @@ const attempt = async (req, res, next) => {
       }
 
       //Check if test hasn't started
-      if (Date.now() < test.scheduledForDate) {
+      var rn = Date.now()
+      var d = new Date(rn);
+      d.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' });
+      if (d < test.scheduledForDate) {
         return res.status(418).json({
           message: "Test hasn't started yet",
         });
