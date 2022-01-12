@@ -333,6 +333,7 @@ const attempt = async (req, res, next) => {
       var rn = Date.now()
       var d = new Date(rn);
       d.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' });
+      test.scheduledForDate.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' });
       console.log(test.scheduledForDate)
       console.log(d)
       console.log(rn)
