@@ -534,7 +534,7 @@ const submitDomain = async (req, res, next) => {
     { _id: domainId },
     {
       $pull: { usersStarted: { studentId } },
-      $push: {
+      $addToSet: {
         usersFinished: {
           studentId,
           responses: studentAnswers,
