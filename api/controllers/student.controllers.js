@@ -18,7 +18,7 @@ const { errorLogger } = require("../utils/logger");
 const {
   sendVerificationOTP,
   sendForgotPasswordMail,
-  sendMobileOTP
+  sendMobileOTP,
 } = require("../utils/emailTemplates");
 
 // @desc Student signup
@@ -131,7 +131,8 @@ const signup = async (req, res) => {
             })
             .catch((err) => {
               errorLogger.info(
-                `System: ${req.ip} | ${req.method} | ${req.originalUrl
+                `System: ${req.ip} | ${req.method} | ${
+                  req.originalUrl
                 } >> ${err.toString()}`
               );
               res.status(500).json({
@@ -142,7 +143,8 @@ const signup = async (req, res) => {
         })
         .catch((err) => {
           errorLogger.info(
-            `System: ${req.ip} | ${req.method} | ${req.originalUrl
+            `System: ${req.ip} | ${req.method} | ${
+              req.originalUrl
             } >> ${err.toString()}`
           );
           res.status(500).json({
@@ -153,7 +155,8 @@ const signup = async (req, res) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -182,19 +185,15 @@ const resendOTP = async (req, res) => {
         });
       }
 
-      emailVerificationCode = Math.floor(
-        100000 + Math.random() * 900000
-      );
-      emailVerificationCodeExpires =
-        new Date().getTime() + 20 * 60 * 1000;
-
+      emailVerificationCode = Math.floor(100000 + Math.random() * 900000);
+      emailVerificationCodeExpires = new Date().getTime() + 20 * 60 * 1000;
 
       await Student.updateOne(
-        { '_id': student._id },
+        { _id: student._id },
         {
           $set: {
             emailVerificationCode,
-            emailVerificationCodeExpires
+            emailVerificationCodeExpires,
           },
         }
       )
@@ -269,7 +268,8 @@ const resendOTP = async (req, res) => {
         })
         .catch((err) => {
           errorLogger.info(
-            `System: ${req.ip} | ${req.method} | ${req.originalUrl
+            `System: ${req.ip} | ${req.method} | ${
+              req.originalUrl
             } >> ${err.toString()}`
           );
           res.status(500).json({
@@ -280,7 +280,8 @@ const resendOTP = async (req, res) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -318,7 +319,8 @@ const verifyEmail = async (req, res) => {
               })
               .catch((err) => {
                 errorLogger.info(
-                  `System: ${req.ip} | ${req.method} | ${req.originalUrl
+                  `System: ${req.ip} | ${req.method} | ${
+                    req.originalUrl
                   } >> ${err.toString()}`
                 );
                 res.status(500).json({
@@ -344,7 +346,8 @@ const verifyEmail = async (req, res) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -409,7 +412,8 @@ const login = async (req, res) => {
         })
         .catch((err) => {
           errorLogger.info(
-            `System: ${req.ip} | ${req.method} | ${req.originalUrl
+            `System: ${req.ip} | ${req.method} | ${
+              req.originalUrl
             } >> ${err.toString()}`
           );
           res.status(500).json({
@@ -420,7 +424,8 @@ const login = async (req, res) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -453,28 +458,25 @@ const sendEmailForMobileLogin = async (req, res) => {
         });
       }
 
-      mobileOTP = Math.floor(
-        100000 + Math.random() * 900000
-      );
-      mobileOTPExpires =
-        new Date().getTime() + 20 * 60 * 1000;
+      mobileOTP = Math.floor(100000 + Math.random() * 900000);
+      mobileOTPExpires = new Date().getTime() + 20 * 60 * 1000;
 
       student[0].mobileOTP = mobileOTP;
       student[0].mobileOTPExpires = mobileOTPExpires;
 
-      console.log(student[0])
-      await student[0].save()
-        .then(async () => {
-          await sendSesMobileOtp(email, mobileOTP)
+      console.log(student[0]);
+      await student[0].save().then(async () => {
+        await sendSesMobileOtp(email, mobileOTP);
 
-          res.status(200).json({
-            message: "Email OTP for Mobile Login Sent",
-          });
-        })
+        res.status(200).json({
+          message: "Email OTP for Mobile Login Sent",
+        });
+      });
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -499,27 +501,26 @@ const verifyMobileOTP = async (req, res) => {
       if (student) {
         if (student.mobileOTP == mobileOTP) {
           if (student.mobileOTPExpires > now) {
-
-                  const token = jwt.sign(
-                    {
-                      userId: student._id,
-                      userType: student.userType,
-                      email: student.email,
-                      name: student.name,
-                    },
-                    process.env.JWT_SECRET,
-                    {
-                      expiresIn: "30d",
-                    }
-                  );
-                  return res.status(200).json({
-                    studentDetails: {
-                      _id: student._id,
-                      name: student.name,
-                      email: student.email,
-                    },
-                    token,
-                  });
+            const token = jwt.sign(
+              {
+                userId: student._id,
+                userType: student.userType,
+                email: student.email,
+                name: student.name,
+              },
+              process.env.JWT_SECRET,
+              {
+                expiresIn: "30d",
+              }
+            );
+            return res.status(200).json({
+              studentDetails: {
+                _id: student._id,
+                name: student.name,
+                email: student.email,
+              },
+              token,
+            });
           } else {
             return res.status(401).json({
               message: "Verification code expired",
@@ -538,7 +539,8 @@ const verifyMobileOTP = async (req, res) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -640,7 +642,8 @@ const sendForgotPasswordEmail = async (req, res) => {
         })
         .catch((err) => {
           errorLogger.info(
-            `System: ${req.ip} | ${req.method} | ${req.originalUrl
+            `System: ${req.ip} | ${req.method} | ${
+              req.originalUrl
             } >> ${err.toString()}`
           );
           res.status(500).json({
@@ -651,7 +654,8 @@ const sendForgotPasswordEmail = async (req, res) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -693,7 +697,8 @@ const resetPassword = async (req, res) => {
                   })
                   .catch((err) => {
                     errorLogger.info(
-                      `System: ${req.ip} | ${req.method} | ${req.originalUrl
+                      `System: ${req.ip} | ${req.method} | ${
+                        req.originalUrl
                       } >> ${err.toString()}`
                     );
                     res.status(500).json({
@@ -704,7 +709,8 @@ const resetPassword = async (req, res) => {
               })
               .catch((err) => {
                 errorLogger.info(
-                  `System: ${req.ip} | ${req.method} | ${req.originalUrl
+                  `System: ${req.ip} | ${req.method} | ${
+                    req.originalUrl
                   } >> ${err.toString()}`
                 );
                 res.status(500).json({
@@ -730,7 +736,8 @@ const resetPassword = async (req, res) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -757,7 +764,8 @@ const updateProfile = async (req, res, next) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -781,7 +789,8 @@ const getProfile = async (req, res, next) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -811,7 +820,8 @@ const getStudentDetails = async (req, res, next) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -859,7 +869,8 @@ const dashboard = async (req, res, next) => {
     })
     .catch((err) => {
       errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
+        `System: ${req.ip} | ${req.method} | ${
+          req.originalUrl
         } >> ${err.toString()}`
       );
       res.status(500).json({
@@ -871,47 +882,52 @@ const dashboard = async (req, res, next) => {
 
 const getRegisteredTimeline = async (req, res, next) => {
   const studentId = req.user.userId;
-  try{
-    const student = await Student.findById(studentId)
+  try {
+    const student = await Student.findById(studentId);
     let appliedClubs = student.clubs;
-    if(appliedClubs.length == 0){
+    if (appliedClubs.length == 0) {
       return res.status(400).send({
-        "message":"Not Registered for any clubs"
-      })
+        message: "Not Registered for any clubs",
+      });
     }
     let timeline = [];
-    appliedClubs.forEach(async(club) => {
+    appliedClubs.forEach(async (club) => {
       console.log(club);
       let clubId = club.clubId;
-      let appliedClub = await Club.findById(clubId)
+      let appliedClub = await Club.findById(clubId);
       const clubName = appliedClub.name;
-      await Test.find({ clubId, published: true })
-      .then(async (tests) => {
-        timeline.push({clubName : clubName, tests: tests});
-      })
+      await Test.find({ clubId, published: true }).then(async (tests) => {
+        timeline.push({ clubName: clubName, tests: tests });
+      });
     });
-    return res.status(200).send(timeline)
-  }
-  catch(err){
+    return res.status(200).send(timeline);
+  } catch (err) {
     errorLogger.info(
-      `System: ${req.ip} | ${req.method} | ${req.originalUrl
+      `System: ${req.ip} | ${req.method} | ${
+        req.originalUrl
       } >> ${err.toString()}`
     );
     res.status(500).json({
       message: "Something went wrong",
       // error: err.toString(),
     });
-  };
+  }
+};
+
+function* entries(obj) {
+  for (let key of Object.keys(obj)) {
+    yield [key, obj[key]];
+  }
 }
 
 const getTimeline = async (req, res, next) => {
   const studentId = req.user.userId;
-  try{
+  try {
     let timeline = [];
 
     let clubs = await Club.find({
       featured: true,
-    })
+    });
 
     let megaResult = clubs.filter((club) => club.typeOfPartner == "Mega");
     let nanoResult = clubs.filter((club) => club.typeOfPartner == "Nano");
@@ -923,88 +939,107 @@ const getTimeline = async (req, res, next) => {
       microResult,
       nanoResult
     );
-        
-    for(let i=0; i<typeSortedClubs.length; i++){
+
+    //creating a map of date and tests on that date
+    var dateTestMap = {};   
+
+    for (let i = 0; i < typeSortedClubs.length; i++) {
       let clubId = typeSortedClubs[i]._id;
-      console.log(clubId)
-      await Test.find({ clubId, published: true })
-      .then(async (tests) => {
-        const clubName = typeSortedClubs[i].name;
-        timeline.push({clubName : clubName, tests: tests});
-      })
+      console.log(clubId);
+      await Test.find({ clubId, published: true }).then(async (tests) => {
+        // iterating all tests and getting their start date
+        tests.forEach((test) => {
+
+          var startDate = test.scheduledForDate;
+          // checking if current test date already present in map or not
+          if (startDate in dateTestMap) {
+            dateTestMap[startDate].push(test);
+          } else {
+            // if not present then initialize 
+            dateTestMap[startDate] = [test];
+          }
+        });
+        //   const clubName = typeSortedClubs[i].name;
+        //  timeline.push({ clubName: clubName, tests: tests });
+      });
     }
-    return res.status(200).send(timeline)
-  }
-  catch(err){
+
+    // now mapping keys(currenty dates) with values(tests) 
+    for (let [key, value] of entries(dateTestMap)) {
+      timeline.push({ date: key, tests: value });
+    }
+
+    return res.status(200).send(timeline);
+  } catch (err) {
     errorLogger.info(
-      `System: ${req.ip} | ${req.method} | ${req.originalUrl
+      `System: ${req.ip} | ${req.method} | ${
+        req.originalUrl
       } >> ${err.toString()}`
     );
     res.status(500).json({
       message: "Something went wrong",
       // error: err.toString(),
     });
-  };
-}
+  }
+};
 
 const applyClub = async (req, res, next) => {
   const studentId = req.user.userId;
-  const {clubId} = req.body;
+  const { clubId } = req.body;
   const appliedOn = Date.now();
-  let flag=0;
+  let flag = 0;
 
-  try{
+  try {
     let student = await Student.findById(studentId);
     let appliedClubs = student.clubs;
-    appliedClubs.forEach((club)=>{
+    appliedClubs.forEach((club) => {
       let id = club.clubId;
-      if(id == clubId){
+      if (id == clubId) {
         flag = 1;
       }
-    })
-    if(flag==0){
-      student.clubs.push({clubId, appliedOn})
+    });
+    if (flag == 0) {
+      student.clubs.push({ clubId, appliedOn });
       await student.save();
-      res.status(200).send({"message":"Club Applied"})
-    } else{
-      res.status(400).send({"message":"Club Already Applied"})
+      res.status(200).send({ message: "Club Applied" });
+    } else {
+      res.status(400).send({ message: "Club Already Applied" });
     }
-  }
-  catch(err) {
+  } catch (err) {
     errorLogger.info(
-      `System: ${req.ip} | ${req.method} | ${req.originalUrl
+      `System: ${req.ip} | ${req.method} | ${
+        req.originalUrl
       } >> ${err.toString()}`
     );
     res.status(500).json({
       message: "Something went wrong",
     });
-  };
-}
+  }
+};
 
 const getAppliedClubs = async (req, res, next) => {
   const studentId = req.user.userId;
-  let detailedClubs = []
-  try{
-    await Student.findById(studentId)
-      .then(async (student) => {
-        let appliedClubs = student.clubs;
-        appliedClubs.forEach(async(club) => {
-          let appliedClub = await Club.findById(club.clubId)
-          detailedClubs.push(appliedClub);
-          return res.status(200).send(detailedClubs);
-        });
-      })
-  }
-  catch(err){
-      errorLogger.info(
-        `System: ${req.ip} | ${req.method} | ${req.originalUrl
-        } >> ${err.toString()}`
-      );
-      res.status(500).json({
-        message: "Something went wrong",
-        // error: err.toString(),
+  let detailedClubs = [];
+  try {
+    await Student.findById(studentId).then(async (student) => {
+      let appliedClubs = student.clubs;
+      appliedClubs.forEach(async (club) => {
+        let appliedClub = await Club.findById(club.clubId);
+        detailedClubs.push(appliedClub);
+        return res.status(200).send(detailedClubs);
       });
-    };
+    });
+  } catch (err) {
+    errorLogger.info(
+      `System: ${req.ip} | ${req.method} | ${
+        req.originalUrl
+      } >> ${err.toString()}`
+    );
+    res.status(500).json({
+      message: "Something went wrong",
+      // error: err.toString(),
+    });
+  }
 };
 
 const sendSesOtp = (mailto, code) => {
@@ -1034,8 +1069,6 @@ const sendSesOtp = (mailto, code) => {
       },
     },
   };
-
-  
 
   AWS_SES.sendEmail(params)
     .promise()
@@ -1074,8 +1107,6 @@ const sendSesMobileOtp = (mailto, code) => {
       },
     },
   };
-
-  
 
   AWS_SES.sendEmail(params)
     .promise()
@@ -1141,5 +1172,5 @@ module.exports = {
   sendEmailForMobileLogin,
   verifyMobileOTP,
   getRegisteredTimeline,
-  getTimeline
+  getTimeline,
 };
