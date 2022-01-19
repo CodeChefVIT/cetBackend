@@ -946,20 +946,25 @@ const getTimeline = async (req, res, next) => {
     for (let i = 0; i < typeSortedClubs.length; i++) {
       let clubId = typeSortedClubs[i]._id;
       console.log(clubId);
+       const clubName = typeSortedClubs[i].name;
       await Test.find({ clubId, published: true }).then(async (tests) => {
         // iterating all tests and getting their start date
         tests.forEach((test) => {
 
           var startDate = test.scheduledForDate;
           // checking if current test date already present in map or not
+
+          // adding club name in test object
+          const testObj = test.toObject()
+          testObj.clubName = clubName
           if (startDate in dateTestMap) {
-            dateTestMap[startDate].push(test);
+            dateTestMap[startDate].push(testObj);
           } else {
             // if not present then initialize 
-            dateTestMap[startDate] = [test];
+            dateTestMap[startDate] = [testObj];
           }
         });
-        //   const clubName = typeSortedClubs[i].name;
+      
         //  timeline.push({ clubName: clubName, tests: tests });
       });
     }
