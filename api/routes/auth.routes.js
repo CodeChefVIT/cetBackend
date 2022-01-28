@@ -27,7 +27,7 @@ router.get(
     res.redirect(
       303,
       // "https://cet-dev.netlify.app/student/oauth/" + token + "/" + req.user.loginCount + '/'
-      "https://cet-helloworld.codechefvit.com/student/oauth/" + token + "/" + req.user.loginCount + '/'
+      "https://cet-portal.codechefvit.com/student/oauth/" + token + "/" + req.user.loginCount + '/'
       //"http://localhost:3000/student/oauth/" + token + "/" + req.user.loginCount + '/'
 //        "http://localhost:3000/student/oauth/" + token + "/"
     );
