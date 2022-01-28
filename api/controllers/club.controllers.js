@@ -125,9 +125,9 @@ const sendWelcomeEmail = async (req, res) => {
 // @desc Signup for clubs
 // @route POST /api/club/signup
 const signup = async (req, res) => {
-  const { name, email, password, type, username, inviteCode } = req.body;
+  const { name, email, password, type, username } = req.body;
 
-  if (!name || !email || !password || !type || !username || !inviteCode) {
+  if (!name || !email || !password || !type || !username ) {
     return res.status(400).json({
       message: "1 or more parameter(s) missing from req.body",
     });
@@ -140,30 +140,10 @@ const signup = async (req, res) => {
           message: "Auth failed!",
         });
       }
-
-      if (clubs[0].inviteCode != inviteCode) {
-        return res.status(401).json({
-          message: "Auth failed!",
-        });
-      }
-
-      if (clubs[0].isEmailVerified) {
-        return res.status(409).json({
-          message: "This email has already been verified!",
-        });
-      }
-
-      await bcrypt
+        await bcrypt
         .hash(password, 10)
         .then(async (hash) => {
-          let emailVerificationCode = Math.floor(
-            100000 + Math.random() * 900000
-          );
-
-          let emailVerificationCodeExpires =
-            new Date().getTime() + 20 * 60 * 1000;
-          const emailSent = sendSesOtp(email, emailVerificationCode);
-
+        
           await Club.updateOne(
             { _id: clubs[0]._id },
             {
@@ -172,10 +152,9 @@ const signup = async (req, res) => {
                 password: hash,
                 type,
                 username,
-                emailVerificationCode,
-                emailVerificationCodeExpires,
+                isEmailVerified: true,
+                isMobileVerified: true,
               },
-              // $unset: { inviteCode },
             }
           )
             .then(async () => {

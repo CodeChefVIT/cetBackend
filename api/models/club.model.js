@@ -25,7 +25,7 @@ const clubSchema = mongoose.Schema({
   clubBanner: {
     type: String,
     default:
-      "https://drive.google.com/file/d/1mj7b1-CgB4VuFAVVd_NIP-pJxDvkUpRs/view?usp=sharing",
+      "https://cet-2021.s3.ap-south-1.amazonaws.com/media/bannerIMG.png",
   },
   clubImages: [{ imageURL: { type: String } }],
   socialMediaLinks: [
