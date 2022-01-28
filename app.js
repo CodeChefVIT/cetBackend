@@ -24,6 +24,7 @@ app.use(limiter)
 
 const passport_config = require("./api/config/studentGoogleAuth");
 const { errorLogger } = require("./api/utils/logger");
+const { log } = require("winston");
 
 //Require Atlas database URI from environment variables
 const DBURI = process.env.DBURI;
@@ -72,7 +73,6 @@ app.use((req, res, next) => {
 });
 
 app.use(cors());
-// app.use(logResponseBody)
 app.use(useragent.express());
 
 if (process.env.NODE_ENV == "production") {
@@ -88,9 +88,9 @@ if (process.env.NODE_ENV == "production") {
   });
 }
 
-app.use("/api/club", require("./api/routes/club.routes"));
-app.use("/api/student", require("./api/routes/student.routes"));
-app.use("/api/test", require("./api/routes/test.routes"));
+app.use("/api/club", logResponseBody , require("./api/routes/club.routes"));
+app.use("/api/student",logResponseBody, require("./api/routes/student.routes"));
+app.use("/api/test",logResponseBody, require("./api/routes/test.routes"));
 app.use("/api/studentForm", require("./api/routes/student.form.routes"));
 app.use("/api/easterEgg", require("./api/routes/easterEggForm.routes"));
 app.use("/api/auth", require("./api/routes/auth.routes"));
