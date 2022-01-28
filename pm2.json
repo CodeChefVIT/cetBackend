@@ -1,0 +1,52 @@
+{
+    "apps": [
+      {
+        "exec_mode": "fork_mode",
+        "script": "./app.js",
+        "name": "0",
+        "env": {
+          "PORT": 3000
+        }
+      },
+      {
+        "exec_mode": "fork_mode",
+        "script": "./app.js",
+        "name": "1",
+        "env": {
+          "PORT": 3001
+        }
+      },
+      {
+          "exec_mode": "fork_mode",
+          "script": "./app.js",
+          "name": "2",
+          "env": {
+            "PORT": 3002
+          }
+        },
+        {
+          "exec_mode": "fork_mode",
+          "script": "./app.js",
+          "name": "3",
+          "env": {
+            "PORT": 3003
+          }
+        },
+        {
+          "exec_mode": "fork_mode",
+          "script": "./app.js",
+          "name": "4",
+          "env": {
+            "PORT": 3004
+          }
+        },
+        {
+          "exec_mode": "fork_mode",
+          "script": "./app.js",
+          "name": "5",
+          "env": {
+            "PORT": 3005
+          }
+        }
+    ]
+  }
