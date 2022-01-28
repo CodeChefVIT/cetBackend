@@ -8,7 +8,7 @@ const rateLimit = require("express-rate-limit");
 require("dotenv").config();
 
 const useragent = require("express-useragent");
-
+const logResponseBody = require("./utils/logResponse");
 
 
 
@@ -72,7 +72,7 @@ app.use((req, res, next) => {
 });
 
 app.use(cors());
-
+app.use(logResponseBody)
 app.use(useragent.express());
 
 if (process.env.NODE_ENV == "production") {
