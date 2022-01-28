@@ -37,6 +37,7 @@ passport.use(
       //   done(new Error("Invalid host domain"));
       // }
       if (profile._json.hd === "vitstudent.ac.in") {
+	if(!profile.emails[0].value.includes("2018")){
         console.log("hello");
         console.log(profile);
         console.log("recieved");
@@ -156,8 +157,10 @@ passport.use(
           });
       } else {
         // fail
-        done(new Error("Invalid host domain"));
-      }
+        done(new Error("Seniors not allowed! Goodbye!"));
+      }}else{
+done(new Error("Invalid host domain"));
+}
     }
   )
 );
