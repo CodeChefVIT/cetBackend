@@ -1,4 +1,4 @@
-api-cet.codechefvit.com {
+:80 {
 	reverse_proxy localhost:3000 localhost:3001 localhost:3002 localhost:3003 localhost:3004 localhost:3005 {
 	lb_policy round_robin
 	}
