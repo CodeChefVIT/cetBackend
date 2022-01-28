@@ -17,10 +17,11 @@ const {
 const router = express.Router();
 
 //Create Club
+if(process.env.NODE_ENV == "development"){
 router.post("/create", clubControllers.create);
 
 //Send welcome email
-router.post("/sendWelcomeEmail", clubControllers.sendWelcomeEmail);
+// router.post("/sendWelcomeEmail", clubControllers.sendWelcomeEmail);
 
 //Club signup
 router.post("/signup", clubControllers.signup);
@@ -30,7 +31,7 @@ router.post("/email/verify", clubControllers.verifyEmail);
 
 //Resend email verication OTP
 router.post("/email/resendOTP", clubControllers.resendOTP);
-
+}
 //Club login
 router.post("/login", clubControllers.login);
 
